@@ -1,3 +1,14 @@
+"""
+Script to automatically write a BinderHub config.yaml file using DockerHub as an
+image/container registry. Arguments are:
+* -id: DockerHub login ID
+* --prefix: Prefix to be prepended to Docker image files
+* -org: DockerHub organisation name. Docker ID must be a member of this organisation
+* --jupyterhub_ip: IP address of the deployed JupyterHub
+* --force: If a config.yaml file already exists, this argument will overwrite it
+* output_file: File the config is saved to
+"""
+
 import yaml
 import argparse
 import os
