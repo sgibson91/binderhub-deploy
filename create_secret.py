@@ -1,3 +1,15 @@
+"""
+A script to automatically generate a BinderHub secrets file populated with
+DockerHub login details. Arguments are:
+* -id: DockerHub ID
+* --apiToken: Output of openssl rand -hex 32 command
+* --secretToken: Output of openssl rand -hex 32 command
+* --template: A template for a secret.yaml file to populate
+* --secretFile: Path a JSON file containing password for DockerHub account
+* --force: If secret.yaml already exists, overwrite it
+* output_file: File to save the secret config to
+"""
+
 import yaml
 import argparse
 import os
@@ -15,7 +27,8 @@ def parse_args():
                         help="Secret Token")
     parser.add_argument('--template', type=str, default='secret-template.yaml',
                         help="Template secret file")
-    parser.add_argument('--secretFile', type=str, default='BinderHub.json')
+    parser.add_argument('--secretFile', type=str, default='BinderHub.json',
+                        help="Path to file containing secrets/passwords")
     parser.add_argument('--force', action='store_true',
                         help="Overwrite existing files")
     parser.add_argument('output_file', nargs='?', default='secret.yaml',
