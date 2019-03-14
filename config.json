@@ -1,8 +1,10 @@
 {
-  "subscription": "",
-  "res_grp_name": "",
-  "location": "",
-  "cluster_name": "",
-  "node_count": "",
-  "vm_size": ""
+  "azure": {
+    "subscription": "sub",
+    "res_grp_name": "grp",
+    "location": "loc",
+    "cluster_name": "name",
+    "node_count": "1",
+    "vm_size": "vm"
+  }
 }
