@@ -12,8 +12,8 @@
     "version": ""
   },
   "docker": {
-    "docker_id": "",
-    "docker_org": null,
+    "id": "",
+    "org": null,
     "image_prefix": ""
   },
   "secretFile": null
