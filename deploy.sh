@@ -1,17 +1,19 @@
 #!/bin/bash
 
-# Required inputs:
-# * $id: DockerHub ID
-# * $prefix: desired image prefix
-# * $version: Helm Chart version to deploy
-# * $binderhubname: Name/Namespace for the BinderHub
-
-# Optional inputs:
-# * $org: DockerHub organisation
-# * $secretFile: Path to file containing secrets/passwords
-
 # Exit immediately if a pipeline returns a non-zero status
 set -e
+
+# Read config file and get values
+outputs=`python read_config.py`
+vars=$(echo $outputs | tr "(',)" "\n")
+vararray=($vars)
+
+binderhubname=${vararray[6]}
+version=${vararray[7]}
+id=${vararray[8]}
+org=${vararray[9]}
+prefix=${vararray[10]}
+secretFile=${vararray[11]}
 
 # Create tokens for the secrets file:
 apiToken=`openssl rand -hex 32`
@@ -22,15 +24,9 @@ helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 helm repo update
 
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub:
-outputs=`python deploy.py --apiToken $apiToken --secretToken $secretToken`
-vars=$(echo $outputs | tr "(',)" "\n")
-vararray=($vars)
-
-binderhubname=${vararray[0]}
-id=${vararray[1]}
-prefix=${vararray[2]}
-org=${vararray[3]}
-version=${vararray[4]}
+python create_config.py -id=$id --prefix=$prefix -org=$org --force
+python create_secret.py --apiToken=$apiToken --secretToken=$secretToken --secretFile=$secretFile --force
+helm install jupyterhub/binderhub --version={$version --name=$binderhubname --namespace=$binderhubname -f secret.yaml -f config.yaml
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 jupyterhub_ip=`kubectl --namespace=$binderhubname get svc proxy-public | awk '{ print $4}' | tail -n 1`
