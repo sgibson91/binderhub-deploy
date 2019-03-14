@@ -27,7 +27,7 @@ def parse_args():
                         help="Secret Token")
     parser.add_argument('--template', type=str, default='secret-template.yaml',
                         help="Template secret file")
-    parser.add_argument('--secretFile', type=str, default='BinderHub.json',
+    parser.add_argument('--secretFile', type=str, default='~/.secret/BinderHub.json',
                         help="Path to file containing secrets/passwords")
     parser.add_argument('--force', action='store_true',
                         help="Overwrite existing files")
