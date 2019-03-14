@@ -22,9 +22,15 @@ helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 helm repo update
 
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub:
-python create_config.py -id=$id --prefix=$prefix -org=$org --force
-python create_secret.py --apiToken=$apiToken --secretToken=$secretToken --secretFile=$secretFile --force
-helm install jupyterhub/binderhub --version=$version --name=$binderhubname --namespace=$binderhubname -f secret.yaml -f config.yaml
+outputs=`python deploy.py --apiToken $apiToken --secretToken $secretToken`
+vars=$(echo $outputs | tr "(',)" "\n")
+vararray=($vars)
+
+binderhubname=${vararray[0]}
+id=${vararray[1]}
+prefix=${vararray[2]}
+org=${vararray[3]}
+version=${vararray[4]}
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 jupyterhub_ip=`kubectl --namespace=$binderhubname get svc proxy-public | awk '{ print $4}' | tail -n 1`
@@ -34,5 +40,5 @@ do
     sleep 5
     jupyterhub_ip=`kubectl --namespace=$binderhubname get svc proxy-public | awk '{ print $4}' | tail -n 1`
 done
-python create-config.py --id=$id --prefix=$prefix -org=$org --jupyterhub_ip=$jupyterhub_ip --force
+python create_config.py -id=$id --prefix=$prefix -org=$org --jupyterhub_ip=$jupyterhub_ip --force
 helm upgrade $binderhubname jupyterhub/binderhub --version=$version -f secret.yaml -f config.yaml
