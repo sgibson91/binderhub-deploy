@@ -5,6 +5,7 @@ A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthe
 **List of scripts:**
 * [**setup.sh**](#setup)
 * [**deploy.sh**](#deploy)
+* [**info.sh**](#info)
 
 ## Usage
 
@@ -60,3 +61,9 @@ The script reads in `config.json` (via `read_config.py`) in order to acquire Azu
 
 This script reads in `config.json` using `read_config.py`, then creates `config.yaml` and `secret.yaml` files via `create_config.py` and `create_secret.py` respectively (using `config-template.yaml` and `secret-template.yaml`).
 Both a JupyterHub and BinderHub are installed and the `config.yaml` file is updated with the JupyterHub IP address.
+
+<a name="info"></a>
+### info.sh
+
+The script will print the IP addresses of both the JupyterHub and the BinderHub to the terminal.
+It reads the BinderHub name from `config.json` using `read_config.py`.
