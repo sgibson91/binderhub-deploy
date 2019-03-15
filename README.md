@@ -9,8 +9,9 @@ A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthe
 
 Create a file called `config.json` which has the following format.
 Fill the values with your desired namespaces, etc.
+(Note that `#` tokens won't be permitted in the actual JSON file.)
 
-```json
+```
 {
   "azure": {
     "subscription": "",  # Azure subscription name
