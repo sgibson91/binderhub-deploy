@@ -5,19 +5,10 @@ A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthe
 **List of scripts:**
 * [**setup.sh**](#setup)
 
----
+## Usage
 
-<a name="setup"></a>
-### setup.sh
-
-This script uses [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for Microsoft Azure (`azure-cli`), Kubernetes (`kubectl`) and Helm (`helm`).
-
-Command line install scripts were found in the following documentation:
-* [Azure-CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update)
-* [Kubernetes-CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-using-curl) (macOS version)
-* [Helm-CLI](https://helm.sh/docs/using_helm/#from-script)
-
-The script also reads in `config.json` which is of the following format and read by the python script `read_config.py`.
+Create a file called `config.json` which has the following format.
+Fill the values with your desired namespaces, etc.
 
 ```json
 {
@@ -31,3 +22,15 @@ The script also reads in `config.json` which is of the following format and read
   }
 }
 ```
+
+---
+
+<a name="setup"></a>
+### setup.sh
+
+This script uses [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for Microsoft Azure (`azure-cli`), Kubernetes (`kubectl`) and Helm (`helm`).
+
+Command line install scripts were found in the following documentation:
+* [Azure-CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update)
+* [Kubernetes-CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-using-curl) (macOS version)
+* [Helm-CLI](https://helm.sh/docs/using_helm/#from-script)
