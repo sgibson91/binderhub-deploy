@@ -30,6 +30,7 @@ Fill the values with your desired namespaces, etc.
 ### setup.sh
 
 This script uses [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for Microsoft Azure (`azure-cli`), Kubernetes (`kubectl`) and Helm (`helm`).
+The script will ask you to enter a passphrase when the SSH keys are being generated - this can be left blank.
 
 Command line install scripts were found in the following documentation:
 * [Azure-CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update)
