@@ -29,7 +29,7 @@ Fill the quotation marks with your desired namespaces, etc.
 ```
 
 Make the shell scripts executable with the following command.
-```bash
+```
 chmod 700 <script-name>.sh
 ```
 
