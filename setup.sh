@@ -28,7 +28,7 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 
 # Login to Azure
-az login --output table
+az login --output none
 
 # Activate chosen subscription
 az account set -s "$subscription"
@@ -36,8 +36,8 @@ az account set -s "$subscription"
 # Create a Resource Group
 az group create --name $res_grp_name --location $location --output table
 
-# Make a folder for the cluster
-mkdir $cluster_name && cd $cluster_name
+# Make a secret folder and a sub-folder for the cluster
+mkdir .secret && cd .secret && mkdir $cluster_name && cd $cluster_name
 
 # Create an SSH key
 ssh-keygen -f ssh-key-$cluster_name
