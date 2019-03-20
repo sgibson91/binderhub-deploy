@@ -37,7 +37,7 @@ az account set -s "$subscription"
 az group create --name $res_grp_name --location $location --output table
 
 # Make a secret folder and a sub-folder for the cluster
-mkdir .secret && cd .secret && mkdir $cluster_name && cd $cluster_name
+mkdir -p .secret && cd .secret && mkdir -p $cluster_name && cd $cluster_name
 
 # Create an SSH key
 ssh-keygen -f ssh-key-$cluster_name
