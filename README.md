@@ -2,6 +2,8 @@
 
 A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) onto a [Microsoft Azure](https://azure.microsoft.com/en-gb/) [Kubernetes](https://kubernetes.io/) cluster.
 
+Inspired by [this repo](https://github.com/nicain/binder-deploy).
+
 **List of scripts:**
 * [**setup.sh**](#setup)
 
@@ -29,7 +31,7 @@ Fill the quotation marks with your desired namespaces, etc.
 ```
 
 Make the shell scripts executable with the following command.
-```bash
+```
 chmod 700 <script-name>.sh
 ```
 
