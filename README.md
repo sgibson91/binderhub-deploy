@@ -40,7 +40,8 @@ chmod 700 <script-name>.sh
 <a name="setup"></a>
 ### setup.sh
 
-This script uses [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for Microsoft Azure (`azure-cli`), Kubernetes (`kubectl`) and Helm (`helm`).
+This script checks whether the required command line programs are already installed, and if any are missing uses the system package manager or [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for Microsoft Azure (`azure-cli`), Kubernetes (`kubectl`), Helm (`helm`), and the ssh key generator (ssh-keygen), along with dependencies that are not automatically installed by those packages.
+
 The script will ask you to enter a passphrase when the SSH keys are being generated - this can be left blank.
 
 Command line install scripts were found in the following documentation:
