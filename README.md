@@ -27,21 +27,9 @@ Fill the values with your desired namespaces, etc.
     "version": ""        # Helm chart version to deploy
   },
   "docker": {
-    "id": "",            # DockerHub ID
     "org": null,         # The DockerHub organisation id belongs to (if necessary)
     "image_prefix": ""   # The prefix to preprend to Binder images (e.g. "binder-dev")
-  },
-  "secretFile": null     # Path to file containing DockerHub password (script will look for ~/.secret/BinderHub.json if left as null)
-}
-```
-
-A `~/.secret` folder should also be created containing a `BinderHub.json` file with the following config.
-The path to this file should be added to `secretFile` in `config.json`.
-If this field is left as null, the script will look for `~/.secret/BinderHub.json` instead.
-
-```
-{
-  "password": "<dockerhub-password>"  # DockerHub password to match id in config.json
+  }
 }
 ```
 
@@ -62,4 +50,7 @@ Command line install scripts were found in the following documentation:
 ### deploy.sh
 
 This script reads in `config.json` using `read_config.py`, then creates `config.yaml` and `secret.yaml` files via `create_config.py` and `create_secret.py` respectively (using `config-template.yaml` and `secret-template.yaml`).
+The script will ask for your Docker ID and password.
+The ID is your Docker username, NOT the email.
+If you have provided a Docker organisation in `config.json`, then Docker ID **MUST** be a member of this organisation.
 Both a JupyterHub and BinderHub are installed and the `config.yaml` file is updated with the JupyterHub IP address.
