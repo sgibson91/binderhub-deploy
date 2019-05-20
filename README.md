@@ -3,8 +3,7 @@
 A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) onto [Microsoft Azure](https://azure.microsoft.com/en-gb/).
 
 **List of scripts:**
-* [**setup.sh**](#setup)
-* [**deploy.sh**](#deploy)
+* [**deploy.sh**](#deploy.sh)
 
 ## Usage
 
@@ -35,18 +34,6 @@ Fill the values with your desired namespaces, etc.
 
 ---
 
-<a name="setup"></a>
-### setup.sh
-
-This script uses [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for Microsoft Azure (`azure-cli`), Kubernetes (`kubectl`) and Helm (`helm`).
-The script will ask you to enter a passphrase when the SSH keys are being generated - this can be left blank.
-
-Command line install scripts were found in the following documentation:
-* [Azure-CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update)
-* [Kubernetes-CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-using-curl) (macOS version)
-* [Helm-CLI](https://helm.sh/docs/using_helm/#from-script)
-
-<a name="deploy"></a>
 ### deploy.sh
 
 This script reads in `config.json` using `read_config.py`, then creates `config.yaml` and `secret.yaml` files via `create_config.py` and `create_secret.py` respectively (using `config-template.yaml` and `secret-template.yaml`).
