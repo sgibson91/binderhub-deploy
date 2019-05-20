@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Read config.json and get BinderHub name
 outputs=`python read_config.py`
