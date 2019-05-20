@@ -5,7 +5,7 @@ DockerHub login details. Arguments are:
 * --apiToken: Output of openssl rand -hex 32 command
 * --secretToken: Output of openssl rand -hex 32 command
 * --template: A template for a secret.yaml file to populate
-* --secretFile: Path a JSON file containing password for DockerHub account
+* --password: Docker Hub password
 * --force: If secret.yaml already exists, overwrite it
 * output_file: File to save the secret config to
 """
@@ -27,8 +27,8 @@ def parse_args():
                         help="Secret Token")
     parser.add_argument('--template', type=str, default='secret-template.yaml',
                         help="Template secret file")
-    parser.add_argument('--secretFile', type=str, default='~/.secret/BinderHub.json',
-                        help="Path to file containing secrets/passwords")
+    parser.add_argument('--password', type=str, required=True,
+                        help="Docker Hub password for Docker ID")
     parser.add_argument('--force', action='store_true',
                         help="Overwrite existing files")
     parser.add_argument('output_file', nargs='?', default='secret.yaml',
@@ -57,9 +57,7 @@ def main():
         "{}".format(args.secretToken)
     )
     template['registry']['username'] = args.docker_id
-
-    secretFile = json.load(open(os.path.expanduser(args.secretFile), 'r'))
-    template['registry']['password'] = secretFile['password']
+    template['registry']['password'] = args.password
 
     yaml.dump(template, open(args.output_file, 'w'), default_flow_style=False)
 
