@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Read in config.json and get variables
 outputs=`python read_config.py`
