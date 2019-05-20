@@ -50,8 +50,7 @@ def main():
     if not (args.docker_org is None):
         template['config']['BinderHub']['image_prefix'] = (
             template['config']['BinderHub']['image_prefix'].replace(
-                "<docker-id>", "{0}|{1}".format(args.docker_id, args.docker_org)
-            ).replace("<prefix>", args.prefix)
+                "<docker-id>", args.docker_org).replace("<prefix>", args.prefix)
         )
     else:
         template['config']['BinderHub']['image_prefix'] = (
