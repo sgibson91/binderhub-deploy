@@ -29,7 +29,7 @@ helm repo update
 
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub:
 python create_config.py -id=$id --prefix=$prefix -org=$org --force
-python create_secret.py --apiToken=$apiToken --secretToken=$secretToken --id=$id --password=$password --force
+python create_secret.py --apiToken=$apiToken --secretToken=$secretToken --docker-id=$id --password=$password --force
 helm install jupyterhub/binderhub --version={$version --name=$binderhubname --namespace=$binderhubname -f secret.yaml -f config.yaml
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
