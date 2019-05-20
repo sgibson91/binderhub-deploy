@@ -5,6 +5,7 @@ A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthe
 **List of scripts:**
 * [**logs.sh**](#logs.sh)
 * [**info.sh**](#info.sh)
+* [**teardown.sh**](#teardown.sh)
 
 ## Usage
 
@@ -45,3 +46,9 @@ It then finds the pod the JupyterHub is deployed on and calls the logs.
 
 The script will print the IP addresses of both the JupyterHub and the BinderHub to the terminal.
 It reads the BinderHub name from `config.json` using `read_config.py`.
+
+### teardown.sh
+
+This script will purge the Helm release, delete the Kubernetes namespace and then delete the Azure Resource Group containing the computational resources.
+The user should check the [Azure Portal](https://portal.azure.com/#home) to verify the resources have been deleted.
+
