@@ -46,7 +46,7 @@ def main():
         else:
             raise RuntimeError(f"Output file already exists: {args.output_file}")
 
-    template = yaml.load(open(args.template, "r"))
+    template = yaml.safe_load(open(args.template, "r"))
     if not (args.docker_org is None):
         template['config']['BinderHub']['image_prefix'] = (
             template['config']['BinderHub']['image_prefix'].replace(
