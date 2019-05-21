@@ -10,6 +10,17 @@ A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthe
 
 ## Usage
 
+To make the scripts executableand then run them, do the following:
+
+```
+chmod 700 <script-name>.sh
+./<script-name>.sh
+```
+
+To deploy, you should run `setup.sh` first, then `deploy.sh`.
+You can run `logs.sh` and `info.sh` to get the JupyterHub logs and IP addresses respectively.
+`teardown.sh` should only be used to remove your BinderHub deployment.
+
 Create a file called `config.json` which has the following format.
 Fill the values with your desired namespaces, etc.
 (Note that `#` tokens won't be permitted in the actual JSON file.)
