@@ -48,7 +48,7 @@ def main():
             raise RuntimeError("Output file already exists: {}".format(
                 args.output_file))
 
-    template = yaml.load(open(args.template, 'r'))
+    template = yaml.safe_load(open(args.template, 'r'))
 
     template['jupyterhub']['hub']['services']['binder']['apiToken'] = (
         "{}".format(args.apiToken)
