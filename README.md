@@ -1,6 +1,10 @@
-# binderhub-deploy
+# Automatically deploy a BinderHub to Microsoft Azure
 
-A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) onto [Microsoft Azure](https://azure.microsoft.com/en-gb/) and connect a [DockerHub](https://hub.docker.com/) container registry.
+[BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) is a cloud-based, multi-server technology used for hosting repoducible computing environments and interactive Jupyter Notebooks.
+
+This repo contains a set of scripts to automatically deploy a BinderHub onto [Microsoft Azure](https://azure.microsoft.com/en-gb/) and connect a [DockerHub](https://hub.docker.com/) container registry.
+
+This repo is based on the following set of deployment scripts for Google Cloud: [nicain/binder-deploy](https://github.com/nicain/binder-deploy)
 
 **List of scripts:**
 * [**setup.sh**](#setupsh)
@@ -10,6 +14,15 @@ A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthe
 * [**teardown.sh**](#teardownsh)
 
 ## Usage
+
+To use these scripts locally, clone this repo and change into the directory.
+
+```
+git clone https://github.com/alan-turing-institute/binderhub-deploy.git
+cd binderhub-deploy
+```
+
+The Python files `create_config.py` and `create_secret.py` require Python version >= 3.6, but no extra packages are needed.
 
 To make the scripts executable and then run them, do the following:
 
@@ -89,3 +102,11 @@ It reads the BinderHub name from `config.json`.
 
 This script will purge the Helm release, delete the Kubernetes namespace and then delete the Azure Resource Group containing the computational resources.
 The user should check the [Azure Portal](https://portal.azure.com/#home) to verify the resources have been deleted.
+
+## Contributors
+
+We would like to acknowledge and thank the following people for their contributions:
+
+* Tim Greaves (@tmbgreaves)
+* Gerard Gorman (@ggorman)
+* Tania Allard (@trallard)
