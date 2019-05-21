@@ -11,7 +11,7 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
     # Update apt before starting, in case this is a new container
     ${sudo_command} apt update
     echo "Core package install with apt"
-    ${sudo_command} apt install -y curl python tar openssh-client gnupg
+    ${sudo_command} apt install -y curl python tar
     if ! command -v az >/dev/null 2>&1 ; then
       echo "Attempting to install Azure-CLI with deb packages"
       curl -sL https://aka.ms/InstallAzureCLIDeb | ${sudo_command} bash
@@ -27,7 +27,7 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
 ## yum-based systems
   elif command -v yum >/dev/null 2>&1 ; then
     echo "Core package install with yum"
-    ${sudo_command} yum install -y curl python openssh-clients openssl tar which
+    ${sudo_command} yum install -y curl python tar which
     if ! command -v az >/dev/null 2>&1 ; then
       echo "Attempting to install Azure-CLI with yum packages"
       ${sudo_command} rpm --import https://packages.microsoft.com/keys/microsoft.asc
@@ -50,7 +50,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 ## zypper-based systems
   elif command -v zypper >/dev/null 2>&1 ; then
     echo "Core packages install with zypper"
-    ${sudo_command} zypper install -y curl python tar which openssh
+    ${sudo_command} zypper install -y curl python tar which
     if ! command -v az >/dev/null 2>&1 ; then
       echo "Attempting to install Azure-CLI with zypper packages"
       ${sudo_command} rpm --import https://packages.microsoft.com/keys/microsoft.asc
@@ -69,7 +69,6 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
   else
     command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
     command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
-    ##command -v ssh-keygen >/dev/null 2>&1 || { echo >&2 "ssh-keygen not found; please install and re-run this script."; exit 1; }
     echo "Package manager not found; installing with curl"
     if ! command -v az >/dev/null 2>&1 ; then
       curl -L https://aka.ms/InstallAzureCli
@@ -140,12 +139,6 @@ az account set -s "$subscription"
 
 # Create a Resource Group
 az group create -n $res_grp_name --location $location -o table
-
-# Make a secret folder and a sub-folder for the cluster
-##mkdir -p .secret && cd .secret && mkdir -p $cluster_name && cd $cluster_name
-
-# Create an SSH key
-##ssh-keygen -f ssh-key-$cluster_name
 
 # Create an AKS cluster
 az aks create -n $cluster_name -g $res_grp_name --generate-ssh-keys --node-count $node_count --node-vm-size $vm_size -o table
