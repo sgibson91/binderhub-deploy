@@ -14,7 +14,7 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
     # Update apt before starting, in case this is a new container
     ${sudo_command} apt update
     echo "Core package install with apt"
-    ${sudo_command} apt install -y curl python tar jq
+    ${sudo_command} apt install -y curl python python3 tar jq openssl
     if ! command -v az >/dev/null 2>&1 ; then
       echo "Attempting to install Azure-CLI with deb packages"
       curl -sL https://aka.ms/InstallAzureCLIDeb | ${sudo_command} bash
@@ -30,7 +30,7 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
 ## yum-based systems
   elif command -v yum >/dev/null 2>&1 ; then
     echo "Core package install with yum"
-    ${sudo_command} yum install -y curl python tar which jq
+    ${sudo_command} yum install -y curl python python3 tar which jq openssl
     if ! command -v az >/dev/null 2>&1 ; then
       echo "Attempting to install Azure-CLI with yum packages"
       ${sudo_command} rpm --import https://packages.microsoft.com/keys/microsoft.asc
@@ -53,7 +53,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 ## zypper-based systems
   elif command -v zypper >/dev/null 2>&1 ; then
     echo "Core packages install with zypper"
-    ${sudo_command} zypper install -y curl python tar which jq
+    ${sudo_command} zypper install -y curl python python3 tar which jq openssl
     if ! command -v az >/dev/null 2>&1 ; then
       echo "Attempting to install Azure-CLI with zypper packages"
       ${sudo_command} rpm --import https://packages.microsoft.com/keys/microsoft.asc
