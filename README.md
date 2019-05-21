@@ -64,6 +64,8 @@ Fill the quotation marks with your desired namespaces, etc.
 }
 ```
 
+You can copy [`template-config.json`](template-config.json) should you require.
+
 ---
 
 ### setup.sh
