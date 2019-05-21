@@ -148,7 +148,7 @@ az group create -n $res_grp_name --location $location -o table
 ##ssh-keygen -f ssh-key-$cluster_name
 
 # Create an AKS cluster
-az aks create -n $cluster_name -g $res_grp_name --generate-ssh-key --node-count $node_count --node-vm-size $vm_size -o table
+az aks create -n $cluster_name -g $res_grp_name --generate-ssh-keys --node-count $node_count --node-vm-size $vm_size -o table
 
 # Get kubectl credentials from Azure
 az aks get-credentials -n $cluster_name -g $res_grp_name -o table
