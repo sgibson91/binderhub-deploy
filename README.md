@@ -2,7 +2,7 @@
 
 A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) onto [Microsoft Azure](https://azure.microsoft.com/en-gb/) and connect a [DockerHub](https://hub.docker.com/) container registry.
 
-This repo is based on the following set of sedploy scripts for Google Cloud: [nicain/binder-deploy](https://github.com/nicain/binder-deploy)
+This repo is based on the following set of deploy scripts for Google Cloud: [nicain/binder-deploy](https://github.com/nicain/binder-deploy)
 
 **List of scripts:**
 * [**logs.sh**](#logs.sh)
