@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 
 # Read in config.json
-outputs=`python read_config.py`
-vars=$(echo $outputs | tr "(',)" "\n")
-vararray=($vars)
-
-res_grp_name=${vararray[1]}
-binderhubname=${vararray[6]}
+configFile='config.json'
+binderhubname=`jq -r '.binderhub .name' ${configFile}`
+res_grp_name=`jq -r '.azure .res_grp_name' ${configFile}`
 
 # Delete the Helm release and purge the Kubernetes namespace
 helm delete $binderhubname --purge
