@@ -123,12 +123,12 @@ fi
 # Read in config file and assign variables
 configFile='config.json'
 
-subscription=`jq '.azure .subscription' ${configFile}`
-res_grp_name=`jq '.azure .res_grp_name' ${configFile}`
-location=`jq '.azure .location' ${configFile}`
-cluster_name=`jq '.azure .cluster_name' ${configFile}`
-node_count=`jq '.azure .node_count' ${configFile}`
-vm_size=`jq '.azure .vm_size' ${configFile}`
+subscription=`jq -r '.azure .subscription' ${configFile}`
+res_grp_name=`jq -r '.azure .res_grp_name' ${configFile}`
+location=`jq -r '.azure .location' ${configFile}`
+cluster_name=`jq -r '.azure .cluster_name' ${configFile}`
+node_count=`jq -r '.azure .node_count' ${configFile}`
+vm_size=`jq -r '.azure .vm_size' ${configFile}`
 
 # Login to Azure
 az login -o none
