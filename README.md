@@ -51,10 +51,7 @@ Fill the quotation marks with your desired namespaces, etc.
 }
 ```
 
-Make the shell scripts executable with the following command.
-```
-chmod 700 <script-name>.sh
-```
+You can copy [`template-config.json`](template-config.json) should you require.
 
 ---
 
