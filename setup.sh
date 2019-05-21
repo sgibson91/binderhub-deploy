@@ -145,9 +145,8 @@ az aks create -n $cluster_name -g $res_grp_name --generate-ssh-keys --node-count
 # Get kubectl credentials from Azure
 az aks get-credentials -n $cluster_name -g $res_grp_name -o table
 
-# Check node is functional
-# TODO: Get above command to only print out the status and wait until status is ready before continuing
-kubectl get node
+# Check nodes are ready
+while [[ ! x`kubectl get node | awk '{print $2}' | grep Ready | wc -l` == x${node_count} ]] ; do echo -n $(date) ; echo " : Waiting for all cluster nodes to be ready" ; sleep 15 ; done
 
 # Setup ServiceAccount for tiller
 kubectl --namespace kube-system create serviceaccount tiller
