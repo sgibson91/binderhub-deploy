@@ -1,5 +1,5 @@
 # Ignore secrets folder
-.secret/
+.secret/*
 
 # Ignore config JSON file
 config.json
