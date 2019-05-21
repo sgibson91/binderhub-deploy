@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Exit immediately if a pipeline returns a non-zero status
+set -e
+
 # Check sudo availability
 sudo_command=`command -v sudo`
 
