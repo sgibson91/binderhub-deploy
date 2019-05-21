@@ -27,7 +27,15 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
 ## yum-based systems
   elif command -v yum >/dev/null 2>&1 ; then
     echo "Core package install with yum"
-    ${sudo_command} yum install -y curl python python3 tar which jq openssl
+    ${sudo_command} yum install -y curl python tar which jq openssl
+    if ! command -v python3 >/dev/null 2>&1 ; then
+      if [ -f /etc/fedora-release ] ; then
+        ${sudo_command} yum install -y python3
+      else
+        ${sudo_command} yum install -y epel-release
+        ${sudo_command} yum install -y python36
+      fi
+    fi
     if ! command -v az >/dev/null 2>&1 ; then
       echo "Attempting to install Azure-CLI with yum packages"
       ${sudo_command} rpm --import https://packages.microsoft.com/keys/microsoft.asc
