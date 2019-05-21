@@ -20,6 +20,8 @@ git clone https://github.com/alan-turing-institute/binderhub-deploy.git
 cd binderhub-deploy
 ```
 
+The Python files `create_config.py` and `create_secret.py` require Python version >= 3.6, but no extra packages are needed.
+
 Create a file called `config.json` which has the following format.
 Fill the values with your desired namespaces, etc.
 (Note that `#` tokens won't be permitted in the actual JSON file.)
