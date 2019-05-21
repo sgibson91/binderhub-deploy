@@ -162,4 +162,5 @@ kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --pat
 
 # Check helm has been configured correctly
 echo "Verify Client and Server are running the same version number:"
+while [[ ! x`kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}'` == xRunning ]] ; do echo -n $(date) ; echo " : Waiting for tiller pod to be running" ; sleep 5 ; done
 helm version
