@@ -3,7 +3,7 @@
 A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) onto [Microsoft Azure](https://azure.microsoft.com/en-gb/).
 
 **List of scripts:**
-* [**deploy.sh**](#deploy.sh)
+* [**deploy.sh**](#deploysh)
 
 ## Usage
 
