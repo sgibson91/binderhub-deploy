@@ -9,14 +9,12 @@ read -p "DockerHub ID: " id
 read -sp "DockerHub password: " password
 
 # Read config file and get values
-outputs=`python read_config.py`
-vars=$(echo $outputs | tr "(',)" "\n")
-vararray=($vars)
+configFile='config.json'
 
-binderhubname=${vararray[6]}
-version=${vararray[7]}
-org=${vararray[9]}
-prefix=${vararray[10]}
+binderhubname=`jq -r '.azure .binderhubname' ${configFile}`
+version=`jq -r '.azure .version' ${configFile}`
+org=`jq -r '.azure .org' ${configFile}`
+prefix=`jq -r '.azure .prefix' ${configFile}`
 
 # Create tokens for the secrets file:
 apiToken=`openssl rand -hex 32`

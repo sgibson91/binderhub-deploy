@@ -13,8 +13,6 @@ DockerHub login details. Arguments are:
 import yaml
 import argparse
 import os
-import json
-
 
 def parse_args():
 
