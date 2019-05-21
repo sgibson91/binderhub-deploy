@@ -43,8 +43,7 @@ def main():
         if args.force == True:
             os.remove(args.output_file)
         else:
-            raise RuntimeError("Output file already exists: {}".format(
-                args.output_file))
+            raise RuntimeError(f"Output file already exists: {args.output_file}")
 
     template = yaml.load(open(args.template, "r"))
     if not (args.docker_org is None):
@@ -60,7 +59,7 @@ def main():
 
     if not (args.jupyterhub_ip is None):
         template['hub'] = {}
-        template['hub']['url'] = "http://{}".format(args.jupyterhub_ip)
+        template['hub']['url'] = f"http://{args.jupyterhub_ip}"
 
     yaml.dump(template, open(args.output_file, "w"), default_flow_style=False)
 
