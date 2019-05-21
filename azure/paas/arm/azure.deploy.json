@@ -1,0 +1,189 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "servicePrincipalAppId": {
+      "type": "securestring",
+      "minLength": 1,
+      "metadata": {
+        "description": "ID of your service principal. Will be used by the setup script to create Azure resources on your behalf."
+      }
+    },
+    "servicePrincipalAppKey": {
+      "type": "securestring",
+      "minLength": 1,
+      "metadata": {
+        "description": "Key of your service principal. Will be used by the setup script to create Azure resources on your behalf."
+      }
+    },
+    "servicePrincipalTenantId": {
+      "type": "securestring",
+      "minLength": 1,
+      "metadata": {
+        "description": "Tenant ID of your service principal. Will be used by the setup script to create Azure resources on your behalf."
+      }
+    },
+    "binderHubName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Name for the application to be deployed. Must be unique across Azure. Your deployment will be accessible at <app-name>.<resource-group-location>.cloudapp.azure.com"
+      }
+    },
+    "binderHubVersion": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The version of BinderHub to be deployed. This normally takes the form of versionnumber-hash, ie, 0.2.0-ae57d8. Refer to https://jupyterhub.github.io/helm-chart/#development-releases-binderhub for valid version numbers." 
+      }
+    },
+    "aksNodeCount": {
+      "type": "int",
+      "minValue": 1,
+      "defaultValue": 3,
+      "metadata": {
+        "description": "The initial number of nodes to create in the AKS cluster"
+      }
+    },
+    "aksNodeVmSize": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "Standard_DS2_v2",
+      "metadata": {
+        "description": "The default VM size to use for the AKS cluster"
+      }
+    },
+    "contactEmail": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "An email address at which you can be reached. This will be used by Let's Encrypt to manage your TLS certificates."
+      }
+    },
+    "dockerUsername": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": { 
+        "description": "The name of the user for Dockerhub"
+      }
+    },
+    "dockerPassword": {
+      "type": "securestring",
+      "minLength": 8,
+      "metadata": {
+        "description": "The password of the user for Dockerhub"
+      }
+    },
+    "dockerPrefix": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Prefix to use for docker containers"
+      }
+    },
+    "dockerOrganisation": {
+      "type": "string",
+      "defaultValue": "null",
+      "metadata": {
+        "description": "Organisation to use for Dockerhub; this is an optional value"
+      }
+    },
+    "setupDockerImage": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "tmbgreaves/binderhub-setup:latest",
+      "metadata": {
+        "description": "Docker image to use for the binderhub application setup. Must be publicly accessible."
+      }
+    }
+  },
+  "resources": [
+    {
+      "name": "[concat(parameters('binderHubName'), 'setup')]",
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2018-10-01",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "properties": {
+        "osType": "Linux",
+        "restartPolicy": "Never",
+        "containers": [
+          {
+            "name": "ok-setup",
+            "properties": {
+              "image": "[parameters('setupDockerImage')]",
+              "environmentVariables": [
+                {
+                  "name": "SP_APP_ID",
+                  "value": "[parameters('servicePrincipalAppId')]"
+                },
+                {
+                  "name": "SP_APP_KEY",
+                  "value": "[parameters('servicePrincipalAppKey')]"
+                },
+                {
+                  "name": "SP_TENANT_ID",
+                  "value": "[parameters('servicePrincipalTenantId')]"
+                },
+                {
+                  "name": "RESOURCE_GROUP_LOCATION",
+                  "value": "[resourceGroup().location]"
+                },
+                {
+                  "name": "RESOURCE_GROUP_NAME",
+                  "value": "[resourceGroup().name]"
+                },
+                {
+                  "name": "AZURE_SUBSCRIPTION",
+                  "value": "[subscription().id]"
+                },
+                {
+                  "name": "BINDERHUB_NAME",
+                  "value": "[parameters('binderHubName')]"
+                },
+                {
+                  "name": "BINDERHUB_VERSION",
+                  "value": "[parameters('binderHubVersion')]"
+                },
+                {
+                  "name": "AKS_NODE_COUNT",
+                  "value": "[parameters('aksNodeCount')]"
+                },
+                {
+                  "name": "AKS_NODE_VM_SIZE",
+                  "value": "[parameters('aksNodeVmSize')]"
+                },
+                {
+                  "name": "CONTACT_EMAIL",
+                  "value": "[parameters('contactEmail')]"
+                },
+                {
+                  "name": "DOCKER_USERNAME",
+                  "value": "[parameters('dockerUsername')]"
+                },
+                {
+                  "name": "DOCKER_PASSWORD",
+                  "value": "[parameters('dockerPassword')]"
+                },
+                {
+                  "name": "DOCKER_IMAGE_PREFIX",
+                  "value": "[parameters('dockerPrefix')]"
+                },
+                {
+                  "name": "DOCKER_ORGANISATION",
+                  "value": "[parameters('dockerOrganisation')]"
+                }
+              ],
+              "resources": {
+                "requests": {
+                  "cpu": 1,
+                  "memoryInGB": 1.5
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
