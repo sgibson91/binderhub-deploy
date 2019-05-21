@@ -69,7 +69,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
   else
     command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
     command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
-    command -v ssh-keygen >/dev/null 2>&1 || { echo >&2 "ssh-keygen not found; please install and re-run this script."; exit 1; }
+    ##command -v ssh-keygen >/dev/null 2>&1 || { echo >&2 "ssh-keygen not found; please install and re-run this script."; exit 1; }
     echo "Package manager not found; installing with curl"
     if ! command -v az >/dev/null 2>&1 ; then
       curl -L https://aka.ms/InstallAzureCli
@@ -133,25 +133,25 @@ node_count=${vararray[4]}
 vm_size=${vararray[5]}
 
 # Login to Azure
-az login --output none
+az login -o none
 
 # Activate chosen subscription
 az account set -s "$subscription"
 
 # Create a Resource Group
-az group create --name $res_grp_name --location $location --output table
+az group create -n $res_grp_name --location $location -o table
 
 # Make a secret folder and a sub-folder for the cluster
-mkdir -p .secret && cd .secret && mkdir -p $cluster_name && cd $cluster_name
+##mkdir -p .secret && cd .secret && mkdir -p $cluster_name && cd $cluster_name
 
 # Create an SSH key
-ssh-keygen -f ssh-key-$cluster_name
+##ssh-keygen -f ssh-key-$cluster_name
 
 # Create an AKS cluster
-az aks create --name $cluster_name --resource-group $res_grp_name --ssh-key-value ssh-key-$cluster_name.pub --node-count $node_count --node-vm-size $vm_size --output table
+az aks create -n $cluster_name -g $res_grp_name --generate-ssh-key --node-count $node_count --node-vm-size $vm_size -o table
 
 # Get kubectl credentials from Azure
-az aks get-credentials --name $cluster_name --resource-group $res_grp_name --output table
+az aks get-credentials -n $cluster_name -g $res_grp_name -o table
 
 # Check node is functional
 # TODO: Get above command to only print out the status and wait until status is ready before continuing
