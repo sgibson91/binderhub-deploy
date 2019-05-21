@@ -41,6 +41,7 @@ def main():
 
     if os.path.exists(args.output_file):
         if args.force == True:
+            print(f"Flag --force was used, replacing existing {args.output_file}")
             os.remove(args.output_file)
         else:
             raise RuntimeError(f"Output file already exists: {args.output_file}")
