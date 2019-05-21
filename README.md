@@ -4,11 +4,23 @@ A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthe
 
 **List of scripts:**
 * [**setup.sh**](#setupsh)
+* [**deploy.sh**](#deploysh)
 * [**logs.sh**](#logssh)
 * [**info.sh**](#infosh)
 * [**teardown.sh**](#teardownsh)
 
 ## Usage
+
+To make the scripts executable and then run them, do the following:
+
+```
+chmod 700 <script-name>.sh
+./<script-name>.sh
+```
+
+To deploy, you should run `setup.sh` first, then `deploy.sh`.
+You can run `logs.sh` and `info.sh` to get the JupyterHub logs and IP addresses respectively.
+`teardown.sh` should only be used to remove your BinderHub deployment.
 
 Create a file called `config.json` which has the following format.
 Fill the quotation marks with your desired namespaces, etc.
@@ -57,16 +69,24 @@ Command line install scripts were found in the following documentation:
 * [Kubernetes-CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-using-curl) (macOS version)
 * [Helm-CLI](https://helm.sh/docs/using_helm/#from-script)
 
+### deploy.sh
+
+This script reads in values from `config.json`, then creates `config.yaml` and `secret.yaml` files via `create_config.py` and `create_secret.py` respectively (using `config-template.yaml` and `secret-template.yaml`).
+The script will ask for your Docker ID and password.
+The ID is your Docker username, NOT the email.
+If you have provided a Docker organisation in `config.json`, then Docker ID **MUST** be a member of this organisation.
+Both a JupyterHub and BinderHub are installed and the `config.yaml` file is updated with the JupyterHub IP address.
+
 ### logs.sh
 
 This script will print the JupyterHub logs to the terminal for debugging.
-It reads `config.json` via `read_config.py` in order to get the BinderHub name.
+It reads from `config.json` in order to get the BinderHub name.
 It then finds the pod the JupyterHub is deployed on and calls the logs.
 
 ### info.sh
 
 The script will print the IP addresses of both the JupyterHub and the BinderHub to the terminal.
-It reads the BinderHub name from `config.json` using `read_config.py`.
+It reads the BinderHub name from `config.json`.
 
 ### teardown.sh
 
