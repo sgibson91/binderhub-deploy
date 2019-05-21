@@ -3,10 +3,10 @@
 A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) onto [Microsoft Azure](https://azure.microsoft.com/en-gb/) and connect a [DockerHub](https://hub.docker.com/) container registry.
 
 **List of scripts:**
-* [**setup.sh**](#setup.sh)
-* [**logs.sh**](#logs.sh)
-* [**info.sh**](#info.sh)
-* [**teardown.sh**](#teardown.sh)
+* [**setup.sh**](#setupsh)
+* [**logs.sh**](#logssh)
+* [**info.sh**](#infosh)
+* [**teardown.sh**](#teardownsh)
 
 ## Usage
 
