@@ -10,7 +10,7 @@ A set of scripts to automatically deploy a [BinderHub](https://binderhub.readthe
 
 ## Usage
 
-To make the scripts executableand then run them, do the following:
+To make the scripts executable and then run them, do the following:
 
 ```
 chmod 700 <script-name>.sh
