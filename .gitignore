@@ -1,5 +1,12 @@
+# Ignore secrets folder
+.secret/*
+
 # Ignore config JSON file
 config.json
 
-# Ignore secret folder
-.secret/*
+# Ignore generated SSH keys
+*/ssh-key-*
+
+# Ignore config and secret yaml files
+config.yaml
+secret.yaml
