@@ -11,7 +11,7 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
     # Update apt before starting, in case this is a new container
     ${sudo_command} apt update
     echo "Core package install with apt"
-    ${sudo_command} apt install -y curl python tar
+    ${sudo_command} apt install -y curl python tar jq
     if ! command -v az >/dev/null 2>&1 ; then
       echo "Attempting to install Azure-CLI with deb packages"
       curl -sL https://aka.ms/InstallAzureCLIDeb | ${sudo_command} bash
@@ -27,7 +27,7 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
 ## yum-based systems
   elif command -v yum >/dev/null 2>&1 ; then
     echo "Core package install with yum"
-    ${sudo_command} yum install -y curl python tar which
+    ${sudo_command} yum install -y curl python tar which jq
     if ! command -v az >/dev/null 2>&1 ; then
       echo "Attempting to install Azure-CLI with yum packages"
       ${sudo_command} rpm --import https://packages.microsoft.com/keys/microsoft.asc
@@ -50,7 +50,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 ## zypper-based systems
   elif command -v zypper >/dev/null 2>&1 ; then
     echo "Core packages install with zypper"
-    ${sudo_command} zypper install -y curl python tar which
+    ${sudo_command} zypper install -y curl python tar which jq
     if ! command -v az >/dev/null 2>&1 ; then
       echo "Attempting to install Azure-CLI with zypper packages"
       ${sudo_command} rpm --import https://packages.microsoft.com/keys/microsoft.asc
@@ -69,6 +69,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
   else
     command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
     command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
+    command -v jq >/dev/null 2>&1 || { echo >&2 "jq not found; please install and re-run this script."; exit 1; }
     echo "Package manager not found; installing with curl"
     if ! command -v az >/dev/null 2>&1 ; then
       curl -L https://aka.ms/InstallAzureCli
@@ -97,7 +98,7 @@ elif [[ ${OSTYPE} == 'darwin'* ]] ; then
   if command -v brew >/dev/null 2>&1 ; then
     echo "Brew installing required packages"
     brew update && \
-      brew install curl python azure-cli kubernetes-cli kubernetes-helm
+      brew install curl python azure-cli kubernetes-cli kubernetes-helm jq
   else
     command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
     command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
@@ -120,16 +121,14 @@ elif [[ ${OSTYPE} == 'darwin'* ]] ; then
 fi
 
 # Read in config file and assign variables
-outputs=`python read_config.py`
-vars=$(echo $outputs | tr "(',)" "\n")
-vararray=($vars)
+configFile='config.json'
 
-subscription=${vararray[0]}
-res_grp_name=${vararray[1]}
-location=${vararray[2]}
-cluster_name=${vararray[3]}
-node_count=${vararray[4]}
-vm_size=${vararray[5]}
+subscription=`jq '.azure .subscription' ${configFile}`
+res_grp_name=`jq '.azure .res_grp_name' ${configFile}`
+location=`jq '.azure .location' ${configFile}`
+cluster_name=`jq '.azure .cluster_name' ${configFile}`
+node_count=`jq '.azure .node_count' ${configFile}`
+vm_size=`jq '.azure .vm_size' ${configFile}`
 
 # Login to Azure
 az login -o none
