@@ -99,7 +99,7 @@ It reads the BinderHub name from `config.json`.
 This script will purge the Helm release, delete the Kubernetes namespace and then delete the Azure Resource Group containing the computational resources.
 The user should check the [Azure Portal](https://portal.azure.com/#home) to verify the resources have been deleted.
 
-### Azure Deployment
+## Azure Deployment
 
 To deploy [Binderhub](https://binderhub.readthedocs.io/) to Azure use the deploy button below.
 
