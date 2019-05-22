@@ -17,22 +17,22 @@ set -e
 if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   # Set out a list of required variables for this script
   REQUIREDVARS=" \
-	  SP_APP_ID \
-	  SP_APP_KEY \
-	  SP_TENANT_ID \
-	  RESOURCE_GROUP_NAME \
-	  RESOURCE_GROUP_LOCATION \
-	  AZURE_SUBSCRIPTION \
+          SP_APP_ID \
+          SP_APP_KEY \
+          SP_TENANT_ID \
+          RESOURCE_GROUP_NAME \
+          RESOURCE_GROUP_LOCATION \
+          AZURE_SUBSCRIPTION \
           BINDERHUB_NAME \
           BINDERHUB_VERSION \
-	  AKS_NODE_COUNT \
-	  AKS_NODE_VM_SIZE \
-	  CONTACT_EMAIL \
-	  DOCKER_USERNAME \
-	  DOCKER_PASSWORD \
-	  DOCKER_IMAGE_PREFIX \
-	  DOCKER_ORGANISATION \
-	  "
+          AKS_NODE_COUNT \
+          AKS_NODE_VM_SIZE \
+          CONTACT_EMAIL \
+          DOCKER_USERNAME \
+          DOCKER_PASSWORD \
+          DOCKER_IMAGE_PREFIX \
+          DOCKER_ORGANISATION \
+          "
   for required_var in $REQUIREDVARS ; do
     if [ -z "${!required_var}" ] ; then
       echo "${required_var} must be set for container-based setup" >&2
