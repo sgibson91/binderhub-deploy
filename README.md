@@ -77,11 +77,11 @@ Command line install scripts were found in the following documentation:
 
 ### deploy.sh
 
-This script reads in values from `config.json`, then creates `config.yaml` and `secret.yaml` files via `create_config.py` and `create_secret.py` respectively (using `config-template.yaml` and `secret-template.yaml`).
+This script reads in values from `config.json`, deploys a Kubernetes cluster, then creates `config.yaml` and `secret.yaml` files via `create_config.py` and `create_secret.py` respectively (using `config-template.yaml` and `secret-template.yaml`).
 The script will ask for your Docker ID and password.
 The ID is your Docker username, NOT the email.
 If you have provided a Docker organisation in `config.json`, then Docker ID **MUST** be a member of this organisation.
-Both a JupyterHub and BinderHub are installed and the `config.yaml` file is updated with the JupyterHub IP address.
+Both a JupyterHub and BinderHub are installed onto the deployed Kubernetes cluster and the `config.yaml` file is updated with the JupyterHub IP address.
 
 ### logs.sh
 
