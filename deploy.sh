@@ -116,7 +116,8 @@ echo "Fetching kubectl credentials from Azure"
 az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table
 
 # Check nodes are ready
-while [[ ! x`kubectl get node | awk '{print $2}' | grep Ready | wc -l` == x${AKS_NODE_COUNT} ]] ; do echo -n $(date) ; echo " : Waiting for all cluster nodes to be ready" ; sleep 15 ; done
+nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)"
+while [[ ! x${nodecount} == x${AKS_NODE_COUNT} ]] ; do echo -n $(date) ; echo " : ${nodecount} of x${AKS_NODE_COUNT} nodes ready" ; sleep 15 ; nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)" ; done
 
 # Setup ServiceAccount for tiller
 echo "Setting up tiller service account"
@@ -135,8 +136,9 @@ echo "Securing tiller against attacks from within the cluster"
 kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --patch='[{"op": "add", "path": "/spec/template/spec/containers/0/command", "value": ["/tiller", "--listen=localhost:44134"]}]'
 
 # Check helm has been configured correctly
+tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')"
+while [[ ! x${tillerStatus} == xRunning ]] ; do echo -n $(date) ; echo " : tiller pod status : ${tillerStatus} " ; sleep 5 ; tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')" ; done
 echo "Verify Client and Server are running the same version number:"
-while [[ ! x`kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}'` == xRunning ]] ; do echo -n $(date) ; echo " : Waiting for tiller pod to be running" ; sleep 5 ; done
 helm version
 
 # Create tokens for the secrets file:
