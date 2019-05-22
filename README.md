@@ -50,12 +50,18 @@ Fill the quotation marks with your desired namespaces, etc.
     "location": "",      # Azure Data Centre location
     "node_count": "",    # Number of nodes to deploy
     "vm_size": ""        # Azure virtual machine type to deploy
+    "sp_app_id": null,   # Azure service principal ID (optional)
+    "sp_app_key": null,  # Azure service principal password (optional)
+    "sp_tenant_id": null # Azure tenant ID (optional)
   },
   "binderhub": {
     "name": "",          # Name of your BinderHub
     "version": ""        # Helm chart version to deploy
+    "contact_email": ""  # Email for letsencrypt https certificate
   },
   "docker": {
+    "username": null,    # Docker username (can be supplied at runtime)
+    "password": null,    # Docker password (can be supplied at runtime)
     "org": null,         # The DockerHub organisation id belongs to (if necessary)
     "image_prefix": ""   # The prefix to preprend to Binder images (e.g. "binder-dev")
   }

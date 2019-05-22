@@ -15,6 +15,8 @@ set -e
 # in the form of environment variables
 
 if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
+  echo "Deployment operating in container mode"
+  echo "Checking required environment variables"
   # Set out a list of required variables for this script
   REQUIREDVARS=" \
           SP_APP_ID \
@@ -46,12 +48,41 @@ else
   configFile='config.json'
   
   echo "Reading configuration from ${configFile}"
+  
   AZURE_SUBSCRIPTION=`jq -r '.azure .subscription' ${configFile}`
   BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
+  BINDERHUB_VERSION=`jq -r '.binderhub .version' ${configFile}`
+  CONTACT_EMAIL=`jq -r '.binderhub .contact_email' ${configFile}`
   RESOURCE_GROUP_LOCATION=`jq -r '.azure .location' ${configFile}`
   RESOURCE_GROUP_NAME=`jq -r '.azure .res_grp_name' ${configFile}`
   AKS_NODE_COUNT=`jq -r '.azure .node_count' ${configFile}`
   AKS_NODE_VM_SIZE=`jq -r '.azure .vm_size' ${configFile}`
+  SP_APP_ID=`jq -r '.azure .sp_app_id' ${configFile}`
+  SP_APP_KEY=`jq -r '.azure .sp_app_key' ${configFile}`
+  SP_TENANT_ID=`jq -r '.azure .sp_tenant_id' ${configFile}`
+  DOCKER_USERNAME=`jq -r '.docker .username' ${configFile}`
+  DOCKER_PASSWORD=`jq -r '.docker .password' ${configFile}`
+  DOCKER_IMAGE_PREFIX=`jq -r '.docker .image_prefix' ${configFile}`
+  DOCKER_ORGANISATION=`jq -r '.docker .org' ${configFile}`
+
+  # Check that the variables are all set non-zero
+  REQUIREDVARS=" \
+          RESOURCE_GROUP_NAME \
+          RESOURCE_GROUP_LOCATION \
+          AZURE_SUBSCRIPTION \
+          BINDERHUB_NAME \
+          BINDERHUB_VERSION \
+          AKS_NODE_COUNT \
+          AKS_NODE_VM_SIZE \
+          CONTACT_EMAIL \
+          DOCKER_IMAGE_PREFIX \
+          "
+  for required_var in $REQUIREDVARS ; do
+    if [ -z "${!required_var}" ] ; then
+      echo "${required_var} must be set for deployment" >&2
+      exit 1
+    fi
+  done
 
   # Generate resource group name
   RESOURCE_GROUP_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]_-' | cut -c 1-87`_RG
@@ -64,11 +95,18 @@ else
     AKS_NODE_COUNT: ${AKS_NODE_COUNT}
     AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}"
 
-  # Ask for user's Docker credentials
-  echo "If you have provided a DockerHub organisation, this Docker ID MUST be a member of that organisation"
-  read -p "DockerHub ID: " DOCKER_USERNAME
-  read -sp "DockerHub password: " DOCKER_PASSWORD
-
+  # Check/get the user's Docker credentials
+  if [ -z $DOCKER_USERNAME ] ; then
+    if [ -z $DOCKER_ORGANISATION ]; then
+      echo "Your docker ID must be a member of the ${DOCKER_ORGANISATION} organisation"
+    fi
+    read -p "DockerHub ID: " DOCKER_USERNAME
+    read -sp "DockerHub password: " DOCKER_PASSWORD
+  else
+    if [ -z $DOCKER_PASSWORD ] ; then
+     read -sp "DockerHub password for ${DOCKER_USERNAME}: " DOCKER_PASSWORD
+    fi
+  fi
 fi
 
 # Generate a valid name for the AKS cluster
