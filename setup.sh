@@ -51,6 +51,7 @@ if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
   
   ## apt-based systems
     if command -v apt >/dev/null 2>&1 ; then
+      echo "Checking system packages and installing any missing packages"
       # Update apt before starting, in case this is a new container
       APTPACKAGES=" \
         curl \
@@ -79,6 +80,7 @@ if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
   
   ## yum-based systems
     elif command -v yum >/dev/null 2>&1 ; then
+      echo "Checking system packages and installing any missing packages"
       YUMPACKAGES=" \
         curl \
         python \
@@ -122,6 +124,7 @@ if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
   
   ## zypper-based systems
     elif command -v zypper >/dev/null 2>&1 ; then
+      echo "Checking system packages and installing any missing packages"
       ZYPPERPACKAGES=" \
         curl \
         python \
@@ -156,10 +159,11 @@ if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
       command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
       command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
       command -v jq >/dev/null 2>&1 || { echo >&2 "jq not found; please install and re-run this script."; exit 1; }
-      echo "Package manager not found; installing with curl"
+      echo "Attempting to install Azure-CLI with curl"
       if ! command -v az >/dev/null 2>&1 ; then
         curl -L https://aka.ms/InstallAzureCli
       fi
+      echo "Attempting to install kubectl with curl"
       if ! command -v kubectl >/dev/null 2>&1 ; then
         curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
         chmod +x ./kubectl
@@ -182,6 +186,7 @@ if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
   ## Installing on OS X
   elif [[ ${OSTYPE} == 'darwin'* ]] ; then
     if command -v brew >/dev/null 2>&1 ; then
+      echo "Checking brew packages and installing any missing packages"
       BREWPACKAGES=" \
         curl \
         python \
@@ -201,14 +206,17 @@ if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
       command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
       command -v tar >/dev/null 2>&1 || { echo >&2 "tar not found; please install and re-run this script."; exit 1; }
       command -v which >/dev/null 2>&1 || { echo >&2 "which not found; please install and re-run this script."; exit 1; }
+      echo "Attempting to install Azure-CLI with curl"
       if ! command -v az >/dev/null 2>&1  ; then
         curl -L https://aka.ms/InstallAzureCli
       fi
+      echo "Attempting to install kubectl with curl"
       if ! command -v kubectl >/dev/null 2>&1 ; then
         curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl
         chmod +x ./kubectl
         ${sudo_command} mv ./kubectl /usr/local/bin/kubectl
       fi
+      echo "Attempting to install helm with curl"
       if ! command -v helm >/dev/null 2>&1 ; then
         curl https://raw.githubusercontent.com/helm/helm/master/scripts/get > get_helm.sh
         chmod 700 get_helm.sh
@@ -220,6 +228,7 @@ if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
   # Read in config file and assign variables for the non-container case
   configFile='config.json'
   
+  echo "Reading configuration from ${configFile}"
   AZURE_SUBSCRIPTION=`jq -r '.azure .subscription' ${configFile}`
   BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
   RESOURCE_GROUP_LOCATION=`jq -r '.azure .location' ${configFile}`
@@ -229,6 +238,14 @@ if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
 
   # Generate resource group name
   RESOURCE_GROUP_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]_-' | cut -c 1-87`_RG
+
+  echo "Configuration read in:
+    AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+    BINDERHUB_NAME: ${BINDERHUB_NAME}
+    RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+    RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+    AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+    AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}"
 
 fi
 
@@ -241,45 +258,58 @@ AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
 # If all the SP enironment is set, use that. Otherwise, fall back to an
 # interactive login.
 
+
 if [ -z $SP_APP_ID ] || [ -z $SP_APP_KEY ] || [ -z $SP_TENANT_ID ] ; then
+  echo "Attempting to log in to Azure as a user"
   if ! az login -o none; then
       echo "Unable to connect to Azure" >&2
       exit 1
   fi
 else
+  echo "Attempting to log in to Azure with service principal"
   if ! az login --service-principal -u "${SP_APP_ID}" -p "${SP_APP_KEY}" -t "${SP_TENANT_ID}"; then
     echo "Unable to connect to Azure" >&2
     exit 1
   fi
 fi
 
+echo "Activating Azure subscription: ${AZURE_SUBSCRIPTION}"
+
 # Activate chosen subscription
 az account set -s "$AZURE_SUBSCRIPTION"
 
+echo "Checking if resource group exists: ${RESOURCE_GROUP_NAME}"
 # Create a new resource group if necessary
 if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]] ; then
+  echo "Creating new resource group: ${RESOURCE_GROUP_NAME}"
   az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table
 fi
 
 # Create an AKS cluster
+echo "Creating AKS cluster; this may take a few minutes to complete"
 az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table
 
 # Get kubectl credentials from Azure
+echo "Fetching kubectl credentials from Azure"
 az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table
 
 # Check nodes are ready
 while [[ ! x`kubectl get node | awk '{print $2}' | grep Ready | wc -l` == x${AKS_NODE_COUNT} ]] ; do echo -n $(date) ; echo " : Waiting for all cluster nodes to be ready" ; sleep 15 ; done
 
 # Setup ServiceAccount for tiller
+echo "Setting up tiller service account"
 kubectl --namespace kube-system create serviceaccount tiller
 
 # Give the ServiceAccount full permissions to manage the cluster
+echo "Giving the ServiceAccount full permissions to manage the cluster"
 kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
 
 # Initialise helm and tiller
+echo "Initialising helm and tiller"
 helm init --service-account tiller --wait
 
 # Secure tiller against attacks from within the cluster
+echo "Securing tiller against attacks from within the cluster"
 kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --patch='[{"op": "add", "path": "/spec/template/spec/containers/0/command", "value": ["/tiller", "--listen=localhost:44134"]}]'
 
 # Check helm has been configured correctly
