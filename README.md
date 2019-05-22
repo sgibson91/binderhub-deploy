@@ -42,7 +42,7 @@ Fill the quotation marks with your desired namespaces, etc.
 * For a list of available data centre regions, [see here](https://azure.microsoft.com/en-us/global-infrastructure/locations/). This should be a _region_ and **not** a _location_, e.g. "West Europe" or "Central US". These can be equivalently written as `westeurope` and `centralus`, respectively.
 * For a list of available Linux Virtual Machines, [see here](https://azure.microsoft.com/en-gb/pricing/details/virtual-machines/linux/).
 * The `cluster_name` must be 63 characters or less and only contain lower case alphanumeric characters or a hyphen (`-`).
-* For versions of the BinderHub Helm chart, [see here](https://jupyterhub.github.io/helm-chart/#development-releases-binderhub).
+* For versions of the BinderHub chart, [see here](https://jupyterhub.github.io/helm-chart/#development-releases-binderhub). It should be of the form `0.2.0-<commit-hash>`.
 
 ```
 {
@@ -56,7 +56,7 @@ Fill the quotation marks with your desired namespaces, etc.
   },
   "binderhub": {
     "name": "",          # Name of your BinderHub
-    "version": ""        # Helm chart version to deploy
+    "version": ""        # Helm chart version to deploy, should be 0.2.0-<commit-hash>
   },
   "docker": {
     "org": null,         # A DockerHub organisation to push images to (if desired)
