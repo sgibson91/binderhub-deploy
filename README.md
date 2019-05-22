@@ -40,7 +40,7 @@ Fill the quotation marks with your desired namespaces, etc.
 (Note that `#` tokens won't be permitted in the actual JSON file.)
 
 * For a list of available data centre regions, [see here](https://azure.microsoft.com/en-us/global-infrastructure/locations/). This should be a _region_ and **not** a _location_, e.g. "West Europe" or "Central US". These can be equivalently written as `westeurope` and `centralus`, respectively.
-* For a list of available Linux Virtual Machines, [see here](https://azure.microsoft.com/en-gb/pricing/details/virtual-machines/linux/).
+* For a list of available Linux Virtual Machines, [see here](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/sizes-general/?wt.mc_id=binderhub-github-taallard).
 
 ```
 {
