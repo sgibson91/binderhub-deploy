@@ -41,17 +41,14 @@ Fill the quotation marks with your desired namespaces, etc.
 
 * For a list of available data centre regions, [see here](https://azure.microsoft.com/en-us/global-infrastructure/locations/). This should be a _region_ and **not** a _location_, e.g. "West Europe" or "Central US". These can be equivalently written as `westeurope` and `centralus`, respectively.
 * For a list of available Linux Virtual Machines, [see here](https://azure.microsoft.com/en-gb/pricing/details/virtual-machines/linux/).
-* The `cluster_name` must be 63 characters or less and only contain lower case alphanumeric characters or a hyphen (`-`).
-* For versions of the BinderHub chart, [see here](https://jupyterhub.github.io/helm-chart/#development-releases-binderhub). It should be of the form `0.2.0-<commit-hash>`.
 
 ```
 {
   "azure": {
     "subscription": "",  # Azure subscription name
     "res_grp_name": "",  # Azure Resource Group name
-    "location": "",      # Azure Data Centre **region**
-    "cluster_name": "",  # Kubernetes cluster name
-    "node_count": 3,    # Number of nodes to deploy, should be an integer number
+    "location": "",      # Azure Data Centre location
+    "node_count": "",    # Number of nodes to deploy
     "vm_size": ""        # Azure virtual machine type to deploy
   },
   "binderhub": {
@@ -80,11 +77,11 @@ Command line install scripts were found in the following documentation:
 
 ### deploy.sh
 
-This script reads in values from `config.json`, then creates `config.yaml` and `secret.yaml` files via `create_config.py` and `create_secret.py` respectively (using `config-template.yaml` and `secret-template.yaml`).
+This script reads in values from `config.json`, deploys a Kubernetes cluster, then creates `config.yaml` and `secret.yaml` files via `create_config.py` and `create_secret.py` respectively (using `config-template.yaml` and `secret-template.yaml`).
 The script will ask for your Docker ID and password.
 The ID is your Docker username, NOT the email.
 If you have provided a Docker organisation in `config.json`, then Docker ID **MUST** be a member of this organisation.
-Both a JupyterHub and BinderHub are installed and the `config.yaml` file is updated with the JupyterHub IP address.
+Both a JupyterHub and BinderHub are installed onto the deployed Kubernetes cluster and the `config.yaml` file is updated with the JupyterHub IP address.
 
 ### logs.sh
 
@@ -102,10 +99,54 @@ It reads the BinderHub name from `config.json`.
 This script will purge the Helm release, delete the Kubernetes namespace and then delete the Azure Resource Group containing the computational resources.
 The user should check the [Azure Portal](https://portal.azure.com/#home) to verify the resources have been deleted.
 
+## Azure Deployment
+
+To deploy [Binderhub](https://binderhub.readthedocs.io/) to Azure use the deploy button below.
+
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ftmbgreaves%2Fbinderhub-deploy%2Fchange-urls-to-upstream%2Fazure%2Fpaas%2Farm%2Fazure.deploy.json)
+
+### Service Principal Creation
+
+You will be asked to provide a [Service Principal](https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals) in the form launched when you click the deploy to Azure button above.
+
+To create a Service Principal, go to the [Azure Portal](https://portal.azure.com/) (and login!) and open the Cloud Shell:
+
+<html><img src="images/open_shell_in_azure.png" alt="Open Shell in Azure"></html>
+
+You may be asked to create storage when you open the shell.
+This is expected, click "Create".
+
+Make sure the shell is set to Bash, not PowerShell.
+
+<html><img src="images/bash_shell.png" alt="Bash Shell"></html>
+
+Set the subscription you'd like to deploy your BinderHub on.
+
+```
+az account set -s <subscription>
+```
+
+This image shows the command being executed for an Azure Pass Sponsorship.
+
+<html><img src="images/set_subscription.png" alt="Set Subscription"></html>
+
+Next, create the Service Principal with the following command. Make sure to give it a sensible name.
+
+```
+az ad sp create-for-rbac --name binderhub-sp --skip-assignment
+```
+
+<html><img src="images/create_sp.png" alt="Create Service Principal"></html>
+
+The fields `appId`, `password` and `tenant` are the required pieces of information.
+These should be copied into the "Service Principal App ID", "Service Principal App Key" and "Service Principal Tenant ID" fields in the form, respectively.
+
+**Keep this information safe as the password cannot be recovered after this step!**
+
 ## Contributors
 
 We would like to acknowledge and thank the following people for their contributions:
 
-* Tim Greaves ( @tmbgreaves )
-* Gerard Gorman ( @ggorman )
-* Tania Allard ( @trallard )
+* Tim Greaves (@tmbgreaves)
+* Gerard Gorman (@ggorman)
+* Tania Allard (@trallard)
