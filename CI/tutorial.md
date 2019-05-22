@@ -6,12 +6,15 @@ As you set up your own BinderHub (or your institutional one) you might encounter
 
 These so called "events" can be anything like: merging a PR into master, creating a new release of your project, pushing to a specific branch. 
 
-## Pre-requisites and setup
+## Pre-requisites
 
 - Azure DevOps account If you do not have one you can get one for free [following this link](https://azure.microsoft.com/en-gb/services/devops/pipelines//?wt.mc_id=binderhub-github-taallard).
-- Azure Subscription: needed to provision the Azure services for this demonstration. If you don’t have one, you can get a free trial one here
+- Azure Subscription: needed to provision the Azure services for this demonstration. If you don’t have one, you can get a free trial one [here](https://azure.microsoft.com/en-us/free//?wt.mc_id=binderhub-github-taallard).
+- Bash shell or a terminal 
+- Container registry (this can be DockerHub or Azure Container registry)
 
-## What technologies will be using?
+
+## What technologies we'll be using?
 - BinderHub
 - Azure Devops: to implement your CI/CD pipelines
 - Docker
@@ -21,6 +24,11 @@ These so called "events" can be anything like: merging a PR into master, creatin
 - Azure container registry
 
 ## Getting started 
+
+## Azure setup
+If you followed the instructions from the [README](./README.md) you should already have a fully deployed BinderHub on Kubernetes. 
+
+
 The documentation (including the quickstart guides) for Azure pipelines can be found 👉🏼[here](https://docs.microsoft.com/en-gb/azure//?wt.mc_id=binderhub-github-taallard).
 
 1. Log into your Azure DevOps account at 👉🏼 [https://dev.azure.com/](https://dev.azure.com/)
