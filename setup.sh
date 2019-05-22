@@ -52,9 +52,19 @@ if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
   ## apt-based systems
     if command -v apt >/dev/null 2>&1 ; then
       # Update apt before starting, in case this is a new container
-      ${sudo_command} apt update
-      echo "Core package install with apt"
-      ${sudo_command} apt install -y curl python python3 tar jq openssl
+      APTPACKAGES=" \
+        curl \
+        python \
+        python3 \
+        openssl \
+        jq \
+        "
+      for package in $APTPACKAGES ; do
+        if ! dpkg -s $package > /dev/null ; then
+          echo "Apt installing $package"
+          ${sudo_command} apt update && ${sudo_command} apt install -y $package
+	fi
+      done
       if ! command -v az >/dev/null 2>&1 ; then
         echo "Attempting to install Azure-CLI with deb packages"
         curl -sL https://aka.ms/InstallAzureCLIDeb | ${sudo_command} bash
@@ -69,8 +79,20 @@ if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
   
   ## yum-based systems
     elif command -v yum >/dev/null 2>&1 ; then
-      echo "Core package install with yum"
-      ${sudo_command} yum install -y curl python tar which jq openssl
+      YUMPACKAGES=" \
+        curl \
+        python \
+        tar \
+	which \
+        jq \
+	openssl \
+        "
+      for package in $YUMPACKAGES ; do
+        if ! rpm -q $package > /dev/null ; then
+          echo "Yum installing $package"
+          ${sudo_command} yum install -y $package
+	fi
+      done
       if ! command -v python3 >/dev/null 2>&1 ; then
         if [ -f /etc/fedora-release ] ; then
           ${sudo_command} yum install -y python3
@@ -100,8 +122,21 @@ if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
   
   ## zypper-based systems
     elif command -v zypper >/dev/null 2>&1 ; then
-      echo "Core packages install with zypper"
-      ${sudo_command} zypper install -y curl python python3 tar which jq openssl
+      ZYPPERPACKAGES=" \
+        curl \
+        python \
+        python3 \
+        tar \
+        which \
+        jq \
+	openssl \
+        "
+      for package in $ZYPPERPACKAGES ; do
+        if ! rpm -q $package > /dev/null ; then
+          echo "Zypper installing $package"
+          ${sudo_command} zypper install -y $package
+	fi
+      done
       if ! command -v az >/dev/null 2>&1 ; then
         echo "Attempting to install Azure-CLI with zypper packages"
         ${sudo_command} rpm --import https://packages.microsoft.com/keys/microsoft.asc
@@ -147,9 +182,20 @@ if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
   ## Installing on OS X
   elif [[ ${OSTYPE} == 'darwin'* ]] ; then
     if command -v brew >/dev/null 2>&1 ; then
-      echo "Brew installing required packages"
-      brew update && \
-        brew install curl python azure-cli kubernetes-cli kubernetes-helm jq
+      BREWPACKAGES=" \
+        curl \
+        python \
+        azure-cli \
+        kubernetes-cli \
+        kubernetes-helm \
+        jq \
+        "
+      for package in $BREWPACKAGES ; do
+        if ! brew ls --versions $package > /dev/null ; then
+          echo "Brew installing $package"
+          brew update && brew install $package
+	fi
+      done
     else
       command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
       command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
