@@ -72,8 +72,6 @@ You can copy [`template-config.json`](template-config.json) should you require.
 
 This script checks whether the required command line programs are already installed, and if any are missing uses the system package manager or [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for Microsoft Azure (`azure-cli`), Kubernetes (`kubectl`), Helm (`helm`), and the ssh key generator (ssh-keygen), along with dependencies that are not automatically installed by those packages.
 
-The script will ask you to enter a passphrase when the SSH keys are being generated - this can be left blank.
-
 Command line install scripts were found in the following documentation:
 * [Azure-CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update)
 * [Kubernetes-CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-using-curl) (macOS version)
