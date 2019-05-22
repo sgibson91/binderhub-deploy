@@ -65,7 +65,7 @@ else
   DOCKER_IMAGE_PREFIX=`jq -r '.docker .image_prefix' ${configFile}`
   DOCKER_ORGANISATION=`jq -r '.docker .org' ${configFile}`
 
-  # Check that the variables are all set non-zero
+  # Check that the variables are all set non-zero, non-null
   REQUIREDVARS=" \
           RESOURCE_GROUP_NAME \
           RESOURCE_GROUP_LOCATION \
@@ -78,22 +78,44 @@ else
           DOCKER_IMAGE_PREFIX \
           "
   for required_var in $REQUIREDVARS ; do
-    if [ -z "${!required_var}" ] ; then
+    if [ -z "${!required_var}" ] || [ x${required_var} == 'xnull' ] ; then
       echo "${required_var} must be set for deployment" >&2
       exit 1
     fi
   done
 
+  # Check if any optional variables are set null; if so, reset them to a 
+  # zero-length string for later checks. If they failed to read at all,
+  # possibly due to an invalid json file, they will be returned as a
+  # zero-length string -- this is attempting to make the 'not set' 
+  # value the same in either case.
+  if [ x${SP_APP_ID} == 'xnull' ] ; then SP_APP_ID='' ; fi
+  if [ x${SP_APP_KEY} == 'xnull' ] ; then SP_APP_KEY='' ; fi
+  if [ x${SP_TENANT_ID} == 'xnull' ] ; then SP_TENANT_ID='' ; fi
+  if [ x${DOCKER_USERNAME} == 'xnull' ] ; then DOCKER_USERNAME='' ; fi
+  if [ x${DOCKER_PASSWORD} == 'xnull' ] ; then DOCKER_PASSWORD='' ; fi
+  if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
+	  "
   # Generate resource group name
   RESOURCE_GROUP_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]_-' | cut -c 1-87`_RG
 
   echo "Configuration read in:
     AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
     BINDERHUB_NAME: ${BINDERHUB_NAME}
+    BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+    CONTACT_EMAIL: ${CONTACT_EMAIL}
     RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
     RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
     AKS_NODE_COUNT: ${AKS_NODE_COUNT}
-    AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}"
+    AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+    SP_APP_ID: ${SP_APP_ID}
+    SP_APP_KEY: ${SP_APP_KEY}
+    SP_TENANT_ID: ${SP_TENANT_ID}
+    DOCKER_USERNAME: ${DOCKER_USERNAME}
+    DtOCKER_PASSWORD: ${DOCKER_PASSWORD}
+    DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+    DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
+    "
 
   # Check/get the user's Docker credentials
   if [ -z $DOCKER_USERNAME ] ; then
