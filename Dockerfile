@@ -12,4 +12,4 @@ RUN find /app -type f -name '*.sh' -exec chmod +x {} \;
 
 WORKDIR /app
 
-CMD ["/app/setup.sh"]
+CMD ["/app/deploy.sh"]
