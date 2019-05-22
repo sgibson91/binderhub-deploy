@@ -41,7 +41,6 @@ Fill the quotation marks with your desired namespaces, etc.
 
 * For a list of available locations, [see here](https://azure.microsoft.com/en-us/global-infrastructure/locations/).
 * For a list of available Linux Virtual Machines, [see here](https://azure.microsoft.com/en-gb/pricing/details/virtual-machines/linux/).
-* The `cluster_name` must be 63 characters or less and only contain lower case alphanumeric characters or a hyphen (-).
 
 ```
 {
@@ -49,12 +48,11 @@ Fill the quotation marks with your desired namespaces, etc.
     "subscription": "",  # Azure subscription name
     "res_grp_name": "",  # Azure Resource Group name
     "location": "",      # Azure Data Centre location
-    "cluster_name": "",  # Kubernetes cluster name
     "node_count": "",    # Number of nodes to deploy
     "vm_size": ""        # Azure virtual machine type to deploy
   },
   "binderhub": {
-    "name": "",          # Name of you BinderHub
+    "name": "",          # Name of your BinderHub
     "version": ""        # Helm chart version to deploy
   },
   "docker": {
@@ -101,6 +99,50 @@ It reads the BinderHub name from `config.json`.
 This script will purge the Helm release, delete the Kubernetes namespace and then delete the Azure Resource Group containing the computational resources.
 The user should check the [Azure Portal](https://portal.azure.com/#home) to verify the resources have been deleted.
 
+## Azure Deployment
+
+To deploy [Binderhub](https://binderhub.readthedocs.io/) to Azure use the deploy button below.
+
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ftmbgreaves%2Fbinderhub-deploy%2Fchange-urls-to-upstream%2Fazure%2Fpaas%2Farm%2Fazure.deploy.json)
+
+### Service Principal Creation
+
+You will be asked to provide a [Service Principal](https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals) in the form launched when you click the deploy to Azure button above.
+
+To create a Service Principal, go to the [Azure Portal](https://portal.azure.com/) (and login!) and open the Cloud Shell:
+
+<html><img src="images/open_shell_in_azure.png" alt="Open Shell in Azure"></html>
+
+You may be asked to create storage when you open the shell.
+This is expected, click "Create".
+
+Make sure the shell is set to Bash, not PowerShell.
+
+<html><img src="images/bash_shell.png" alt="Bash Shell"></html>
+
+Set the subscription you'd like to deploy your BinderHub on.
+
+```
+az account set -s <subscription>
+```
+
+This image shows the command being executed for an Azure Pass Sponsorship.
+
+<html><img src="images/set_subscription.png" alt="Set Subscription"></html>
+
+Next, create the Service Principal with the following command. Make sure to give it a sensible name.
+
+```
+az ad sp create-for-rbac --name binderhub-sp --skip-assignment
+```
+
+<html><img src="images/create_sp.png" alt="Create Service Principal"></html>
+
+The fields `appId`, `password` and `tenant` are the required pieces of information.
+These should be copied into the "Service Principal App ID", "Service Principal App Key" and "Service Principal Tenant ID" fields in the form, respectively.
+
+**Keep this information safe as the password cannot be recovered after this step!**
+
 ## Contributors
 
 We would like to acknowledge and thank the following people for their contributions:
@@ -108,3 +150,4 @@ We would like to acknowledge and thank the following people for their contributi
 * Tim Greaves (@tmbgreaves)
 * Gerard Gorman (@ggorman)
 * Tania Allard (@trallard)
+

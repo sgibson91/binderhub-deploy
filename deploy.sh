@@ -3,18 +3,20 @@
 # Exit immediately if a pipeline returns a non-zero status
 set -e
 
-# Ask for user's Docker credentials
-echo "If you have provided a DockerHub organisation, this Docker ID MUST be a member of that organisation"
-read -p "DockerHub ID: " id
-read -sp "DockerHub password: " password
+# Are we running in a container deploy environment?
+if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
+  # Ask for user's Docker credentials
+  echo "If you have provided a DockerHub organisation, this Docker ID MUST be a member of that organisation"
+  read -p "DockerHub ID: " DOCKER_USERNAME
+  read -sp "DockerHub password: " DOCKER_PASSWORD
 
-# Read config file and get values
-configFile='config.json'
+  # Read config file and get values
+  configFile='config.json'
 
-binderhubname=`jq -r '.binderhub .name' ${configFile}`
-version=`jq -r '.binderhub .version' ${configFile}`
-org=`jq -r '.docker .org' ${configFile}`
-prefix=`jq -r '.docker .image_prefix' ${configFile}`
+  BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
+  BINDERHUB_VERSION=`jq -r '.binderhub .version' ${configFile}`
+  DOCKER_ORGANISATION=`jq -r '.docker .org' ${configFile}`
+  DOCKER_IMAGE_PREFIX=`jq -r '.docker .image_prefix' ${configFile}`
 
 # Create tokens for the secrets file:
 apiToken=`openssl rand -hex 32`
@@ -59,7 +61,7 @@ while [ "$jupyterhub_ip" = '<pending>' ] || [ "$jupyterhub_ip" = "" ]
 do
     echo "JupyterHub IP: $jupyterhub_ip"
     sleep 5
-    jupyterhub_ip=`kubectl --namespace=$binderhubname get svc proxy-public | awk '{ print $4}' | tail -n 1`
+    jupyterhub_ip=`kubectl --namespace=$BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
 done
 
 echo "--> Finalising configurations"
