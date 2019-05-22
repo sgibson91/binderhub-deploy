@@ -127,7 +127,8 @@ else
     echo
   else
     if [ -z $DOCKER_PASSWORD ] ; then
-     read -sp "DockerHub password for ${DOCKER_USERNAME}: " DOCKER_PASSWORD
+      read -sp "DockerHub password for ${DOCKER_USERNAME}: " DOCKER_PASSWORD
+      echo
     fi
   fi
 fi
