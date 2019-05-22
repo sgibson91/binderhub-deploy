@@ -124,6 +124,7 @@ else
     fi
     read -p "DockerHub ID: " DOCKER_USERNAME
     read -sp "DockerHub password: " DOCKER_PASSWORD
+    echo
   else
     if [ -z $DOCKER_PASSWORD ] ; then
      read -sp "DockerHub password for ${DOCKER_USERNAME}: " DOCKER_PASSWORD
@@ -146,25 +147,30 @@ if [ -z $SP_APP_ID ] || [ -z $SP_APP_KEY ] || [ -z $SP_TENANT_ID ] ; then
   if ! az login -o none; then
       echo "Unable to connect to Azure" >&2
       exit 1
+  else
+      echo "Logged in to Azure"
   fi
 else
-  echo "Attempting to log in to Azure with service principal"
+  echo "Attempting to log in to Azure with service principal ${SP_APP_ID}" 
   if ! az login --service-principal -u "${SP_APP_ID}" -p "${SP_APP_KEY}" -t "${SP_TENANT_ID}"; then
     echo "Unable to connect to Azure" >&2
     exit 1
+  else
+      echo "Logged in to Azure"
   fi
 fi
 
-echo "Activating Azure subscription: ${AZURE_SUBSCRIPTION}"
-
 # Activate chosen subscription
+echo "Activating Azure subscription: ${AZURE_SUBSCRIPTION}"
 az account set -s "$AZURE_SUBSCRIPTION"
 
-echo "Checking if resource group exists: ${RESOURCE_GROUP_NAME}"
 # Create a new resource group if necessary
+echo "Checking if resource group exists: ${RESOURCE_GROUP_NAME}"
 if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]] ; then
   echo "Creating new resource group: ${RESOURCE_GROUP_NAME}"
   az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table
+else
+  echo "Resource group ${RESOURCE_GROUP_NAME} found."
 fi
 
 # Create an AKS cluster
@@ -182,6 +188,10 @@ az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table
 # Check nodes are ready
 nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)"
 while [[ ! x${nodecount} == x${AKS_NODE_COUNT} ]] ; do echo -n $(date) ; echo " : ${nodecount} of ${AKS_NODE_COUNT} nodes ready" ; sleep 15 ; nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)" ; done
+echo
+echo "Cluster node status:"
+kubectl get node
+echo
 
 # Setup ServiceAccount for tiller
 echo "Setting up tiller service account"
@@ -199,9 +209,15 @@ helm init --service-account tiller --wait
 echo "Securing tiller against attacks from within the cluster"
 kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --patch='[{"op": "add", "path": "/spec/template/spec/containers/0/command", "value": ["/tiller", "--listen=localhost:44134"]}]'
 
-# Check helm has been configured correctly
+# Waiting until tiller pod is ready
 tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')"
 while [[ ! x${tillerStatus} == xRunning ]] ; do echo -n $(date) ; echo " : tiller pod status : ${tillerStatus} " ; sleep 5 ; tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')" ; done
+echo
+echo "AKS system pods status:"
+kubectl get pods --namespace kube-system
+echo
+
+# Check helm has been configured correctly
 echo "Verify Client and Server are running the same version number:"
 helm version
 
