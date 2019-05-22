@@ -34,8 +34,15 @@ secret_script="${DIR}/create_secret.py"
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub:
 echo "--> Generating initial configuration file"
 python3 $config_script -id=$id --prefix=$prefix -org=$org --force
+
 echo "--> Generating initial secrets file"
-python3 $secret_script --apiToken=$apiToken --secretToken=$secretToken -id=$id --password=$password --force
+
+python3 $secret_script --apiToken=$apiToken \
+--secretToken=$secretToken \
+-id=$id \
+--password=$password \
+--force
+
 echo "--> Installing Helm chart"
 helm install jupyterhub/binderhub \
 --version=$version \
@@ -45,17 +52,25 @@ helm install jupyterhub/binderhub \
 -f ./config.yaml \
 --timeout=3600
 
-# # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
-# echo "--> Retrieving BinderHub IP"
-# jupyterhub_ip=`kubectl --namespace=$binderhubname get svc proxy-public | awk '{ print $4}' | tail -n 1`
-# while [ "$jupyterhub_ip" = '<pending>' ] || [ "$jupyterhub_ip" = "" ]
-# do
-#     echo "JupyterHub IP: $jupyterhub_ip"
-#     sleep 5
-#     jupyterhub_ip=`kubectl --namespace=$binderhubname get svc proxy-public | awk '{ print $4}' | tail -n 1`
-# done
+# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
+echo "--> Retrieving BinderHub IP"
+jupyterhub_ip=`kubectl --namespace=$binderhubname get svc proxy-public | awk '{ print $4}' | tail -n 1`
+while [ "$jupyterhub_ip" = '<pending>' ] || [ "$jupyterhub_ip" = "" ]
+do
+    echo "JupyterHub IP: $jupyterhub_ip"
+    sleep 5
+    jupyterhub_ip=`kubectl --namespace=$binderhubname get svc proxy-public | awk '{ print $4}' | tail -n 1`
+done
 
-# echo "--> Finalising configurations"
-# python3 $config_script -id=$id --prefix=$prefix -org=$org --jupyterhub_ip=$jupyterhub_ip --force
-# echo "--> Updating Helm chart"
-# helm upgrade $binderhubname jupyterhub/binderhub --version=$version -f secret.yaml -f config.yaml
+echo "--> Finalising configurations"
+python3 $config_script -id=$id \
+--prefix=$prefix \
+-org=$org \
+--jupyterhub_ip=$jupyterhub_ip \
+--force
+
+echo "--> Updating Helm chart"
+helm upgrade $binderhubname jupyterhub/binderhub \
+--version=$version \
+-f secret.yaml \
+-f config.yaml
