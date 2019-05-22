@@ -39,7 +39,7 @@ Create a file called `config.json` which has the following format.
 Fill the quotation marks with your desired namespaces, etc.
 (Note that `#` tokens won't be permitted in the actual JSON file.)
 
-* For a list of available data centre locations, [see here](https://azure.microsoft.com/en-us/global-infrastructure/locations/).
+* For a list of available data centre regions, [see here](https://azure.microsoft.com/en-us/global-infrastructure/locations/). This should be a _region_ and **not** a _location_, e.g. "West Europe" or "Central US". These can be equivalently written as `westeurope` and `centralus`, respectively.
 * For a list of available Linux Virtual Machines, [see here](https://azure.microsoft.com/en-gb/pricing/details/virtual-machines/linux/).
 * The `cluster_name` must be 63 characters or less and only contain lower case alphanumeric characters or a hyphen (`-`).
 * For versions of the BinderHub Helm chart, [see here](https://jupyterhub.github.io/helm-chart/#development-releases-binderhub).
@@ -49,7 +49,7 @@ Fill the quotation marks with your desired namespaces, etc.
   "azure": {
     "subscription": "",  # Azure subscription name
     "res_grp_name": "",  # Azure Resource Group name
-    "location": "",      # Azure Data Centre location
+    "location": "",      # Azure Data Centre **region**
     "cluster_name": "",  # Kubernetes cluster name
     "node_count": 3,    # Number of nodes to deploy, should be an integer number
     "vm_size": ""        # Azure virtual machine type to deploy
