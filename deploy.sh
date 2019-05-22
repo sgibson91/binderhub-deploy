@@ -108,7 +108,11 @@ if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]] ; then
 fi
 
 # Create an AKS cluster
-echo "Creating AKS cluster; this may take a few monutes to complete"
+echo "Creating AKS cluster; this may take a few minutes to complete
+Resource Group: ${RESOURCE_GROUP_NAME}
+Cluster name:   ${AKS_NAME}
+Node count:     ${AKS_NODE_COUNT}
+Node VM size:   ${AKS_NODE_VM_SIZE}"
 az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table
 
 # Get kubectl credentials from Azure
