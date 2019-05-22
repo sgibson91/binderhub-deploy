@@ -51,7 +51,7 @@ Fill the quotation marks with your desired namespaces, etc.
     "res_grp_name": "",  # Azure Resource Group name
     "location": "",      # Azure Data Centre location
     "cluster_name": "",  # Kubernetes cluster name
-    "node_count": "",    # Number of nodes to deploy
+    "node_count": 3,    # Number of nodes to deploy, should be an integer number
     "vm_size": ""        # Azure virtual machine type to deploy
   },
   "binderhub": {
