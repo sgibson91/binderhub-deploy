@@ -24,25 +24,38 @@ secretToken=`openssl rand -hex 32`
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 helm repo update
 
-# get this script's path
+# Get this script's path
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+# Generate the scripts paths - make sure these are found
 config_script="${DIR}/create_config.py"
 secret_script="${DIR}/create_secret.py"
 
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub:
+echo "--> Generating initial configuration file"
 python3 $config_script -id=$id --prefix=$prefix -org=$org --force
-python3 $config_script --apiToken=$apiToken --secretToken=$secretToken -id=$id --password=$password --force
-helm install jupyterhub/binderhub --version=$version --name=$binderhubname --namespace=$binderhubname -f secret.yaml -f config.yaml
+echo "--> Generating initial secrets file"
+python3 $secret_script --apiToken=$apiToken --secretToken=$secretToken -id=$id --password=$password --force
+echo "--> Installing Helm chart"
+helm install jupyterhub/binderhub \
+--version=$version \
+--name=$binderhubname \
+--namespace=$binderhubname \
+-f ./secret.yaml \
+-f ./config.yaml \
+--timeout=3600
 
-# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
-jupyterhub_ip=`kubectl --namespace=$binderhubname get svc proxy-public | awk '{ print $4}' | tail -n 1`
-while [ "$jupyterhub_ip" = '<pending>' ] || [ "$jupyterhub_ip" = "" ]
-do
-    echo "JupyterHub IP: $jupyterhub_ip"
-    sleep 5
-    jupyterhub_ip=`kubectl --namespace=$binderhubname get svc proxy-public | awk '{ print $4}' | tail -n 1`
-done
+# # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
+# echo "--> Retrieving BinderHub IP"
+# jupyterhub_ip=`kubectl --namespace=$binderhubname get svc proxy-public | awk '{ print $4}' | tail -n 1`
+# while [ "$jupyterhub_ip" = '<pending>' ] || [ "$jupyterhub_ip" = "" ]
+# do
+#     echo "JupyterHub IP: $jupyterhub_ip"
+#     sleep 5
+#     jupyterhub_ip=`kubectl --namespace=$binderhubname get svc proxy-public | awk '{ print $4}' | tail -n 1`
+# done
 
-python3 $config_script -id=$id --prefix=$prefix -org=$org --jupyterhub_ip=$jupyterhub_ip --force
-helm upgrade $binderhubname jupyterhub/binderhub --version=$version -f secret.yaml -f config.yaml
+# echo "--> Finalising configurations"
+# python3 $config_script -id=$id --prefix=$prefix -org=$org --jupyterhub_ip=$jupyterhub_ip --force
+# echo "--> Updating Helm chart"
+# helm upgrade $binderhubname jupyterhub/binderhub --version=$version -f secret.yaml -f config.yaml
