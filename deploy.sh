@@ -49,7 +49,7 @@ else
   AZURE_SUBSCRIPTION=`jq -r '.azure .subscription' ${configFile}`
   BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
   RESOURCE_GROUP_LOCATION=`jq -r '.azure .location' ${configFile}`
-  RESOURCE_GROUP_NAME=`jq -r '.azure .resource_group_name' ${configFile}`
+  RESOURCE_GROUP_NAME=`jq -r '.azure .res_grp_name' ${configFile}`
   AKS_NODE_COUNT=`jq -r '.azure .node_count' ${configFile}`
   AKS_NODE_VM_SIZE=`jq -r '.azure .vm_size' ${configFile}`
 
