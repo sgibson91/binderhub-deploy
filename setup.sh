@@ -112,13 +112,13 @@ if [ -z $BINDERHUB_CONTAINER_MODE ] ; then
       if ! command -v kubectl >/dev/null 2>&1 ; then
         echo "Attempting to install kubectl with yum packages"
         echo "[kubernetes]
-  name=Kubernetes
-  baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
-  enabled=1
-  gpgcheck=1
-  repo_gpgcheck=1
-  gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-  " | ${sudo_command} tee /etc/yum.repos.d/kubernetes.repo
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+" | ${sudo_command} tee /etc/yum.repos.d/kubernetes.repo
         ${sudo_command} yum install -y kubectl
       fi
   
