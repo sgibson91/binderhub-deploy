@@ -39,9 +39,10 @@ Create a file called `config.json` which has the following format.
 Fill the quotation marks with your desired namespaces, etc.
 (Note that `#` tokens won't be permitted in the actual JSON file.)
 
-* For a list of available locations, [see here](https://azure.microsoft.com/en-us/global-infrastructure/locations/).
+* For a list of available data centre locations, [see here](https://azure.microsoft.com/en-us/global-infrastructure/locations/).
 * For a list of available Linux Virtual Machines, [see here](https://azure.microsoft.com/en-gb/pricing/details/virtual-machines/linux/).
-* The `cluster_name` must be 63 characters or less and only contain lower case alphanumeric characters or a hyphen (-).
+* The `cluster_name` must be 63 characters or less and only contain lower case alphanumeric characters or a hyphen (`-`).
+* For versions of the BinderHub Helm chart, [see here](https://jupyterhub.github.io/helm-chart/#development-releases-binderhub).
 
 ```
 {
@@ -54,12 +55,12 @@ Fill the quotation marks with your desired namespaces, etc.
     "vm_size": ""        # Azure virtual machine type to deploy
   },
   "binderhub": {
-    "name": "",          # Name of you BinderHub
+    "name": "",          # Name of your BinderHub
     "version": ""        # Helm chart version to deploy
   },
   "docker": {
-    "org": null,         # The DockerHub organisation id belongs to (if necessary)
-    "image_prefix": ""   # The prefix to preprend to Binder images (e.g. "binder-dev")
+    "org": null,         # A DockerHub organisation to push images to (if desired)
+    "image_prefix": ""   # The prefix to preprend to Binder images (e.g. "binder-prod")
   }
 }
 ```
@@ -70,7 +71,7 @@ You can copy [`template-config.json`](template-config.json) should you require.
 
 ### setup.sh
 
-This script checks whether the required command line programs are already installed, and if any are missing uses the system package manager or [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for Microsoft Azure (`azure-cli`), Kubernetes (`kubectl`), Helm (`helm`), and the ssh key generator (ssh-keygen), along with dependencies that are not automatically installed by those packages.
+This script checks whether the required command line programs are already installed, and if any are missing uses the system package manager or [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for Microsoft Azure (`azure-cli`), Kubernetes (`kubectl`), Helm (`helm`), along with dependencies that are not automatically installed by those packages.
 
 Command line install scripts were found in the following documentation:
 * [Azure-CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update)
@@ -89,7 +90,7 @@ Both a JupyterHub and BinderHub are installed and the `config.yaml` file is upda
 
 This script will print the JupyterHub logs to the terminal for debugging.
 It reads from `config.json` in order to get the BinderHub name.
-It then finds the pod the JupyterHub is deployed on and calls the logs.
+It then finds the JupyterHub pod and prints the logs.
 
 ### info.sh
 
@@ -105,6 +106,6 @@ The user should check the [Azure Portal](https://portal.azure.com/#home) to veri
 
 We would like to acknowledge and thank the following people for their contributions:
 
-* Tim Greaves (@tmbgreaves)
-* Gerard Gorman (@ggorman)
-* Tania Allard (@trallard)
+* Tim Greaves ( @tmbgreaves )
+* Gerard Gorman ( @ggorman )
+* Tania Allard ( @trallard )
