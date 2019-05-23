@@ -54,10 +54,10 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
     done
     if ! command -v python3 >/dev/null 2>&1 ; then
       if [ -f /etc/fedora-release ] ; then
-        ${sudo_command} yum install -y python3
+        ${sudo_command} yum install -y python3 python3-pyyaml
       else
         ${sudo_command} yum install -y epel-release
-        ${sudo_command} yum install -y python36
+        ${sudo_command} yum install -y python36 python36-PyYAML
       fi
     fi
     if ! command -v az >/dev/null 2>&1 ; then
