@@ -48,7 +48,7 @@ Fill the quotation marks with your desired namespaces, etc.
     "subscription": "",  # Azure subscription name
     "res_grp_name": "",  # Azure Resource Group name
     "location": "",      # Azure Data Centre location
-    "node_count": 1,    # Number of nodes to deploy. 1 is the limit of a Free Trial subscription, 3 is preferrable.
+    "node_count": 1,     # Number of nodes to deploy. 1 is the limit of a Free Trial subscription, 3 is preferrable.
     "vm_size": ""        # Azure virtual machine type to deploy
   },
   "binderhub": {
