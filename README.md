@@ -6,6 +6,12 @@ This repo contains a set of scripts to automatically deploy a BinderHub onto [Mi
 
 This repo is based on the following set of deployment scripts for Google Cloud: [nicain/binder-deploy](https://github.com/nicain/binder-deploy)
 
+You will require a Microsoft Azure account and subscription.
+A Free Trial subscription can be obtained [here](https://azure.microsoft.com/en-gb/free/).
+You will be asked to provide a credit card for verification purposes.
+**You will not be charged.**
+Your resources will be frozen once your subscription expires, then deleted if you do not reactivate your account within a given time period.
+
 **List of scripts:**
 * [**setup.sh**](#setupsh)
 * [**deploy.sh**](#deploysh)
@@ -39,16 +45,16 @@ Create a file called `config.json` which has the following format.
 Fill the quotation marks with your desired namespaces, etc.
 (Note that `#` tokens won't be permitted in the actual JSON file.)
 
-* For a list of available locations, [see here](https://azure.microsoft.com/en-us/global-infrastructure/locations/).
-* For a list of available Linux Virtual Machines, [see here](https://azure.microsoft.com/en-gb/pricing/details/virtual-machines/linux/).
+* For a list of available data centre regions, [see here](https://azure.microsoft.com/en-us/global-infrastructure/locations/). This should be a _region_ and **not** a _location_, e.g. "West Europe" or "Central US". These can be equivalently written as `westeurope` and `centralus`, respectively.
+* For a list of available Linux Virtual Machines, [see here](https://docs.microsoft.com/en-gb/azure/virtual-machines/linux/sizes-general). This should be something like, e.g., `Standard_D2s_v3`.
 
 ```
 {
   "azure": {
     "subscription": "",  # Azure subscription name
     "res_grp_name": "",  # Azure Resource Group name
-    "location": "",      # Azure Data Centre location
-    "node_count": "",    # Number of nodes to deploy
+    "location": "",      # Azure Data Centre region
+    "node_count": 1,     # Number of nodes to deploy. 3 is preferrable for a stable cluster, but may be liable to caps.
     "vm_size": ""        # Azure virtual machine type to deploy
     "sp_app_id": null,   # Azure service principal ID (optional)
     "sp_app_key": null,  # Azure service principal password (optional)
@@ -56,25 +62,33 @@ Fill the quotation marks with your desired namespaces, etc.
   },
   "binderhub": {
     "name": "",          # Name of your BinderHub
-    "version": ""        # Helm chart version to deploy
+    "version": ""        # Helm chart version to deploy, should be 0.2.0-<commit-hash>
     "contact_email": ""  # Email for letsencrypt https certificate
   },
   "docker": {
     "username": null,    # Docker username (can be supplied at runtime)
     "password": null,    # Docker password (can be supplied at runtime)
-    "org": null,         # The DockerHub organisation id belongs to (if necessary)
-    "image_prefix": ""   # The prefix to preprend to Binder images (e.g. "binder-dev")
+    "org": null,         # A DockerHub organisation to push images to (if desired)
+    "image_prefix": ""   # The prefix to preprend to Binder images (e.g. "binder-prod")
   }
 }
 ```
 
 You can copy [`template-config.json`](template-config.json) should you require.
 
+#### Important for Free Trial subscriptions
+
+If you have signed up to an Azure Free Trial subscription, you are not allowed to deploy more than 4 **cores**.
+How many cores you deploy depends on your choice of `node_count` and `vm_size`.
+
+For example, a `Standard_D2s_v3` machine has 2 cores.
+Therefore, setting `node_count` to 2 will deploy 4 cores and you will have reached your quota for cores on your Free Trial subscription.
+
 ---
 
 ### setup.sh
 
-This script checks whether the required command line programs are already installed, and if any are missing uses the system package manager or [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for Microsoft Azure (`azure-cli`), Kubernetes (`kubectl`), Helm (`helm`), and the ssh key generator (ssh-keygen), along with dependencies that are not automatically installed by those packages.
+This script checks whether the required command line programs are already installed, and if any are missing uses the system package manager or [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for Microsoft Azure (`azure-cli`), Kubernetes (`kubectl`), Helm (`helm`), along with dependencies that are not automatically installed by those packages.
 
 Command line install scripts were found in the following documentation:
 * [Azure-CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update)
@@ -93,7 +107,7 @@ Both a JupyterHub and BinderHub are installed onto the deployed Kubernetes clust
 
 This script will print the JupyterHub logs to the terminal for debugging.
 It reads from `config.json` in order to get the BinderHub name.
-It then finds the pod the JupyterHub is deployed on and calls the logs.
+It then finds the JupyterHub pod and prints the logs.
 
 ### info.sh
 
@@ -156,4 +170,4 @@ We would like to acknowledge and thank the following people for their contributi
 * Tim Greaves (@tmbgreaves)
 * Gerard Gorman (@ggorman)
 * Tania Allard (@trallard)
-
+* Diego Alonso Alvarez (@dalonsoa)

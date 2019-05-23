@@ -98,6 +98,8 @@ else
 
   # Generate resource group name
   RESOURCE_GROUP_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]_-' | cut -c 1-87`_RG
+  # Normalise resource group location to remove spaces and have lowercase
+  RESOURCE_GROUP_LOCATION=`echo ${RESOURCE_GROUP_LOCATION//[[:blank:]]/} | tr '[:upper:]' '[:lower:]'`
 
   echo "Configuration read in:
     AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
