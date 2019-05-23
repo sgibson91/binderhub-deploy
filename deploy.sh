@@ -220,7 +220,8 @@ echo
 
 # Check helm has been configured correctly
 echo "Verify Client and Server are running the same version number:"
-
+# Be error tolerant for this step
+set +e
 helmVersionAttempts=0
 while ! helm version ; do
   ((helmVersionAttempts++))
@@ -232,6 +233,8 @@ while ! helm version ; do
   echo "Waiting 5 seconds before attempting helm version check again"
   sleep 5
 done
+# Revert to error-intolerance
+set -e
 
 # Create tokens for the secrets file:
 apiToken=`openssl rand -hex 32`
