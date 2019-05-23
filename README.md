@@ -6,6 +6,12 @@ This repo contains a set of scripts to automatically deploy a BinderHub onto [Mi
 
 This repo is based on the following set of deployment scripts for Google Cloud: [nicain/binder-deploy](https://github.com/nicain/binder-deploy)
 
+You will require a Microsoft Azure account and subscription.
+A Free Trial subscription can be obtained [here](https://azure.microsoft.com/en-gb/free/).
+You will be asked to provide a credit card for verification purposes.
+**You will not be charged.**
+Your resources will be frozen once your subscription expires, then deleted if you do not reactivate your account within a given time period.
+
 **List of scripts:**
 * [**setup.sh**](#setupsh)
 * [**deploy.sh**](#deploysh)
@@ -47,8 +53,8 @@ Fill the quotation marks with your desired namespaces, etc.
   "azure": {
     "subscription": "",  # Azure subscription name
     "res_grp_name": "",  # Azure Resource Group name
-    "location": "",      # Azure Data Centre location
-    "node_count": 1,     # Number of nodes to deploy. 1 is the limit of a Free Trial subscription, 3 is preferrable.
+    "location": "",      # Azure Data Centre region
+    "node_count": 1,     # Number of nodes to deploy. 3 is preferrable for a stable cluster, but may be liable to caps.
     "vm_size": ""        # Azure virtual machine type to deploy
   },
   "binderhub": {
@@ -63,6 +69,14 @@ Fill the quotation marks with your desired namespaces, etc.
 ```
 
 You can copy [`template-config.json`](template-config.json) should you require.
+
+#### Important for Free Trial subscriptions
+
+If you have signed up to an Azure Free Trial subscription, you are not allowed to deploy more than 4 **cores**.
+How many cores you deploy depends on your choice of `node_count` and `vm_size`.
+
+For example, a `Standard_D2s_v3` machine has 2 cores.
+Therefore, setting `node_count` to 2 will deploy 4 cores and you will have reached your quota for cores on your Free Trial subscription.
 
 ---
 
