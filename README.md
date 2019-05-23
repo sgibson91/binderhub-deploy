@@ -164,3 +164,4 @@ We would like to acknowledge and thank the following people for their contributi
 * Tim Greaves (@tmbgreaves)
 * Gerard Gorman (@ggorman)
 * Tania Allard (@trallard)
+* Diego Alonso Alvarez (@dalonsoa)
