@@ -227,7 +227,7 @@ while ! helm version ; do
   echo "helm version attempt ${helmVersionAttempts} of 3 failed"
   if (( helmVersionAttempts > 2 )) ; then
     echo "Please check helm versions manually later"
-    exit 1
+    break
   fi
   echo "Waiting 5 seconds before attempting helm version check again"
   sleep 5
