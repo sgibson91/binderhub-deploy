@@ -3,7 +3,7 @@
     "subscription": "",
     "res_grp_name": "",
     "location": "",
-    "node_count": "",
+    "node_count": 1,
     "vm_size": ""
   },
   "binderhub": {
