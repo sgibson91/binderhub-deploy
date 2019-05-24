@@ -253,7 +253,11 @@ secret_script="${DIR}/create_secret.py"
 
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub:
 echo "--> Generating initial configuration file"
-python3 $config_script -id=$DOCKER_USERNAME --prefix=$DOCKER_IMAGE_PREFIX -org=$DOCKER_ORGANISATION --force
+if [ -z "$DOCKER_ORGANISATION" ] ; then
+  python3 $config_script -id=$DOCKER_USERNAME --prefix=$DOCKER_IMAGE_PREFIX --force
+else
+  python3 $config_script -id=$DOCKER_USERNAME --prefix=$DOCKER_IMAGE_PREFIX -org=$DOCKER_ORGANISATION --force
+fi
 
 echo "--> Generating initial secrets file"
 
@@ -283,11 +287,18 @@ do
 done
 
 echo "--> Finalising configurations"
-python3 $config_script -id=$DOCKER_USERNAME \
---prefix=$DOCKER_IMAGE_PREFIX \
--org=$DOCKER_ORGANISATION \
---jupyterhub_ip=$jupyterhub_ip \
---force
+if [ -z "$DOCKER_ORGANISATION" ] ; then
+  python3 $config_script -id=$DOCKER_USERNAME \
+  --prefix=$DOCKER_IMAGE_PREFIX \
+  --jupyterhub_ip=$jupyterhub_ip \
+  --force
+else
+  python3 $config_script -id=$DOCKER_USERNAME \
+  --prefix=$DOCKER_IMAGE_PREFIX \
+  -org=$DOCKER_ORGANISATION \
+  --jupyterhub_ip=$jupyterhub_ip \
+  --force
+fi
 
 echo "--> Updating Helm chart"
 helm upgrade $BINDERHUB_NAME jupyterhub/binderhub \
