@@ -119,7 +119,7 @@ else
 
   # Check/get the user's Docker credentials
   if [ -z $DOCKER_USERNAME ] ; then
-    if [ -z $DOCKER_ORGANISATION ]; then
+    if [ ! -z "$DOCKER_ORGANISATION" ]; then
       echo "--> Your docker ID must be a member of the ${DOCKER_ORGANISATION} organisation"
     fi
     read -p "DockerHub ID: " DOCKER_USERNAME
