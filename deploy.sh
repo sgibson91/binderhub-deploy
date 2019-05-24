@@ -15,8 +15,8 @@ set -e
 # in the form of environment variables
 
 if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
-  echo "Deployment operating in container mode"
-  echo "Checking required environment variables"
+  echo "--> Deployment operating in container mode"
+  echo "--> Checking required environment variables"
   # Set out a list of required variables for this script
   REQUIREDVARS=" \
           SP_APP_ID \
@@ -37,7 +37,7 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
           "
   for required_var in $REQUIREDVARS ; do
     if [ -z "${!required_var}" ] ; then
-      echo "${required_var} must be set for container-based setup" >&2
+      echo "--> ${required_var} must be set for container-based setup" >&2
       exit 1
     fi
   done
@@ -47,7 +47,7 @@ else
   # Read in config file and assign variables for the non-container case
   configFile='config.json'
   
-  echo "Reading configuration from ${configFile}"
+  echo "--> Reading configuration from ${configFile}"
   
   AZURE_SUBSCRIPTION=`jq -r '.azure .subscription' ${configFile}`
   BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
@@ -79,7 +79,7 @@ else
           "
   for required_var in $REQUIREDVARS ; do
     if [ -z "${!required_var}" ] || [ x${required_var} == 'xnull' ] ; then
-      echo "${required_var} must be set for deployment" >&2
+      echo "--> ${required_var} must be set for deployment" >&2
       exit 1
     fi
   done
@@ -99,7 +99,7 @@ else
   # Normalise resource group location to remove spaces and have lowercase
   RESOURCE_GROUP_LOCATION=`echo ${RESOURCE_GROUP_LOCATION//[[:blank:]]/} | tr '[:upper:]' '[:lower:]'`
 
-  echo "Configuration read in:
+  echo "--> Configuration read in:
     AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
     BINDERHUB_NAME: ${BINDERHUB_NAME}
     BINDERHUB_VERSION: ${BINDERHUB_VERSION}
@@ -120,7 +120,7 @@ else
   # Check/get the user's Docker credentials
   if [ -z $DOCKER_USERNAME ] ; then
     if [ -z $DOCKER_ORGANISATION ]; then
-      echo "Your docker ID must be a member of the ${DOCKER_ORGANISATION} organisation"
+      echo "--> Your docker ID must be a member of the ${DOCKER_ORGANISATION} organisation"
     fi
     read -p "DockerHub ID: " DOCKER_USERNAME
     read -sp "DockerHub password: " DOCKER_PASSWORD
@@ -144,38 +144,38 @@ AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
 
 
 if [ -z $SP_APP_ID ] || [ -z $SP_APP_KEY ] || [ -z $SP_TENANT_ID ] ; then
-  echo "Attempting to log in to Azure as a user"
+  echo "--> Attempting to log in to Azure as a user"
   if ! az login -o none; then
-      echo "Unable to connect to Azure" >&2
+      echo "--> Unable to connect to Azure" >&2
       exit 1
   else
-      echo "Logged in to Azure"
+      echo "--> Logged in to Azure"
   fi
 else
-  echo "Attempting to log in to Azure with service principal ${SP_APP_ID}" 
+  echo "--> Attempting to log in to Azure with service principal ${SP_APP_ID}"
   if ! az login --service-principal -u "${SP_APP_ID}" -p "${SP_APP_KEY}" -t "${SP_TENANT_ID}"; then
-    echo "Unable to connect to Azure" >&2
+    echo "--> Unable to connect to Azure" >&2
     exit 1
   else
-      echo "Logged in to Azure"
+      echo "--> Logged in to Azure"
   fi
 fi
 
 # Activate chosen subscription
-echo "Activating Azure subscription: ${AZURE_SUBSCRIPTION}"
+echo "--> Activating Azure subscription: ${AZURE_SUBSCRIPTION}"
 az account set -s "$AZURE_SUBSCRIPTION"
 
 # Create a new resource group if necessary
 echo "Checking if resource group exists: ${RESOURCE_GROUP_NAME}"
 if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]] ; then
-  echo "Creating new resource group: ${RESOURCE_GROUP_NAME}"
+  echo "--> Creating new resource group: ${RESOURCE_GROUP_NAME}"
   az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table
 else
-  echo "Resource group ${RESOURCE_GROUP_NAME} found."
+  echo "--> Resource group ${RESOURCE_GROUP_NAME} found."
 fi
 
 # Create an AKS cluster
-echo "Creating AKS cluster; this may take a few minutes to complete
+echo "--> Creating AKS cluster; this may take a few minutes to complete
 Resource Group: ${RESOURCE_GROUP_NAME}
 Cluster name:   ${AKS_NAME}
 Node count:     ${AKS_NODE_COUNT}
@@ -183,54 +183,54 @@ Node VM size:   ${AKS_NODE_VM_SIZE}"
 az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table
 
 # Get kubectl credentials from Azure
-echo "Fetching kubectl credentials from Azure"
+echo "--> Fetching kubectl credentials from Azure"
 az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table
 
 # Check nodes are ready
 nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)"
 while [[ x${nodecount} -ne x${AKS_NODE_COUNT} ]] ; do echo -n $(date) ; echo " : ${nodecount} of ${AKS_NODE_COUNT} nodes ready" ; sleep 15 ; nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)" ; done
 echo
-echo "Cluster node status:"
+echo "--> Cluster node status:"
 kubectl get node
 echo
 
 # Setup ServiceAccount for tiller
-echo "Setting up tiller service account"
+echo "--> Setting up tiller service account"
 kubectl --namespace kube-system create serviceaccount tiller
 
 # Give the ServiceAccount full permissions to manage the cluster
-echo "Giving the ServiceAccount full permissions to manage the cluster"
+echo "--> Giving the ServiceAccount full permissions to manage the cluster"
 kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
 
 # Initialise helm and tiller
-echo "Initialising helm and tiller"
+echo "--> Initialising helm and tiller"
 helm init --service-account tiller --wait
 
 # Secure tiller against attacks from within the cluster
-echo "Securing tiller against attacks from within the cluster"
+echo "--> Securing tiller against attacks from within the cluster"
 kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --patch='[{"op": "add", "path": "/spec/template/spec/containers/0/command", "value": ["/tiller", "--listen=localhost:44134"]}]'
 
 # Waiting until tiller pod is ready
 tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')"
 while [[ ! x${tillerStatus} == xRunning ]] ; do echo -n $(date) ; echo " : tiller pod status : ${tillerStatus} " ; sleep 5 ; tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')" ; done
 echo
-echo "AKS system pods status:"
+echo "--> AKS system pods status:"
 kubectl get pods --namespace kube-system
 echo
 
 # Check helm has been configured correctly
-echo "Verify Client and Server are running the same version number:"
+echo "--> Verify Client and Server are running the same version number:"
 # Be error tolerant for this step
 set +e
 helmVersionAttempts=0
 while ! helm version ; do
   ((helmVersionAttempts++))
-  echo "helm version attempt ${helmVersionAttempts} of 3 failed"
+  echo "--> helm version attempt ${helmVersionAttempts} of 3 failed"
   if (( helmVersionAttempts > 2 )) ; then
-    echo "Please check helm versions manually later"
+    echo "--> Please check helm versions manually later"
     break
   fi
-  echo "Waiting 5 seconds before attempting helm version check again"
+  echo "--> Waiting 5 seconds before attempting helm version check again"
   sleep 5
 done
 # Revert to error-intolerance
