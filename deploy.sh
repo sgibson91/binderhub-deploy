@@ -190,7 +190,7 @@ az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table
 
 # Check nodes are ready
 nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)"
-while [[ ! x${nodecount} == x${AKS_NODE_COUNT} ]] ; do echo -n $(date) ; echo " : ${nodecount} of ${AKS_NODE_COUNT} nodes ready" ; sleep 15 ; nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)" ; done
+while [[ x${nodecount} -ne x${AKS_NODE_COUNT} ]] ; do echo -n $(date) ; echo " : ${nodecount} of ${AKS_NODE_COUNT} nodes ready" ; sleep 15 ; nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)" ; done
 echo
 echo "Cluster node status:"
 kubectl get node
