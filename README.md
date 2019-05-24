@@ -28,7 +28,7 @@ git clone https://github.com/alan-turing-institute/binderhub-deploy.git
 cd binderhub-deploy
 ```
 
-The Python files `create_config.py` and `create_secret.py` require Python version >= 3.6, but no extra packages are needed.
+The Python files [`create_config.py`](./create_config.py) and [`create_secret.py`](./create_secret.py) require Python version `>= 3.6`, but no extra packages are needed.
 
 To make the scripts executable and then run them, do the following:
 
@@ -37,9 +37,9 @@ chmod 700 <script-name>.sh
 ./<script-name>.sh
 ```
 
-To deploy, you should run `setup.sh` first, then `deploy.sh`.
+To build the BinderHub, you should run `setup.sh` first, then `deploy.sh`.
 You can run `logs.sh` and `info.sh` to get the JupyterHub logs and IP addresses respectively.
-`teardown.sh` should only be used to remove your BinderHub deployment.
+`teardown.sh` should only be used to delete your BinderHub deployment.
 
 Create a file called `config.json` which has the following format.
 Fill the quotation marks with your desired namespaces, etc.
@@ -67,7 +67,7 @@ Fill the quotation marks with your desired namespaces, etc.
 }
 ```
 
-You can copy [`template-config.json`](template-config.json) should you require.
+You can copy [`template-config.json`](./template-config.json) should you require.
 
 #### Important for Free Trial subscriptions
 
@@ -81,18 +81,13 @@ Therefore, setting `node_count` to 2 will deploy 4 cores and you will have reach
 
 ### setup.sh
 
-This script checks whether the required command line programs are already installed, and if any are missing uses the system package manager or [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for Microsoft Azure (`azure-cli`), Kubernetes (`kubectl`), Helm (`helm`), along with dependencies that are not automatically installed by those packages.
-
-Command line install scripts were found in the following documentation:
-* [Azure-CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update)
-* [Kubernetes-CLI](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-using-curl) (macOS version)
-* [Helm-CLI](https://helm.sh/docs/using_helm/#from-script)
+This script checks whether the required command line programs are already installed, and if any are missing uses the system package manager or [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for [Microsoft Azure (`azure-cli`)](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update), [Kubernetes (`kubectl`)](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-using-curl), [Helm (`helm`)](https://helm.sh/docs/using_helm/#from-script), along with dependencies that are not automatically installed by those packages.
 
 ### deploy.sh
 
-This script reads in values from `config.json`, deploys a Kubernetes cluster, then creates `config.yaml` and `secret.yaml` files via `create_config.py` and `create_secret.py` respectively (using `config-template.yaml` and `secret-template.yaml`).
+This script reads in values from `config.json`, deploys a Kubernetes cluster, then creates `config.yaml` and `secret.yaml` files via `create_config.py` and `create_secret.py` respectively (using [`config-template.yaml`](./config-template.yaml) and [`secret-template.yaml`](./secret-template.yaml)).
 The script will ask for your Docker ID and password.
-The ID is your Docker username, NOT the email.
+The ID is your Docker username, **NOT** the associated email.
 If you have provided a Docker organisation in `config.json`, then Docker ID **MUST** be a member of this organisation.
 Both a JupyterHub and BinderHub are installed onto the deployed Kubernetes cluster and the `config.yaml` file is updated with the JupyterHub IP address.
 
@@ -100,16 +95,16 @@ Both a JupyterHub and BinderHub are installed onto the deployed Kubernetes clust
 
 This script will print the JupyterHub logs to the terminal for debugging.
 It reads from `config.json` in order to get the BinderHub name.
-It then finds the JupyterHub pod and prints the logs.
 
 ### info.sh
 
-The script will print the IP addresses of both the JupyterHub and the BinderHub to the terminal.
+The script will print the pod status of the cluster and the IP addresses of both the JupyterHub and BinderHub to the terminal.
 It reads the BinderHub name from `config.json`.
 
 ### teardown.sh
 
 This script will purge the Helm release, delete the Kubernetes namespace and then delete the Azure Resource Group containing the computational resources.
+It will read the namespaces from `config.json`.
 The user should check the [Azure Portal](https://portal.azure.com/#home) to verify the resources have been deleted.
 
 ## Azure Deployment
