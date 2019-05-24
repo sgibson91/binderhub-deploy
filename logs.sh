@@ -4,6 +4,8 @@
 configFile='config.json'
 binderhubname=`jq -r '.binderhub .name' ${configFile}`
 
+echo "--> Fetching JupyterHub logs"
+
 # Get pod name of the JupyterHub
 output=`kubectl -n $binderhubname get pod | awk '{ print $1}' | tail -n 2`
 output=($output)
