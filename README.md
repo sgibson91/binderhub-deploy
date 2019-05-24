@@ -43,7 +43,6 @@ You can run `logs.sh` and `info.sh` to get the JupyterHub logs and IP addresses 
 
 Create a file called `config.json` which has the following format.
 Fill the quotation marks with your desired namespaces, etc.
-(Note that `#` tokens won't be permitted in the actual JSON file.)
 
 * For a list of available data centre regions, [see here](https://azure.microsoft.com/en-us/global-infrastructure/locations/). This should be a _region_ and **not** a _location_, e.g. "West Europe" or "Central US". These can be equivalently written as `westeurope` and `centralus`, respectively.
 * For a list of available Linux Virtual Machines, [see here](https://docs.microsoft.com/en-gb/azure/virtual-machines/linux/sizes-general). This should be something like, e.g., `Standard_D2s_v3`.
@@ -51,19 +50,19 @@ Fill the quotation marks with your desired namespaces, etc.
 ```
 {
   "azure": {
-    "subscription": "",  # Azure subscription name
-    "res_grp_name": "",  # Azure Resource Group name
-    "location": "",      # Azure Data Centre region
-    "node_count": 1,     # Number of nodes to deploy. 3 is preferrable for a stable cluster, but may be liable to caps.
-    "vm_size": ""        # Azure virtual machine type to deploy
+    "subscription": "",  // Azure subscription name
+    "res_grp_name": "",  // Azure Resource Group name
+    "location": "",      // Azure Data Centre region
+    "node_count": 1,     // Number of nodes to deploy. 3 is preferrable for a stable cluster, but may be liable to caps.
+    "vm_size": ""        // Azure virtual machine type to deploy
   },
   "binderhub": {
-    "name": "",          # Name of your BinderHub
-    "version": ""        # Helm chart version to deploy, should be 0.2.0-<commit-hash>
+    "name": "",          // Name of your BinderHub
+    "version": ""        // Helm chart version to deploy, should be 0.2.0-<commit-hash>
   },
   "docker": {
-    "org": null,         # A DockerHub organisation to push images to (if desired)
-    "image_prefix": ""   # The prefix to preprend to Binder images (e.g. "binder-prod")
+    "org": null,         // A DockerHub organisation to push images to (if desired)
+    "image_prefix": ""   // The prefix to preprend to Binder images (e.g. "binder-prod")
   }
 }
 ```
