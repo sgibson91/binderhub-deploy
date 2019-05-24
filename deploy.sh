@@ -166,7 +166,7 @@ echo "--> Activating Azure subscription: ${AZURE_SUBSCRIPTION}"
 az account set -s "$AZURE_SUBSCRIPTION"
 
 # Create a new resource group if necessary
-echo "Checking if resource group exists: ${RESOURCE_GROUP_NAME}"
+echo "--> Checking if resource group exists: ${RESOURCE_GROUP_NAME}"
 if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]] ; then
   echo "--> Creating new resource group: ${RESOURCE_GROUP_NAME}"
   az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table
@@ -308,7 +308,7 @@ helm upgrade $BINDERHUB_NAME jupyterhub/binderhub \
 
 # Print Binder IP address
 binder_ip=`kubectl --namespace=$BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
-while [ "$binder_ip" = '<pending>' ] || [ "$binder_ip" = ""]
+while [ "$binder_ip" = '<pending>' ] || [ "$binder_ip" = "" ]
 do
     echo "Binder IP: $binder_ip"
     sleep 5
