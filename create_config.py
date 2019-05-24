@@ -59,7 +59,7 @@ def main():
     template_path = BASE_DIR.joinpath(args.template)
 
     template = yaml.safe_load(open(template_path, "r"))
-    if not (args.docker_org is None):
+    if args.docker_org is not None:
         template["config"]["BinderHub"]["image_prefix"] = (
             template["config"]["BinderHub"]["image_prefix"]
             .replace("<docker-id>", args.docker_org)
