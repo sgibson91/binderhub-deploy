@@ -72,7 +72,7 @@ def main():
             .replace("<prefix>", args.prefix)
         )
 
-    if not (args.jupyterhub_ip is None):
+    if args.jupyterhub_ip is not None:
         template["config"]["BinderHub"]["hub_url"] = f"http://{args.jupyterhub_ip}"
 
     yaml.dump(template, open(args.output_file, "w"), default_flow_style=False)
