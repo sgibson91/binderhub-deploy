@@ -115,7 +115,7 @@ The user should check the [Azure Portal](https://portal.azure.com/#home) to veri
 
 ## Azure Deployment
 
-To deploy [Binderhub](https://binderhub.readthedocs.io/) to Azure use the deploy button below.
+To deploy [BinderHub](https://binderhub.readthedocs.io/) to Azure use the deploy button below.
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ftmbgreaves%2Fbinderhub-deploy%2Fchange-urls-to-upstream%2Fazure%2Fpaas%2Farm%2Fazure.deploy.json)
 
