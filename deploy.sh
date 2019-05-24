@@ -96,9 +96,6 @@ else
   if [ x${DOCKER_PASSWORD} == 'xnull' ] ; then DOCKER_PASSWORD='' ; fi
   if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
 
-  # Generate resource group name
-  RESOURCE_GROUP_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]_-' | cut -c 1-87`_RG
-
   echo "Configuration read in:
     AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
     BINDERHUB_NAME: ${BINDERHUB_NAME}
