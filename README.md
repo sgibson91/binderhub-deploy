@@ -17,6 +17,7 @@ Your resources will be frozen once your subscription expires, then deleted if yo
 * [**deploy.sh**](#deploysh)
 * [**logs.sh**](#logssh)
 * [**info.sh**](#infosh)
+* [**upgrade.sh**](#upgradesh)
 * [**teardown.sh**](#teardownsh)
 
 ## Usage
@@ -107,6 +108,11 @@ It then finds the JupyterHub pod and prints the logs.
 
 The script will print the IP addresses of both the JupyterHub and the BinderHub to the terminal.
 It reads the BinderHub name from `config.json`.
+
+### upgrade.sh
+
+This script will automatically upgrade the helm chart deployment configuring the BinderHub and then prints the Kubernetes pods.
+It reads the BinderHub name and Helm chart version from `config.json`.
 
 ### teardown.sh
 
