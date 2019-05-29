@@ -332,17 +332,18 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     --sku Standard_LRS --location ${RESOURCE_GROUP_LOCATION} \
     --subscription ${AZURE_SUBSCRIPTION} -o table | tee storage-create.log
   # Create a container
+  CONTAINER_NAME="deployment-$(date +'%Y-%m-%d-%H-%M')"
   az storage container create --account-name ${BINDERHUB_NAME} \
-    --subscription ${AZURE_SUBSCRIPTION} --name ${BINDERHUB_NAME} \
+    --subscription ${AZURE_SUBSCRIPTION} --name ${CONTAINER_NAME} \
     | tee container-create.log
   # Push the files
   az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
-    --destination ${BINDERHUB_NAME} --source "." \
+    --destination ${CONTAINER_NAME} --source "." \
     --pattern "*.log"
   az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
-    --destination ${BINDERHUB_NAME} --source "." \
+    --destination ${CONTAINER_NAME} --source "." \
     --pattern "*.yaml"
   az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
-    --destination ${BINDERHUB_NAME} --source "~/.ssh" \
+    --destination ${CONTAINER_NAME} --source "~/.ssh" \
     --pattern "*"
 fi
