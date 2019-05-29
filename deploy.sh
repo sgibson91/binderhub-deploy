@@ -347,8 +347,9 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
     --destination ${CONTAINER_NAME} --source "." \
     --pattern "*.yaml"
-  echo "--> Pushing ssh keys"
+  echo "--> Getting and pushing ssh keys"
+  cp -avv ~/.ssh/id* .
   az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
-    --destination ${CONTAINER_NAME} --source "~/.ssh" \
-    --pattern "*"
+    --destination ${CONTAINER_NAME} --source "." \
+    --pattern "id*"
 fi
