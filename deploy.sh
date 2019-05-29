@@ -174,7 +174,7 @@ az account set -s "$AZURE_SUBSCRIPTION"
 echo "--> Checking if resource group exists: ${RESOURCE_GROUP_NAME}"
 if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]] ; then
   echo "--> Creating new resource group: ${RESOURCE_GROUP_NAME}"
-  az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table
+  az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table | tee rg-create.log
 else
   echo "--> Resource group ${RESOURCE_GROUP_NAME} found."
 fi
@@ -185,42 +185,42 @@ Resource Group: ${RESOURCE_GROUP_NAME}
 Cluster name:   ${AKS_NAME}
 Node count:     ${AKS_NODE_COUNT}
 Node VM size:   ${AKS_NODE_VM_SIZE}"
-az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table ${AKS_SP}
+az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table ${AKS_SP} | tee aks-create.log
 
 # Get kubectl credentials from Azure
 echo "--> Fetching kubectl credentials from Azure"
-az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table
+az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table | tee get-credentials.log
 
 # Check nodes are ready
 nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)"
 while [[ ${nodecount} -ne ${AKS_NODE_COUNT} ]] ; do echo -n $(date) ; echo " : ${nodecount} of ${AKS_NODE_COUNT} nodes ready" ; sleep 15 ; nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)" ; done
 echo
 echo "--> Cluster node status:"
-kubectl get node
+kubectl get node | tee kubectl-status.log
 echo
 
 # Setup ServiceAccount for tiller
 echo "--> Setting up tiller service account"
-kubectl --namespace kube-system create serviceaccount tiller
+kubectl --namespace kube-system create serviceaccount tiller | tee tiller-service-account.log
 
 # Give the ServiceAccount full permissions to manage the cluster
 echo "--> Giving the ServiceAccount full permissions to manage the cluster"
-kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller | tee cluster-role-bindings.log
 
 # Initialise helm and tiller
 echo "--> Initialising helm and tiller"
-helm init --service-account tiller --wait
+helm init --service-account tiller --wait | tee helm-init.log
 
 # Secure tiller against attacks from within the cluster
 echo "--> Securing tiller against attacks from within the cluster"
-kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --patch='[{"op": "add", "path": "/spec/template/spec/containers/0/command", "value": ["/tiller", "--listen=localhost:44134"]}]'
+kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --patch='[{"op": "add", "path": "/spec/template/spec/containers/0/command", "value": ["/tiller", "--listen=localhost:44134"]}]' | tee tiller-securing.log
 
 # Waiting until tiller pod is ready
 tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')"
 while [[ ! x${tillerStatus} == xRunning ]] ; do echo -n $(date) ; echo " : tiller pod status : ${tillerStatus} " ; sleep 5 ; tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')" ; done
 echo
 echo "--> AKS system pods status:"
-kubectl get pods --namespace kube-system
+kubectl get pods --namespace kube-system | tee kubectl-get-pods.log
 echo
 
 # Check helm has been configured correctly
@@ -228,7 +228,7 @@ echo "--> Verify Client and Server are running the same version number:"
 # Be error tolerant for this step
 set +e
 helmVersionAttempts=0
-while ! helm version ; do
+while ! helm version | tee helm-version-check.log ; do
   ((helmVersionAttempts++))
   echo "--> helm version attempt ${helmVersionAttempts} of 3 failed"
   if (( helmVersionAttempts > 2 )) ; then
@@ -282,16 +282,16 @@ helm install jupyterhub/binderhub \
 --namespace=$HELM_BINDERHUB_NAME \
 -f ./secret.yaml \
 -f ./config.yaml \
---timeout=3600
+--timeout=3600 | tee helm-chart-install.log
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 echo "--> Retrieving JupyterHub IP"
 jupyterhub_ip=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
 while [ "$jupyterhub_ip" = '<pending>' ] || [ "$jupyterhub_ip" = "" ]
 do
-    echo "JupyterHub IP: $jupyterhub_ip"
     sleep 5
     jupyterhub_ip=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
+    echo "JupyterHub IP: $jupyterhub_ip" | tee jupyterhub-ip.log
 done
 
 echo "--> Finalising configurations"
@@ -312,13 +312,34 @@ echo "--> Updating Helm chart"
 helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
 --version=$BINDERHUB_VERSION \
 -f secret.yaml \
--f config.yaml
+-f config.yaml | tee helm-upgrade.log
 
 # Print Binder IP address
 binder_ip=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
 while [ "$binder_ip" = '<pending>' ] || [ "$binder_ip" = "" ]
 do
-    echo "Binder IP: $binder_ip"
     sleep 5
     binder_ip=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
+    echo "Binder IP: $binder_ip" | tee binder-ip.log
 done
+
+if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
+  # Finally, save outputs to blob storage
+  # 
+  # Create a storage account
+  az storage account create \
+    --name ${BINDERHUB_NAME} --resource-group ${RESOURCE_GROUP_NAME} \
+    --sku Standard_LRS --location ${RESOURCE_GROUP_LOCATION} \
+    --subscription ${AZURE_SUBSCRIPTION} -o table | tee storage-create.log
+  # Create a container
+  az storage container create --account-name ${BINDERHUB_NAME} \
+    --subscription ${AZURE_SUBSCRIPTION} --name ${BINDERHUB_NAME} \
+    | tee container-create.log
+  # Push the files
+  az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
+    --destination ${BINDERHUB_NAME} --source "." \
+    --pattern "*.log"
+  az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
+    --destination ${BINDERHUB_NAME} --source "." \
+    --pattern "*.yaml"
+fi
