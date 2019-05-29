@@ -109,10 +109,14 @@
         "restartPolicy": "Never",
         "containers": [
           {
-            "name": "ok-setup",
+            "name": "binderhub-setup",
             "properties": {
               "image": "[parameters('setupDockerImage')]",
               "environmentVariables": [
+                {
+                  "name": "BINDERHUB_CONTAINER_MODE",
+                  "value": "true"
+                },
                 {
                   "name": "SP_APP_ID",
                   "value": "[parameters('servicePrincipalAppId')]"
