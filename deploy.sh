@@ -161,6 +161,8 @@ else
     exit 1
   else
       echo "--> Logged in to Azure"
+      # Use this service principal for AKS creation
+      AKS_SP="--service-principal ${SP_APP_ID} --client-secret ${SP_APP_KEY}"
   fi
 fi
 
@@ -183,7 +185,7 @@ Resource Group: ${RESOURCE_GROUP_NAME}
 Cluster name:   ${AKS_NAME}
 Node count:     ${AKS_NODE_COUNT}
 Node VM size:   ${AKS_NODE_VM_SIZE}"
-az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table
+az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table ${AKS_SP}
 
 # Get kubectl credentials from Azure
 echo "--> Fetching kubectl credentials from Azure"
