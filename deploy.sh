@@ -228,7 +228,7 @@ echo "--> Verify Client and Server are running the same version number:"
 # Be error tolerant for this step
 set +e
 helmVersionAttempts=0
-while ! helm version | tee helm-version-check.log ; do
+while ! helm version ; do
   ((helmVersionAttempts++))
   echo "--> helm version attempt ${helmVersionAttempts} of 3 failed"
   if (( helmVersionAttempts > 2 )) ; then
