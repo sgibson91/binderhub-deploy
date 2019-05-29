@@ -267,11 +267,14 @@ python3 $secret_script --apiToken=$apiToken \
 --password=$DOCKER_PASSWORD \
 --force
 
+# Format name for kubernetes 
+HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | sed -re 's/^([.-]+)//' -re 's/([.-]+)$//' )
+
 echo "--> Installing Helm chart"
 helm install jupyterhub/binderhub \
 --version=$BINDERHUB_VERSION \
---name=$BINDERHUB_NAME \
---namespace=$BINDERHUB_NAME \
+--name=$HELM_BINDERHUB_NAME \
+--namespace=$HELM_BINDERHUB_NAME \
 -f ./secret.yaml \
 -f ./config.yaml \
 --timeout=3600
