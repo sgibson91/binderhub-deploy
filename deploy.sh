@@ -327,22 +327,25 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   # Finally, save outputs to blob storage
   # 
   # Create a storage account
+  echo "--> Creating storage account"
   az storage account create \
     --name ${BINDERHUB_NAME} --resource-group ${RESOURCE_GROUP_NAME} \
-    --sku Standard_LRS --location ${RESOURCE_GROUP_LOCATION} \
-    --subscription ${AZURE_SUBSCRIPTION} -o table | tee storage-create.log
+    --sku Standard_LRS -o table | tee storage-create.log
   # Create a container
   CONTAINER_NAME="deployment-$(date +'%Y-%m-%d-%H-%M')"
+  echo "--> Creating storage container: ${CONTAINER_NAME}"
   az storage container create --account-name ${BINDERHUB_NAME} \
-    --subscription ${AZURE_SUBSCRIPTION} --name ${CONTAINER_NAME} \
-    | tee container-create.log
+    --name ${CONTAINER_NAME} | tee container-create.log
   # Push the files
+  echo "--> Pushing log files"
   az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
     --destination ${CONTAINER_NAME} --source "." \
     --pattern "*.log"
+  echo "--> Pushing yaml files"
   az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
     --destination ${CONTAINER_NAME} --source "." \
     --pattern "*.yaml"
+  echo "--> Pushing ssh keys"
   az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
     --destination ${CONTAINER_NAME} --source "~/.ssh" \
     --pattern "*"
