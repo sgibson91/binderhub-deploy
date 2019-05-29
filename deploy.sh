@@ -42,6 +42,9 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     fi
   done
 
+  # Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
+  AZURE_SUBSCRIPTION=$(echo $AZURE_SUBSCRIPTION | sed -r "s/^\/subscriptions\///")
+
 else
 
   # Read in config file and assign variables for the non-container case
