@@ -10,27 +10,38 @@ DockerHub login details. Arguments are:
 * output_file: File to save the secret config to
 """
 
-import yaml
 import argparse
 import os
+from pathlib import Path
+
+import yaml
+
+# find the root dier of this file
+BASE_DIR = Path(__file__).resolve().parent
+
 
 def parse_args():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-id", "--docker-id", type=str, required=True,
-                        help="Docker ID")
-    parser.add_argument('--apiToken', type=str, required=True,
-                        help="API Token")
-    parser.add_argument('--secretToken', type=str, required=True,
-                        help="Secret Token")
-    parser.add_argument('--template', type=str, default='secret-template.yaml',
-                        help="Template secret file")
-    parser.add_argument('--password', type=str, required=True,
-                        help="Docker Hub password for Docker ID")
-    parser.add_argument('--force', action='store_true',
-                        help="Overwrite existing files")
-    parser.add_argument('output_file', nargs='?', default='secret.yaml',
-                        help="Output file to save secret config to")
+    parser.add_argument("-id", "--docker-id", type=str, required=True, help="Docker ID")
+    parser.add_argument("--apiToken", type=str, required=True, help="API Token")
+    parser.add_argument("--secretToken", type=str, required=True, help="Secret Token")
+    parser.add_argument(
+        "--template",
+        type=str,
+        default="secret-template.yaml",
+        help="Template secret file",
+    )
+    parser.add_argument(
+        "--password", type=str, required=True, help="Docker Hub password for Docker ID"
+    )
+    parser.add_argument("--force", action="store_true", help="Overwrite existing files")
+    parser.add_argument(
+        "output_file",
+        nargs="?",
+        default="secret.yaml",
+        help="Output file to save secret config to",
+    )
 
     return parser.parse_args()
 
@@ -43,21 +54,22 @@ def main():
         if args.force == True:
             os.remove(args.output_file)
         else:
-            raise RuntimeError("Output file already exists: {}".format(
-                args.output_file))
+            raise RuntimeError(
+                "Output file already exists: {}".format(args.output_file)
+            )
+    # recreating the path for readability
+    template_path = BASE_DIR.joinpath(args.template)
 
-    template = yaml.safe_load(open(args.template, 'r'))
+    template = yaml.safe_load(open(template_path, "r"))
 
-    template['jupyterhub']['hub']['services']['binder']['apiToken'] = (
-        "{}".format(args.apiToken)
+    template["jupyterhub"]["hub"]["services"]["binder"]["apiToken"] = "{}".format(
+        args.apiToken
     )
-    template['jupyterhub']['proxy']['secretToken'] = (
-        "{}".format(args.secretToken)
-    )
-    template['registry']['username'] = args.docker_id
-    template['registry']['password'] = args.password
+    template["jupyterhub"]["proxy"]["secretToken"] = "{}".format(args.secretToken)
+    template["registry"]["username"] = args.docker_id
+    template["registry"]["password"] = args.password
 
-    yaml.dump(template, open(args.output_file, 'w'), default_flow_style=False)
+    yaml.dump(template, open(args.output_file, "w"), default_flow_style=False)
 
     return None
 

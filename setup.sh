@@ -8,16 +8,27 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
 
 ## apt-based systems
   if command -v apt >/dev/null 2>&1 ; then
+    echo "--> Checking system packages and installing any missing packages"
     # Update apt before starting, in case this is a new container
-    ${sudo_command} apt update
-    echo "Core package install with apt"
-    ${sudo_command} apt install -y curl python python3 tar jq openssl
+    APTPACKAGES=" \
+      curl \
+      python \
+      python3 \
+      openssl \
+      jq \
+      "
+    for package in $APTPACKAGES ; do
+      if ! dpkg -s $package > /dev/null ; then
+        echo "--> Apt installing $package"
+        ${sudo_command} apt update && ${sudo_command} apt install -y $package
+	fi
+    done
     if ! command -v az >/dev/null 2>&1 ; then
-      echo "Attempting to install Azure-CLI with deb packages"
+      echo "--> Attempting to install Azure-CLI with deb packages"
       curl -sL https://aka.ms/InstallAzureCLIDeb | ${sudo_command} bash
     fi
     if ! command -v kubectl >/dev/null 2>&1 ; then
-      echo "Attempting to install kubectl with deb packages"
+      echo "--> Attempting to install kubectl with deb packages"
       ${sudo_command} apt-get update && ${sudo_command} apt-get install -y apt-transport-https
       curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | ${sudo_command} apt-key add -
       echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | ${sudo_command} tee -a /etc/apt/sources.list.d/kubernetes.list
@@ -26,8 +37,21 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
 
 ## yum-based systems
   elif command -v yum >/dev/null 2>&1 ; then
-    echo "Core package install with yum"
-    ${sudo_command} yum install -y curl python tar which jq openssl
+    echo "--> Checking system packages and installing any missing packages"
+    YUMPACKAGES=" \
+      curl \
+      python \
+      tar \
+	which \
+      jq \
+	openssl \
+      "
+    for package in $YUMPACKAGES ; do
+      if ! rpm -q $package > /dev/null ; then
+        echo "--> Yum installing $package"
+        ${sudo_command} yum install -y $package
+	fi
+    done
     if ! command -v python3 >/dev/null 2>&1 ; then
       if [ -f /etc/fedora-release ] ; then
         ${sudo_command} yum install -y python3
@@ -37,13 +61,13 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
       fi
     fi
     if ! command -v az >/dev/null 2>&1 ; then
-      echo "Attempting to install Azure-CLI with yum packages"
+      echo "--> Attempting to install Azure-CLI with yum packages"
       ${sudo_command} rpm --import https://packages.microsoft.com/keys/microsoft.asc
       ${sudo_command} sh -c 'echo -e "[azure-cli]\nname=Azure CLI\nbaseurl=https://packages.microsoft.com/yumrepos/azure-cli\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/azure-cli.repo'
       ${sudo_command} yum install -y azure-cli
     fi
     if ! command -v kubectl >/dev/null 2>&1 ; then
-      echo "Attempting to install kubectl with yum packages"
+      echo "--> Attempting to install kubectl with yum packages"
       echo "[kubernetes]
 name=Kubernetes
 baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
@@ -57,10 +81,24 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 
 ## zypper-based systems
   elif command -v zypper >/dev/null 2>&1 ; then
-    echo "Core packages install with zypper"
-    ${sudo_command} zypper install -y curl python python3 tar which jq openssl
+    echo "--> Checking system packages and installing any missing packages"
+    ZYPPERPACKAGES=" \
+      curl \
+      python \
+      python3 \
+      tar \
+      which \
+      jq \
+	openssl \
+      "
+    for package in $ZYPPERPACKAGES ; do
+      if ! rpm -q $package > /dev/null ; then
+        echo "--> Zypper installing $package"
+        ${sudo_command} zypper install -y $package
+	fi
+    done
     if ! command -v az >/dev/null 2>&1 ; then
-      echo "Attempting to install Azure-CLI with zypper packages"
+      echo "--> Attempting to install Azure-CLI with zypper packages"
       ${sudo_command} rpm --import https://packages.microsoft.com/keys/microsoft.asc
       ${sudo_command} zypper addrepo --name 'Azure CLI' --check https://packages.microsoft.com/yumrepos/azure-cli azure-cli
       ${sudo_command} zypper install --from azure-cli -y azure-cli
@@ -68,7 +106,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
       ${sudo_command} zypper install -y python-xml
     fi
     if ! command -v kubectl >/dev/null 2>&1 ; then
-      echo "Attempting to install kubectl with zypper packages"
+      echo "--> Attempting to install kubectl with zypper packages"
       zypper ar -f https://download.opensuse.org/tumbleweed/repo/oss/ factory
       zypper install -y kubectl
     fi
@@ -78,10 +116,11 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
     command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
     command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
     command -v jq >/dev/null 2>&1 || { echo >&2 "jq not found; please install and re-run this script."; exit 1; }
-    echo "Package manager not found; installing with curl"
+    echo "--> Attempting to install Azure-CLI with curl"
     if ! command -v az >/dev/null 2>&1 ; then
       curl -L https://aka.ms/InstallAzureCli
     fi
+    echo "--> Attempting to install kubectl with curl"
     if ! command -v kubectl >/dev/null 2>&1 ; then
       curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
       chmod +x ./kubectl
@@ -95,7 +134,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
     command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
     command -v tar >/dev/null 2>&1 || { echo >&2 "tar not found; please install and re-run this script."; exit 1; }
     command -v which >/dev/null 2>&1 || { echo >&2 "which not found; please install and re-run this script."; exit 1; }
-    echo "Helm doesn't have a system package; attempting to install with curl"
+    echo "--> Helm doesn't have a system package; attempting to install with curl"
     curl https://raw.githubusercontent.com/helm/helm/master/scripts/get > get_helm.sh
     chmod 700 get_helm.sh
     ./get_helm.sh
@@ -104,23 +143,38 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 ## Installing on OS X
 elif [[ ${OSTYPE} == 'darwin'* ]] ; then
   if command -v brew >/dev/null 2>&1 ; then
-    echo "Brew installing required packages"
-    brew update && \
-      brew install curl python azure-cli kubernetes-cli kubernetes-helm jq
+    echo "--> Checking brew packages and installing any missing packages"
+    BREWPACKAGES=" \
+      curl \
+      python \
+      azure-cli \
+      kubernetes-cli \
+      kubernetes-helm \
+      jq \
+      "
+    for package in $BREWPACKAGES ; do
+      if ! brew ls --versions $package > /dev/null ; then
+        echo "--> Brew installing $package"
+        brew update && brew install $package
+	fi
+    done
   else
     command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
     command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
     command -v tar >/dev/null 2>&1 || { echo >&2 "tar not found; please install and re-run this script."; exit 1; }
     command -v which >/dev/null 2>&1 || { echo >&2 "which not found; please install and re-run this script."; exit 1; }
+    echo "--> Attempting to install Azure-CLI with curl"
     if ! command -v az >/dev/null 2>&1  ; then
       curl -L https://aka.ms/InstallAzureCli
     fi
+    echo "--> Attempting to install kubectl with curl"
     if ! command -v kubectl >/dev/null 2>&1 ; then
       curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl
       chmod +x ./kubectl
       ${sudo_command} mv ./kubectl /usr/local/bin/kubectl
     fi
-    if ! command -v kubectl >/dev/null 2>&1 ; then
+    echo "--> Attempting to install helm with curl"
+    if ! command -v helm >/dev/null 2>&1 ; then
       curl https://raw.githubusercontent.com/helm/helm/master/scripts/get > get_helm.sh
       chmod 700 get_helm.sh
       ./get_helm.sh
@@ -128,47 +182,3 @@ elif [[ ${OSTYPE} == 'darwin'* ]] ; then
   fi
 fi
 
-# Read in config file and assign variables
-configFile='config.json'
-
-subscription=`jq -r '.azure .subscription' ${configFile}`
-res_grp_name=`jq -r '.azure .res_grp_name' ${configFile}`
-location=`jq -r '.azure .location' ${configFile}`
-cluster_name=`jq -r '.azure .cluster_name' ${configFile}`
-node_count=`jq -r '.azure .node_count' ${configFile}`
-vm_size=`jq -r '.azure .vm_size' ${configFile}`
-
-# Login to Azure
-az login -o none
-
-# Activate chosen subscription
-az account set -s "$subscription"
-
-# Create a Resource Group
-az group create -n $res_grp_name --location $location -o table
-
-# Create an AKS cluster
-az aks create -n $cluster_name -g $res_grp_name --generate-ssh-keys --node-count $node_count --node-vm-size $vm_size -o table
-
-# Get kubectl credentials from Azure
-az aks get-credentials -n $cluster_name -g $res_grp_name -o table
-
-# Check nodes are ready
-while [[ ! x`kubectl get node | awk '{print $2}' | grep Ready | wc -l` == x${node_count} ]] ; do echo -n $(date) ; echo " : Waiting for all cluster nodes to be ready" ; sleep 15 ; done
-
-# Setup ServiceAccount for tiller
-kubectl --namespace kube-system create serviceaccount tiller
-
-# Give the ServiceAccount full permissions to manage the cluster
-kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
-
-# Initialise helm and tiller
-helm init --service-account tiller --wait
-
-# Secure tiller against attacks from within the cluster
-kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --patch='[{"op": "add", "path": "/spec/template/spec/containers/0/command", "value": ["/tiller", "--listen=localhost:44134"]}]'
-
-# Check helm has been configured correctly
-echo "Verify Client and Server are running the same version number:"
-while [[ ! x`kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}'` == xRunning ]] ; do echo -n $(date) ; echo " : Waiting for tiller pod to be running" ; sleep 5 ; done
-helm version

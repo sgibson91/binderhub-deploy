@@ -5,12 +5,19 @@ configFile='config.json'
 binderhubname=`jq -r '.binderhub .name' ${configFile}`
 res_grp_name=`jq -r '.azure .res_grp_name' ${configFile}`
 
-# Delete the Helm release and purge the Kubernetes namespace
+# Purge the Helm release and delete the Kubernetes namespace
+echo "--> Purging the helm chart"
 helm delete $binderhubname --purge
+
+echo "--> Deleting the namespace: $binderhubname"
 kubectl delete namespace $binderhubname
 
 # Delete Azure Resource Group
-az group delete --name $res_grp_name
+echo "--> Deleting the resource group: $res_grp_name"
+az group delete -n $res_grp_name
+
+echo "--> Deleting the resource group: NetworkWatcherRG"
+az group delete -n NetworkWatcherRG
 
 echo "Double check resources are down:"
 echo "               https://portal.azure.com/#home -> Click on Resource Groups"
