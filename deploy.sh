@@ -289,7 +289,8 @@ echo "--> Retrieving JupyterHub IP"
 jupyterhub_ip=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
 while [ "$jupyterhub_ip" = '<pending>' ] || [ "$jupyterhub_ip" = "" ]
 do
-    sleep 5
+    echo "Sleeping 30s before checking again"
+    sleep 30
     jupyterhub_ip=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
     echo "JupyterHub IP: $jupyterhub_ip" | tee jupyterhub-ip.log
 done
@@ -318,7 +319,8 @@ helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
 binder_ip=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
 while [ "$binder_ip" = '<pending>' ] || [ "$binder_ip" = "" ]
 do
-    sleep 5
+    echo "Sleeping 30s before checking again"
+    sleep 30
     binder_ip=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
     echo "Binder IP: $binder_ip" | tee binder-ip.log
 done
