@@ -342,4 +342,7 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
     --destination ${BINDERHUB_NAME} --source "." \
     --pattern "*.yaml"
+  az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
+    --destination ${BINDERHUB_NAME} --source "~/.ssh" \
+    --pattern "*"
 fi
