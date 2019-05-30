@@ -12,12 +12,19 @@ You will be asked to provide a credit card for verification purposes.
 **You will not be charged.**
 Your resources will be frozen once your subscription expires, then deleted if you do not reactivate your account within a given time period.
 
-**List of scripts:**
-* [**setup.sh**](#setupsh)
-* [**deploy.sh**](#deploysh)
-* [**logs.sh**](#logssh)
-* [**info.sh**](#infosh)
-* [**teardown.sh**](#teardownsh)
+## Table of Contents
+
+- [Usage](#usage)
+  - [`setup.sh`](#setupsh)
+  - [`deploy.sh`](#deploysh)
+  - [`logs.sh`](#logssh)
+  - [`info.sh`](#infosh)
+  - [`teardown.sh`](#teardownsh)
+- ["Deploy to Azure" Button Deployment](#deploy-to-azure-button-deployment)
+  - [Service Principal Creation](#service-principal-creation)
+- [Contributors](#contributors)
+
+---
 
 ## Usage
 
@@ -77,8 +84,6 @@ How many cores you deploy depends on your choice of `node_count` and `vm_size`.
 For example, a `Standard_D2s_v3` machine has 2 cores.
 Therefore, setting `node_count` to 2 will deploy 4 cores and you will have reached your quota for cores on your Free Trial subscription.
 
----
-
 ### setup.sh
 
 This script checks whether the required command line programs are already installed, and if any are missing uses the system package manager or [`curl`](https://curl.haxx.se/docs/) to install command line interfaces (CLIs) for [Microsoft Azure (`azure-cli`)](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update), [Kubernetes (`kubectl`)](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-using-curl), [Helm (`helm`)](https://helm.sh/docs/using_helm/#from-script), along with dependencies that are not automatically installed by those packages.
@@ -107,7 +112,7 @@ This script will purge the Helm release, delete the Kubernetes namespace and the
 It will read the namespaces from `config.json`.
 The user should check the [Azure Portal](https://portal.azure.com/#home) to verify the resources have been deleted.
 
-## Azure Deployment
+## "Deploy to Azure" Button Deployment
 
 To deploy [BinderHub](https://binderhub.readthedocs.io/) to Azure use the deploy button below.
 
