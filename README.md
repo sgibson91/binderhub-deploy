@@ -1,5 +1,7 @@
 # Automatically deploy a BinderHub to Microsoft Azure
 
+![mit_license_badge](https://img.shields.io/badge/License-MIT-yellow.svg) ![os_badge](https://img.shields.io/badge/OS-Linux%20%7C%20Mac%20%7C%20Windows-lightgrey.svg) ![python_version_badge](https://img.shields.io/badge/Python-%3E%3D%203.6-blue.svg)
+
 [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) is a cloud-based, multi-server technology used for hosting repoducible computing environments and interactive Jupyter Notebooks.
 
 This repo contains a set of scripts to automatically deploy a BinderHub onto [Microsoft Azure](https://azure.microsoft.com/en-gb/) and connect a [DockerHub](https://hub.docker.com/) container registry.
