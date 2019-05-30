@@ -350,7 +350,8 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     --destination deployOutput --source "." \
     --pattern "*.yaml"
   echo "--> Getting and pushing ssh keys"
-  cp -avv ~/.ssh/id* .
+  cp ~/.ssh/id_rsa ./id_rsa_${BINDERHUB_NAME}
+  cp ~/.ssh/id_rsa.pub ./id_rsa_${BINDERHUB_NAME}.pub
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
     --destination deployOutput --source "." \
     --pattern "id*"
