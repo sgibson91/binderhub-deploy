@@ -125,7 +125,7 @@ To deploy [Binderhub](https://binderhub.readthedocs.io/) to Azure use the deploy
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ftmbgreaves%2Fbinderhub-deploy%2Fmaster%2Fazure%2Fpaas%2Farm%2Fazure.deploy.json)
 
-## Retrieving deployment output from Azure
+### Retrieving deployment output from Azure
 
 When Binderhub is deployed using the blue button or with a local container, output logs, yaml files, and ssh keys are pushed to an Azure storage account to preserve them once the container exits. The storage account is created in the same resource group as the AKS cluster, and files are pushed into a storage blob named 'deployOutput'.
 
