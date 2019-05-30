@@ -127,7 +127,7 @@ To deploy [Binderhub](https://binderhub.readthedocs.io/) to Azure use the deploy
 
 ### Monitoring deployment progress
 
-To monitor the progress of a blue-button deployment, go to the (Azure portal)[https://portal.azure.com/] and select 'Resource Groups' from the left hand pane. Then in the central pane select the resource group you chose to deploy into. This will give you a right hand pane containing the resources within the group. You may need to 'refresh' until you see a new container instance. When it appears, select it, then in the new pane go to 'Settings->Containers'. You should see your new container listed. Select it, then in the lower right hand pane select 'Logs'. You may need to 'refresh' this to display the logs, possibly multiple times until the container starts up.
+To monitor the progress of a blue-button deployment, go to the [Azure portal](https://portal.azure.com/) and select 'Resource Groups' from the left hand pane. Then in the central pane select the resource group you chose to deploy into. This will give you a right hand pane containing the resources within the group. You may need to 'refresh' until you see a new container instance. When it appears, select it, then in the new pane go to 'Settings->Containers'. You should see your new container listed. Select it, then in the lower right hand pane select 'Logs'. You may need to 'refresh' this to display the logs, possibly multiple times until the container starts up.
 
 ### Retrieving deployment output from Azure
 
