@@ -331,28 +331,28 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   # 
   # Create a storage account
   echo "--> Creating storage account"
-  CONTAINER_NAME="deployOutput"
+  CONTAINER_NAME="${CONTAINER_NAME}"
   STORAGE_ACCOUNT_NAME="${BINDERHUB_NAME}-$(date +'%Y-%m-%d-%H-%M')"
   az storage account create \
     --name ${STORAGE_ACCOUNT_NAME} --resource-group ${RESOURCE_GROUP_NAME} \
     --sku Standard_LRS -o table | tee storage-create.log
   # Create a container
-  echo "--> Creating storage container: deployOutput"
+  echo "--> Creating storage container: ${CONTAINER_NAME}"
   az storage container create --account-name ${STORAGE_ACCOUNT_NAME} \
-    --name deployOutput | tee container-create.log
+    --name ${CONTAINER_NAME} | tee container-create.log
   # Push the files
   echo "--> Pushing log files"
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
-    --destination deployOutput --source "." \
+    --destination ${CONTAINER_NAME} --source "." \
     --pattern "*.log"
   echo "--> Pushing yaml files"
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
-    --destination deployOutput --source "." \
+    --destination ${CONTAINER_NAME} --source "." \
     --pattern "*.yaml"
   echo "--> Getting and pushing ssh keys"
   cp ~/.ssh/id_rsa ./id_rsa_${BINDERHUB_NAME}
   cp ~/.ssh/id_rsa.pub ./id_rsa_${BINDERHUB_NAME}.pub
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
-    --destination deployOutput --source "." \
+    --destination ${CONTAINER_NAME} --source "." \
     --pattern "id*"
 fi
