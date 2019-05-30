@@ -155,10 +155,10 @@ az account list --refresh --output table
 Next, create the Service Principal with the following command. Make sure to give it a sensible name.
 
 ```
-az ad sp create-for-rbac --name binderhub-sp --skip-assignment
+az ad sp create-for-rbac --name binderhub-sp --role contributor --scopes /subscriptions/<subscription ID from above>
 ```
 
-<html><img src="images/create_sp.png" alt="Create Service Principal"></html>
+<html><img src="images/create-for-rbac.png" alt="Create Service Principal"></html>
 
 The fields `appId`, `password` and `tenant` are the required pieces of information.
 These should be copied into the "Service Principal App ID", "Service Principal App Key" and "Service Principal Tenant ID" fields in the form, respectively.
