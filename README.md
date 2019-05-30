@@ -125,6 +125,37 @@ To deploy [Binderhub](https://binderhub.readthedocs.io/) to Azure use the deploy
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ftmbgreaves%2Fbinderhub-deploy%2Fmaster%2Fazure%2Fpaas%2Farm%2Fazure.deploy.json)
 
+### Monitoring deployment progress
+
+To monitor the progress of a blue-button deployment, go to the [Azure portal](https://portal.azure.com/) and select 'Resource Groups' from the left hand pane. Then in the central pane select the resource group you chose to deploy into. This will give you a right hand pane containing the resources within the group. You may need to 'refresh' until you see a new container instance. When it appears, select it, then in the new pane go to 'Settings->Containers'. You should see your new container listed. Select it, then in the lower right hand pane select 'Logs'. You may need to 'refresh' this to display the logs, possibly multiple times until the container starts up.
+
+### Retrieving deployment output from Azure
+
+When Binderhub is deployed using the blue button or with a local container, output logs, yaml files, and ssh keys are pushed to an Azure storage account to preserve them once the container exits. The storage account is created in the same resource group as the AKS cluster, and files are pushed into a storage blob named 'deployOutput'.
+
+The Azure CLI can be used to fetch files from the blob. You will need to know the name of your BinderHub instance, referred to as 'BINDERHUB_NAME' in the following commands. Files are fetched into a local directory, which must already exist, referred to as 'OUTPUT_DIRECTORY' in the following commands.
+
+To fetch all files:
+
+```
+  az storage blob download-batch --account-name <BINDERHUB_NAME> --source deployOutput --pattern "*" -d "<OUTPUT_DIRECTORY>"
+```
+
+The pattern can be used to fetch particular files, for example all log files:
+
+```
+  az storage blob download-batch --account-name <BINDERHUB_NAME> --source deployOutput --pattern "*.log" -d "<OUTPUT_DIRECTORY>"
+```
+
+To fetch a single file, specify 'REMOTE_FILENAME' for the name of the file in blob storage, and 'LOCAL_FILENAME' for the filename it will be fetched into:
+
+```
+  az storage blob download --account-name <BINDERHUB_NAME> --container-name deployOutput --name <REMOTE_FILENAME> --file <LOCAL_FILENAME>
+```
+
+For full documentation, see the (az storage blob documentation)[https://docs.microsoft.com/en-us/cli/azure/storage/blob?view=azure-cli-latest].
+
+
 ### Service Principal Creation
 
 You will be asked to provide a [Service Principal](https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals) in the form launched when you click the deploy to Azure button above.
