@@ -20,7 +20,7 @@ Your resources will be frozen once your subscription expires, then deleted if yo
   - [`logs.sh`](#logssh)
   - [`info.sh`](#infosh)
   - [`teardown.sh`](#teardownsh)
-- ["Deploy to Azure" Button Deployment](#deploy-to-azure-button-deployment)
+- ["Deploy to Azure" Button](#deploy-to-azure-button)
   - [Service Principal Creation](#service-principal-creation)
 - [Contributors](#contributors)
 
@@ -112,7 +112,7 @@ This script will purge the Helm release, delete the Kubernetes namespace and the
 It will read the namespaces from `config.json`.
 The user should check the [Azure Portal](https://portal.azure.com/#home) to verify the resources have been deleted.
 
-## "Deploy to Azure" Button Deployment
+## "Deploy to Azure" Button
 
 To deploy [BinderHub](https://binderhub.readthedocs.io/) to Azure use the deploy button below.
 
