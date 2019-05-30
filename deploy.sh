@@ -334,22 +334,21 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     --name ${BINDERHUB_NAME} --resource-group ${RESOURCE_GROUP_NAME} \
     --sku Standard_LRS -o table | tee storage-create.log
   # Create a container
-  CONTAINER_NAME="deployment-$(date +'%Y-%m-%d-%H-%M')"
-  echo "--> Creating storage container: ${CONTAINER_NAME}"
+  echo "--> Creating storage container: deployOutput"
   az storage container create --account-name ${BINDERHUB_NAME} \
-    --name ${CONTAINER_NAME} | tee container-create.log
+    --name deployOutput | tee container-create.log
   # Push the files
   echo "--> Pushing log files"
   az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
-    --destination ${CONTAINER_NAME} --source "." \
+    --destination deployOutput --source "." \
     --pattern "*.log"
   echo "--> Pushing yaml files"
   az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
-    --destination ${CONTAINER_NAME} --source "." \
+    --destination deployOutput --source "." \
     --pattern "*.yaml"
   echo "--> Getting and pushing ssh keys"
   cp -avv ~/.ssh/id* .
   az storage blob upload-batch --account-name ${BINDERHUB_NAME} \
-    --destination ${CONTAINER_NAME} --source "." \
+    --destination deployOutput --source "." \
     --pattern "id*"
 fi
