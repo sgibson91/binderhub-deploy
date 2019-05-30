@@ -312,7 +312,7 @@ fi
 
 echo "--> Updating Helm chart"
 helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
---version=$BINDERHUB_VERSION \
+--version=$HELM_BINDERHUB_VERSION \
 -f secret.yaml \
 -f config.yaml | tee helm-upgrade.log
 
