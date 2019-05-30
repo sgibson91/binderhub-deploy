@@ -133,21 +133,21 @@ The Azure CLI can be used to fetch files from the blob. You will need to know th
 
 To fetch all files:
 
-'''
+```
   az storage blob download-batch --account-name <BINDERHUB_NAME> --source deployOutput --pattern "*" -d "<OUTPUT_DIRECTORY>"
-'''
+```
 
 The pattern can be used to fetch particular files, for example all log files:
 
-'''
+```
   az storage blob download-batch --account-name <BINDERHUB_NAME> --source deployOutput --pattern "*.log" -d "<OUTPUT_DIRECTORY>"
-'''
+```
 
 To fetch a single file, specify 'REMOTE_FILENAME' for the name of the file in blob storage, and 'LOCAL_FILENAME' for the filename it will be fetched into:
 
-'''
+```
   az storage blob download --account-name <BINDERHUB_NAME> --container-name deployOut --name <REMOTE_FILENAME> --file <LOCAL_FILENAME>
-'''
+```
 
 For full documentation, see the (az storage blob documentation)[https://docs.microsoft.com/en-us/cli/azure/storage/blob?view=azure-cli-latest].
 
