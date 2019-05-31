@@ -18,6 +18,7 @@ Your resources will be frozen once your subscription expires, then deleted if yo
 * [**logs.sh**](#logssh)
 * [**info.sh**](#infosh)
 * [**teardown.sh**](#teardownsh)
+* [**edit_kube_config.py**](#edit_kube_configpy)
 
 ## Usage
 
@@ -112,6 +113,20 @@ It reads the BinderHub name from `config.json`.
 
 This script will purge the Helm release, delete the Kubernetes namespace and then delete the Azure Resource Group containing the computational resources.
 The user should check the [Azure Portal](https://portal.azure.com/#home) to verify the resources have been deleted.
+
+## edit_kube_config.py
+
+This is a Python script that uses the [`kubeconfig` package](https://pypi.org/project/kubeconfig/) to manipulate `kubectl` configuration files.
+
+Usage:
+```
+python edit_kube_config.py --name <CLUSTER_NAME> --file <PATH_TO_CONFIG_FILE> --purge
+```
+* `<CLUSTER_NAME>` is the name of the cluster you'd like to manipulate
+* `<PATH-TO-CONFIG-FILE>` is the filepath of the `kubectl` config file, by default this is `~/.kube/config`
+* The `--purge` flag will remove the information of the cluster provided to `--name` from the config file
+
+At time of writing if the `--purge` flag is not passed, the script will only print the config file.
 
 ## Azure Deployment
 
