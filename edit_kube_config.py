@@ -16,12 +16,17 @@ def parse_args():
         help="The name of the cluster you'd like to manipulate"
     )
     parser.add_argument(
+        "-g", "--resource-group", required=True,
+        help="The Azure resource group the cluster was deployed in"
+    )
+    parser.add_argument(
         "-f", "--file",
         help=("Path to the configuration file you'd like to manipulate." +
               "Default filepath: ~/.kube/config")
     )
     parser.add_argument(
-        "--purge", help="Completely remove the named cluster from your config file"
+        "--purge", action="store_true",
+        help="Completely remove the named cluster from your config file"
     )
 
     return parser.parse_args()
@@ -39,12 +44,18 @@ def main():
 
     # Purge the named cluster from the config file
     if args.purge:
+
+        userName = f"clusterUser_{args.resource_group}_{args.name}"
+
         conf.delete_cluster(args.name)
         conf.delete_context(args.name)
+        conf.unset(f"users.{userName}")
     else:
         # Placeholder else statement
         # Incase more functionality needs to be added
         pass
+
+    print(conf.view())
 
 
 if __name__ == "__main__":
