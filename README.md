@@ -124,13 +124,14 @@ This is a Python script that uses the [`kubeconfig` package](https://pypi.org/pr
 
 Usage:
 ```
-python edit_kube_config.py --name <CLUSTER_NAME> --file <PATH_TO_CONFIG_FILE> --purge
+python edit_kube_config.py --name <CLUSTER_NAME> --resource-group <RESOURCE_GROUP> --file <PATH_TO_CONFIG_FILE> --purge
 ```
 * `<CLUSTER_NAME>` is the name of the cluster you'd like to manipulate
+* `<RESOURCE_GROUP>` is the Azure resource group the cluster was deployed into
 * `<PATH-TO-CONFIG-FILE>` is the filepath of the `kubectl` config file, by default this is `~/.kube/config`
-* The `--purge` flag will remove the information of the cluster provided to `--name` from the config file
+* The `--purge` flag will remove the information of the cluster provided via `--name` and `--resource-group` from the config file
 
-At time of writing if the `--purge` flag is not passed, the script will only print the config file.
+At time of writing if the `--purge` flag is not passed, the script will just print the config file.
 
 ## Azure Deployment
 
