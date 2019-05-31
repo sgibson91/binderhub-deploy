@@ -2,19 +2,23 @@
 
 # Read in config.json
 configFile='config.json'
-binderhubname=`jq -r '.binderhub .name' ${configFile}`
-res_grp_name=`jq -r '.azure .res_grp_name' ${configFile}`
+BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
+RESOURCE_GROUP=`jq -r '.azure .res_grp_name' ${configFile}`
+AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
 
 # Purge the Helm release and delete the Kubernetes namespace
 echo "--> Purging the helm chart"
-helm delete $binderhubname --purge
+helm delete ${BINDERHUB_NAME} --purge
 
-echo "--> Deleting the namespace: $binderhubname"
-kubectl delete namespace $binderhubname
+echo "--> Deleting the namespace: ${BINDERHUB_NAME}}"
+kubectl delete namespace ${BINDERHUB_NAME}
+
+echo "--> Purging the kubectl config file"
+python3 edit_kube_config.py -n ${AKS_NAME} --purge
 
 # Delete Azure Resource Group
-echo "--> Deleting the resource group: $res_grp_name"
-az group delete -n $res_grp_name
+echo "--> Deleting the resource group: ${RESOURCE_GROUP}"
+az group delete -n ${RESOURCE_GROUP}
 
 echo "--> Deleting the resource group: NetworkWatcherRG"
 az group delete -n NetworkWatcherRG
