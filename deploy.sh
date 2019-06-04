@@ -331,7 +331,7 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   # 
   # Create a storage account
   echo "--> Creating storage account"
-  CONTAINER_NAME="${CONTAINER_NAME}"
+  CONTAINER_NAME="${BINDERHUB_NAME}deploylogs"
   STORAGE_ACCOUNT_NAME="${BINDERHUB_NAME}$(date +'%Y%m%d%H%M')"
   az storage account create \
     --name ${STORAGE_ACCOUNT_NAME} --resource-group ${RESOURCE_GROUP_NAME} \
