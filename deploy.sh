@@ -273,7 +273,7 @@ python3 $secret_script --apiToken=$apiToken \
 --force
 
 # Format name for kubernetes 
-HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | sed -re 's/^([.-]+)//' -re 's/([.-]+)$//' )
+HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -re 's/^([.-]+)//' -re 's/([.-]+)$//' )
 
 echo "--> Installing Helm chart"
 helm install jupyterhub/binderhub \
@@ -332,7 +332,7 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   # Create a storage account
   echo "--> Creating storage account"
   CONTAINER_NAME="${BINDERHUB_NAME}deploylogs"
-  STORAGE_ACCOUNT_NAME="$(echo ${BINDERHUB_NAME} | cut -c -19)-$(openssl rand -hex 2)"
+  STORAGE_ACCOUNT_NAME="$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -c -20)$(openssl rand -hex 2)"
   az storage account create \
     --name ${STORAGE_ACCOUNT_NAME} --resource-group ${RESOURCE_GROUP_NAME} \
     --sku Standard_LRS -o table | tee storage-create.log
