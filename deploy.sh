@@ -217,7 +217,7 @@ kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --pat
 
 # Waiting until tiller pod is ready
 tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')"
-while [[ ! x${tillerStatus} == xRunning ]] ; do echo -n $(date) ; echo " : tiller pod status : ${tillerStatus} " ; sleep 5 ; tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')" ; done
+while [[ ! x${tillerStatus} == xRunning ]] ; do echo -n $(date) ; echo " : tiller pod status : ${tillerStatus} " ; sleep 30 ; tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')" ; done
 echo
 echo "--> AKS system pods status:"
 kubectl get pods --namespace kube-system | tee kubectl-get-pods.log
