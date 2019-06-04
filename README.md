@@ -131,26 +131,30 @@ To monitor the progress of a blue-button deployment, go to the [Azure portal](ht
 
 ### Retrieving deployment output from Azure
 
-When Binderhub is deployed using the blue button or with a local container, output logs, yaml files, and ssh keys are pushed to an Azure storage account to preserve them once the container exits. The storage account is created in the same resource group as the AKS cluster, and files are pushed into a storage blob named 'deployOutput'.
+When Binderhub is deployed using the blue button or with a local container, output logs, yaml files, and ssh keys are pushed to an Azure storage account to preserve them once the container exits. The storage account is created in the same resource group as the AKS cluster, and files are pushed into a storage blob within the account.
 
-The Azure CLI can be used to fetch files from the blob. You will need to know the name of your BinderHub instance, referred to as 'BINDERHUB_NAME' in the following commands. Files are fetched into a local directory, which must already exist, referred to as 'OUTPUT_DIRECTORY' in the following commands.
+Both the storage blob name and the storage account name are derived from the name you gave to your BinderHub instance, but may be modified and/or have a random seed appended. To find the storage account name, navigate to your resource group by selecting 'Resource Groups' in the leftmost pant of the [Azure Portal](https://portal.azure.com/), then clicking on the resource group containing your BinderHub instance. Along with any pre-existing resources (if you re-used an existing resource group) you should see three new resources: a container instance, a Kubernetes service, and a storage account.
+
+Make a note of the name of the storage account (referred to in the following commands as ACCOUNT_NAME) then select this storage account. In the new pane that opens, select 'Blobs' from the 'Services' section. You should see a single blob listed. Make a note of the name of this blob, which will be 'BLOB_NAME' in the following commands.
+
+The Azure CLI can be used to fetch files from the blob. Files are fetched into a local directory, which must already exist, referred to as 'OUTPUT_DIRECTORY' in the following commands.
 
 To fetch all files:
 
 ```
-  az storage blob download-batch --account-name <BINDERHUB_NAME> --source deployOutput --pattern "*" -d "<OUTPUT_DIRECTORY>"
+  az storage blob download-batch --account-name <ACCOUNT_NAME> --source <BLOB_NAME> --pattern "*" -d "<OUTPUT_DIRECTORY>"
 ```
 
 The pattern can be used to fetch particular files, for example all log files:
 
 ```
-  az storage blob download-batch --account-name <BINDERHUB_NAME> --source deployOutput --pattern "*.log" -d "<OUTPUT_DIRECTORY>"
+  az storage blob download-batch --account-name <ACCOUNT_NAME> --source <BLOB_NAME> --pattern "*.log" -d "<OUTPUT_DIRECTORY>"
 ```
 
 To fetch a single file, specify 'REMOTE_FILENAME' for the name of the file in blob storage, and 'LOCAL_FILENAME' for the filename it will be fetched into:
 
 ```
-  az storage blob download --account-name <BINDERHUB_NAME> --container-name deployOutput --name <REMOTE_FILENAME> --file <LOCAL_FILENAME>
+  az storage blob download --account-name <ACCOUNT_NAME> --container-name <BLOB_NAME> --name <REMOTE_FILENAME> --file <LOCAL_FILENAME>
 ```
 
 For full documentation, see the (az storage blob documentation)[https://docs.microsoft.com/en-us/cli/azure/storage/blob?view=azure-cli-latest].
