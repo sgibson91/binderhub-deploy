@@ -24,6 +24,8 @@ Your resources will be frozen once your subscription expires, then deleted if yo
   - [`teardown.sh`](#teardownsh)
 - ["Deploy to Azure" Button](#deploy-to-azure-button)
   - [Service Principal Creation](#service-principal-creation)
+  - [Monitoring Deployment Progress](#monitoring-deployment-progress)
+  - [Retrieving Deployment Output from Azure](#retrieving-deployment-output-from-azure)
 - [Contributors](#contributors)
 
 ---
@@ -170,7 +172,7 @@ These should be copied into the "Service Principal App ID", "Service Principal A
 
 **Keep this information safe as the password cannot be recovered after this step!**
 
-### Monitoring deployment progress
+### Monitoring Deployment Progress
 
 To monitor the progress of a blue-button deployment, go to the [Azure portal](https://portal.azure.com/) and select 'Resource Groups' from the left hand pane.
 Then in the central pane select the resource group you chose to deploy into.
@@ -181,7 +183,7 @@ You should see your new container listed. Select it, then in the lower right han
 You may need to 'refresh' this to display the logs until the container starts up.
 The logs are also not auto-updating, so keep refreshing them to see progress.
 
-### Retrieving deployment output from Azure
+### Retrieving Deployment Output from Azure
 
 When Binderhub is deployed using the blue button or with a local container, output logs, YAML files, and ssh keys are pushed to an Azure storage account to preserve them once the container exits.
 The storage account is created in the same resource group as the AKS cluster, and files are pushed into a storage blob within the account.
