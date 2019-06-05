@@ -256,21 +256,21 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 echo "--> Generating initial configuration file"
 if [ -z "${DOCKER_ORGANISATION}" ] ; then
   sed -e "s/<docker-id>/${DOCKER_USERNAME}/" \
-      -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-      ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+  ${DIR}/config-template.yaml > ${DIR}/config.yaml
 else
   sed -e "s/<docker-id>/${DOCKER_ORGANISATION}/" \
-      -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-      ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+  ${DIR}/config-template.yaml > ${DIR}/config.yaml
 fi
 
 echo "--> Generating initial secrets file"
 
 sed -e "s/<apiToken>/${apiToken}/" \
-    -e "s/<secretToken>/${secretToken}/" \
-    -e "s/<docker-id>/${DOCKER_USERNAME}/" \
-    -e "s/<password>/${DOCKER_PASSWORD}/" \
-    ${DIR}/secret-template.yaml > ${DIR}/secret.yaml
+-e "s/<secretToken>/${secretToken}/" \
+-e "s/<docker-id>/${DOCKER_USERNAME}/" \
+-e "s/<password>/${DOCKER_PASSWORD}/" \
+${DIR}/secret-template.yaml > ${DIR}/secret.yaml
 
 # Format name for kubernetes
 HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -re 's/^([.-]+)//' -re 's/([.-]+)$//' )
@@ -298,14 +298,14 @@ done
 echo "--> Finalising configurations"
 if [ -z "$DOCKER_ORGANISATION" ] ; then
   sed -e "s/<docker-id>/${DOCKER_USERNAME}/" \
-      -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-      -e "s/<jupyterhub_ip>/${JUPYTERHUB_IP}/" \
-      ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+  -e "s/<jupyterhub_ip>/${JUPYTERHUB_IP}/" \
+  ${DIR}/config-template.yaml > ${DIR}/config.yaml
 else
   sed -e "s/<docker-id>/${DOCKER_ORGANISATION}/" \
-      -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-      -e "s/<jupyterhub_ip>/${JUPYTERHUB_IP}/" \
-      ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+  -e "s/<jupyterhub_ip>/${JUPYTERHUB_IP}/" \
+  ${DIR}/config-template.yaml > ${DIR}/config.yaml
 fi
 
 echo "--> Updating Helm chart"
