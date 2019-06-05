@@ -235,8 +235,8 @@ while ! helm version ; do
     echo "--> Please check helm versions manually later"
     break
   fi
-  echo "--> Waiting 5 seconds before attempting helm version check again"
-  sleep 5
+  echo "--> Waiting 30 seconds before attempting helm version check again"
+  sleep 30
 done
 # Revert to error-intolerance
 set -e
