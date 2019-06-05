@@ -268,7 +268,7 @@ echo "--> Generating initial secrets file"
 
 sed -e "s/<apiToken>/${apiToken}/" \
     -e "s/<secretToken>/${secretToken}/" \
-    -e "s/<docker-id>/${DOCKER_USERNAME}" \
+    -e "s/<docker-id>/${DOCKER_USERNAME}/" \
     -e "s/<password>/${DOCKER_PASSWORD}/" \
     ${DIR}/secret-template.yaml > ${DIR}/secret.yaml
 
