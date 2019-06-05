@@ -255,22 +255,22 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub:
 echo "--> Generating initial configuration file"
 if [ -z "${DOCKER_ORGANISATION}" ] ; then
-  sed -e "s/<docker-id>/${DOCKER_USERNAME}/" \
-  -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-  ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
+  -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
+  ./config-template.yaml > ./config.yaml
 else
-  sed -e "s/<docker-id>/${DOCKER_ORGANISATION}/" \
-  -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-  ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
+  -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
+  ./config-template.yaml > ./config.yaml
 fi
 
 echo "--> Generating initial secrets file"
 
-sed -e "s/<apiToken>/${apiToken}/" \
--e "s/<secretToken>/${secretToken}/" \
--e "s/<docker-id>/${DOCKER_USERNAME}/" \
--e "s/<password>/${DOCKER_PASSWORD}/" \
-${DIR}/secret-template.yaml > ${DIR}/secret.yaml
+sed -e "s/<apiToken>/$apiToken/" \
+-e "s/<secretToken>/$secretToken/" \
+-e "s/<docker-id>/$DOCKER_USERNAME/" \
+-e "s/<password>/$DOCKER_PASSWORD/" \
+./secret-template.yaml > ./secret.yaml
 
 # Format name for kubernetes
 HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -re 's/^([.-]+)//' -re 's/([.-]+)$//' )
@@ -280,39 +280,39 @@ helm install jupyterhub/binderhub \
 --version=$BINDERHUB_VERSION \
 --name=$HELM_BINDERHUB_NAME \
 --namespace=$HELM_BINDERHUB_NAME \
--f ${DIR}/secret.yaml \
--f ${DIR}/config.yaml \
+-f ./secret.yaml \
+-f ./config.yaml \
 --timeout=3600 | tee helm-chart-install.log
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 echo "--> Retrieving JupyterHub IP"
 JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
-while [ "${JUPYTERHUB_IP}}" = '<pending>' ] || [ "${JUPYTERHUB_IP}}" = "" ]
+while [ "${JUPYTERHUB_IP}" = '<pending>' ] || [ "${JUPYTERHUB_IP}" = "" ]
 do
     echo "Sleeping 30s before checking again"
     sleep 30
     JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
-    echo "JupyterHub IP: ${JUPYTERHUB_IP}}" | tee jupyterhub-ip.log
+    echo "JupyterHub IP: ${JUPYTERHUB_IP}" | tee jupyterhub-ip.log
 done
 
 echo "--> Finalising configurations"
 if [ -z "$DOCKER_ORGANISATION" ] ; then
-  sed -e "s/<docker-id>/${DOCKER_USERNAME}/" \
-  -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-  -e "s/<jupyterhub_ip>/${JUPYTERHUB_IP}/" \
-  ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
+  -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
+  -e "s/<jupyterhub_ip>/$JUPYTERHUB_IP/" \
+  ./config-template.yaml > ./config.yaml
 else
-  sed -e "s/<docker-id>/${DOCKER_ORGANISATION}/" \
-  -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-  -e "s/<jupyterhub_ip>/${JUPYTERHUB_IP}/" \
-  ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
+  -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
+  -e "s/<jupyterhub_ip>/$JUPYTERHUB_IP/" \
+  ./config-template.yaml > ./config.yaml
 fi
 
 echo "--> Updating Helm chart"
 helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
 --version=$BINDERHUB_VERSION \
--f ${DIR}/secret.yaml \
--f ${DIR}/config.yaml | tee helm-upgrade.log
+-f ./secret.yaml \
+-f ./config.yaml | tee helm-upgrade.log
 
 # Print Binder IP address
 BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
