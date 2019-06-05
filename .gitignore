@@ -5,5 +5,5 @@ config.json
 config.yaml
 secret.yaml
 
-# Ignore geerated log files
+# Ignore generated log files
 *.log
