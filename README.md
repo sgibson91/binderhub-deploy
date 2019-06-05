@@ -74,7 +74,7 @@ Fill the quotation marks with your desired namespaces, etc.
 
 You can copy [`template-config.json`](template-config.json) should you require.
 
-**Please note that all entries in `template-config.json` must be surrounded by double quotation marks (`"`).**
+**Please note that all entries in `template-config.json` must be surrounded by double quotation marks (`"`), with the exception of `node_count`.**
 
 #### Important for Free Trial subscriptions
 
