@@ -59,7 +59,7 @@ def main():
     template_path = BASE_DIR.joinpath(args.template)
 
     template = yaml.safe_load(open(template_path, "r"))
-    if not (args.docker_org is None):
+    if args.docker_org is not None:
         template["config"]["BinderHub"]["image_prefix"] = (
             template["config"]["BinderHub"]["image_prefix"]
             .replace("<docker-id>", args.docker_org)
@@ -72,9 +72,8 @@ def main():
             .replace("<prefix>", args.prefix)
         )
 
-    if not (args.jupyterhub_ip is None):
-        template["hub"] = {}
-        template["hub"]["url"] = f"http://{args.jupyterhub_ip}"
+    if args.jupyterhub_ip is not None:
+        template["config"]["BinderHub"]["hub_url"] = f"http://{args.jupyterhub_ip}"
 
     yaml.dump(template, open(args.output_file, "w"), default_flow_style=False)
 

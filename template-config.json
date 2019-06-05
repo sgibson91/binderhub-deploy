@@ -4,13 +4,19 @@
     "res_grp_name": "",
     "location": "",
     "node_count": 1,
-    "vm_size": ""
+    "vm_size": "",
+    "sp_app_id": null,
+    "sp_app_key": null,
+    "sp_tenant_id": null
   },
   "binderhub": {
     "name": "",
-    "version": ""
+    "version": "",
+    "contact_email": ""
   },
   "docker": {
+    "username": null,
+    "password": null,
     "org": null,
     "image_prefix": ""
   }

@@ -56,12 +56,18 @@ Fill the quotation marks with your desired namespaces, etc.
     "location": "",      # Azure Data Centre region
     "node_count": 1,     # Number of nodes to deploy. 3 is preferrable for a stable cluster, but may be liable to caps.
     "vm_size": ""        # Azure virtual machine type to deploy
+    "sp_app_id": null,   # Azure service principal ID (optional)
+    "sp_app_key": null,  # Azure service principal password (optional)
+    "sp_tenant_id": null # Azure tenant ID (optional)
   },
   "binderhub": {
     "name": "",          # Name of your BinderHub
     "version": ""        # Helm chart version to deploy, should be 0.2.0-<commit-hash>
+    "contact_email": ""  # Email for letsencrypt https certificate. CANNOT be left blank.
   },
   "docker": {
+    "username": null,    # Docker username (can be supplied at runtime)
+    "password": null,    # Docker password (can be supplied at runtime)
     "org": null,         # A DockerHub organisation to push images to (if desired)
     "image_prefix": ""   # The prefix to preprend to Binder images (e.g. "binder-prod")
   }
@@ -92,7 +98,7 @@ Command line install scripts were found in the following documentation:
 ### deploy.sh
 
 This script reads in values from `config.json`, deploys a Kubernetes cluster, then creates `config.yaml` and `secret.yaml` files via `create_config.py` and `create_secret.py` respectively (using `config-template.yaml` and `secret-template.yaml`).
-The script will ask for your Docker ID and password.
+The script will ask for your Docker ID and password if you haven't supplied them in the config file.
 The ID is your Docker username, NOT the email.
 If you have provided a Docker organisation in `config.json`, then Docker ID **MUST** be a member of this organisation.
 Both a JupyterHub and BinderHub are installed onto the deployed Kubernetes cluster and the `config.yaml` file is updated with the JupyterHub IP address.
@@ -117,7 +123,42 @@ The user should check the [Azure Portal](https://portal.azure.com/#home) to veri
 
 To deploy [Binderhub](https://binderhub.readthedocs.io/) to Azure use the deploy button below.
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ftmbgreaves%2Fbinderhub-deploy%2Fchange-urls-to-upstream%2Fazure%2Fpaas%2Farm%2Fazure.deploy.json)
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Falan-turing-institute%2Fbinderhub-deploy%2Fmaster%2Fazure%2Fpaas%2Farm%2Fazure.deploy.json)
+
+### Monitoring deployment progress
+
+To monitor the progress of a blue-button deployment, go to the [Azure portal](https://portal.azure.com/) and select 'Resource Groups' from the left hand pane. Then in the central pane select the resource group you chose to deploy into. This will give you a right hand pane containing the resources within the group. You may need to 'refresh' until you see a new container instance. When it appears, select it, then in the new pane go to 'Settings->Containers'. You should see your new container listed. Select it, then in the lower right hand pane select 'Logs'. You may need to 'refresh' this to display the logs, possibly multiple times until the container starts up.
+
+### Retrieving deployment output from Azure
+
+When Binderhub is deployed using the blue button or with a local container, output logs, yaml files, and ssh keys are pushed to an Azure storage account to preserve them once the container exits. The storage account is created in the same resource group as the AKS cluster, and files are pushed into a storage blob within the account.
+
+Both the storage blob name and the storage account name are derived from the name you gave to your BinderHub instance, but may be modified and/or have a random seed appended. To find the storage account name, navigate to your resource group by selecting 'Resource Groups' in the leftmost pant of the [Azure Portal](https://portal.azure.com/), then clicking on the resource group containing your BinderHub instance. Along with any pre-existing resources (if you re-used an existing resource group) you should see three new resources: a container instance, a Kubernetes service, and a storage account.
+
+Make a note of the name of the storage account (referred to in the following commands as ACCOUNT_NAME) then select this storage account. In the new pane that opens, select 'Blobs' from the 'Services' section. You should see a single blob listed. Make a note of the name of this blob, which will be 'BLOB_NAME' in the following commands.
+
+The Azure CLI can be used to fetch files from the blob. Files are fetched into a local directory, which must already exist, referred to as 'OUTPUT_DIRECTORY' in the following commands.
+
+To fetch all files:
+
+```
+  az storage blob download-batch --account-name <ACCOUNT_NAME> --source <BLOB_NAME> --pattern "*" -d "<OUTPUT_DIRECTORY>"
+```
+
+The pattern can be used to fetch particular files, for example all log files:
+
+```
+  az storage blob download-batch --account-name <ACCOUNT_NAME> --source <BLOB_NAME> --pattern "*.log" -d "<OUTPUT_DIRECTORY>"
+```
+
+To fetch a single file, specify 'REMOTE_FILENAME' for the name of the file in blob storage, and 'LOCAL_FILENAME' for the filename it will be fetched into:
+
+```
+  az storage blob download --account-name <ACCOUNT_NAME> --container-name <BLOB_NAME> --name <REMOTE_FILENAME> --file <LOCAL_FILENAME>
+```
+
+For full documentation, see the (az storage blob documentation)[https://docs.microsoft.com/en-us/cli/azure/storage/blob?view=azure-cli-latest].
+
 
 ### Service Principal Creation
 
@@ -144,13 +185,21 @@ This image shows the command being executed for an Azure Pass Sponsorship.
 
 <html><img src="images/set_subscription.png" alt="Set Subscription"></html>
 
+You will need the subscription ID, which you can retrieve by running:
+
+```
+az account list --refresh --output table
+```
+
+<html><img src="images/az_account_list.png" alt="List subscriptions"></html>
+
 Next, create the Service Principal with the following command. Make sure to give it a sensible name.
 
 ```
-az ad sp create-for-rbac --name binderhub-sp --skip-assignment
+az ad sp create-for-rbac --name binderhub-sp --role contributor --scopes /subscriptions/<subscription ID from above>
 ```
 
-<html><img src="images/create_sp.png" alt="Create Service Principal"></html>
+<html><img src="images/create-for-rbac.png" alt="Create Service Principal"></html>
 
 The fields `appId`, `password` and `tenant` are the required pieces of information.
 These should be copied into the "Service Principal App ID", "Service Principal App Key" and "Service Principal Tenant ID" fields in the form, respectively.

@@ -23,14 +23,14 @@
         "description": "Tenant ID of your service principal. Will be used by the setup script to create Azure resources on your behalf."
       }
     },
-    "binderHubName": {
+    "binderhubName": {
       "type": "string",
       "minLength": 1,
       "metadata": {
         "description": "Name for the application to be deployed. Must be unique across Azure. Your deployment will be accessible at <app-name>.<resource-group-location>.cloudapp.azure.com"
       }
     },
-    "binderHubVersion": {
+    "binderhubVersion": {
       "type": "string",
       "minLength": 1,
       "metadata": {
@@ -109,10 +109,14 @@
         "restartPolicy": "Never",
         "containers": [
           {
-            "name": "ok-setup",
+            "name": "binderhub-setup",
             "properties": {
               "image": "[parameters('setupDockerImage')]",
               "environmentVariables": [
+                {
+                  "name": "BINDERHUB_CONTAINER_MODE",
+                  "value": "true"
+                },
                 {
                   "name": "SP_APP_ID",
                   "value": "[parameters('servicePrincipalAppId')]"
