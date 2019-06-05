@@ -1,6 +1,6 @@
 # Automatically deploy a BinderHub to Microsoft Azure
 
-![mit_license_badge](https://img.shields.io/badge/License-MIT-yellow.svg) ![os_badge](https://img.shields.io/badge/OS-Linux%20%7C%20Mac%20%7C%20Windows-lightgrey.svg) ![python_version_badge](https://img.shields.io/badge/Python-%3E%3D%203.6-blue.svg)
+![mit_license_badge](https://img.shields.io/badge/License-MIT-yellow.svg) ![os_badge](https://img.shields.io/badge/OS-Linux%20%7C%20Mac%20%7C%20Windows-lightgrey.svg)
 
 [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) is a cloud-based, multi-server technology used for hosting repoducible computing environments and interactive Jupyter Notebooks.
 
@@ -36,8 +36,6 @@ To use these scripts locally, clone this repo and change into the directory.
 git clone https://github.com/alan-turing-institute/binderhub-deploy.git
 cd binderhub-deploy
 ```
-
-The Python files [`create_config.py`](./create_config.py) and [`create_secret.py`](./create_secret.py) require Python version `>= 3.6`, but no extra packages are needed.
 
 To make the scripts executable and then run them, do the following:
 
@@ -98,7 +96,7 @@ This script checks whether the required command line programs are already instal
 
 ### deploy.sh
 
-This script reads in values from `config.json`, deploys a Kubernetes cluster, then creates `config.yaml` and `secret.yaml` files via `create_config.py` and `create_secret.py` respectively (using [`config-template.yaml`](./config-template.yaml) and [`secret-template.yaml`](./secret-template.yaml)).
+This script reads in values from `config.json`, deploys a Kubernetes cluster, then creates `config.yaml` and `secret.yaml` files, respectively, using [`config-template.yaml`](./config-template.yaml) and [`secret-template.yaml`](./secret-template.yaml).
 The script will ask for your Docker ID and password if you haven't supplied them in the config file.
 The ID is your Docker username, **NOT** the associated email.
 If you have provided a Docker organisation in `config.json`, then Docker ID **MUST** be a member of this organisation.
@@ -125,41 +123,6 @@ The user should check the [Azure Portal](https://portal.azure.com/#home) to veri
 To deploy [BinderHub](https://binderhub.readthedocs.io/) to Azure use the deploy button below.
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Falan-turing-institute%2Fbinderhub-deploy%2Fmaster%2Fazure%2Fpaas%2Farm%2Fazure.deploy.json)
-
-### Monitoring deployment progress
-
-To monitor the progress of a blue-button deployment, go to the [Azure portal](https://portal.azure.com/) and select 'Resource Groups' from the left hand pane. Then in the central pane select the resource group you chose to deploy into. This will give you a right hand pane containing the resources within the group. You may need to 'refresh' until you see a new container instance. When it appears, select it, then in the new pane go to 'Settings->Containers'. You should see your new container listed. Select it, then in the lower right hand pane select 'Logs'. You may need to 'refresh' this to display the logs, possibly multiple times until the container starts up.
-
-### Retrieving deployment output from Azure
-
-When Binderhub is deployed using the blue button or with a local container, output logs, yaml files, and ssh keys are pushed to an Azure storage account to preserve them once the container exits. The storage account is created in the same resource group as the AKS cluster, and files are pushed into a storage blob within the account.
-
-Both the storage blob name and the storage account name are derived from the name you gave to your BinderHub instance, but may be modified and/or have a random seed appended. To find the storage account name, navigate to your resource group by selecting 'Resource Groups' in the leftmost pant of the [Azure Portal](https://portal.azure.com/), then clicking on the resource group containing your BinderHub instance. Along with any pre-existing resources (if you re-used an existing resource group) you should see three new resources: a container instance, a Kubernetes service, and a storage account.
-
-Make a note of the name of the storage account (referred to in the following commands as ACCOUNT_NAME) then select this storage account. In the new pane that opens, select 'Blobs' from the 'Services' section. You should see a single blob listed. Make a note of the name of this blob, which will be 'BLOB_NAME' in the following commands.
-
-The Azure CLI can be used to fetch files from the blob. Files are fetched into a local directory, which must already exist, referred to as 'OUTPUT_DIRECTORY' in the following commands.
-
-To fetch all files:
-
-```
-  az storage blob download-batch --account-name <ACCOUNT_NAME> --source <BLOB_NAME> --pattern "*" -d "<OUTPUT_DIRECTORY>"
-```
-
-The pattern can be used to fetch particular files, for example all log files:
-
-```
-  az storage blob download-batch --account-name <ACCOUNT_NAME> --source <BLOB_NAME> --pattern "*.log" -d "<OUTPUT_DIRECTORY>"
-```
-
-To fetch a single file, specify 'REMOTE_FILENAME' for the name of the file in blob storage, and 'LOCAL_FILENAME' for the filename it will be fetched into:
-
-```
-  az storage blob download --account-name <ACCOUNT_NAME> --container-name <BLOB_NAME> --name <REMOTE_FILENAME> --file <LOCAL_FILENAME>
-```
-
-For full documentation, see the (az storage blob documentation)[https://docs.microsoft.com/en-us/cli/azure/storage/blob?view=azure-cli-latest].
-
 
 ### Service Principal Creation
 
@@ -207,11 +170,56 @@ These should be copied into the "Service Principal App ID", "Service Principal A
 
 **Keep this information safe as the password cannot be recovered after this step!**
 
+### Monitoring deployment progress
+
+To monitor the progress of a blue-button deployment, go to the [Azure portal](https://portal.azure.com/) and select 'Resource Groups' from the left hand pane.
+Then in the central pane select the resource group you chose to deploy into.
+This will give you a right hand pane containing the resources within the group.
+You may need to 'refresh' until you see a new container instance.
+When it appears, select it, then in the new pane go to 'Settings->Containers'.
+You should see your new container listed. Select it, then in the lower right hand pane select 'Logs'.
+You may need to 'refresh' this to display the logs until the container starts up.
+The logs are also not auto-updating, so keep refreshing them to see progress.
+
+### Retrieving deployment output from Azure
+
+When Binderhub is deployed using the blue button or with a local container, output logs, YAML files, and ssh keys are pushed to an Azure storage account to preserve them once the container exits.
+The storage account is created in the same resource group as the AKS cluster, and files are pushed into a storage blob within the account.
+
+Both the storage blob name and the storage account name are derived from the name you gave to your BinderHub instance, but may be modified and/or have a random seed appended.
+To find the storage account name, navigate to your resource group by selecting 'Resource Groups' in the leftmost panel of the [Azure Portal](https://portal.azure.com/), then clicking on the resource group containing your BinderHub instance.
+Along with any pre-existing resources (if you re-used an existing resource group) you should see three new resources: a container instance, a Kubernetes service, and a storage account.
+
+Make a note of the name of the storage account (referred to in the following commands as ACCOUNT_NAME) then select this storage account.
+In the new pane that opens, select 'Blobs' from the 'Services' section.
+You should see a single blob listed.
+Make a note of the name of this blob, which will be 'BLOB_NAME' in the following commands.
+
+The Azure CLI can be used to fetch files from the blob.
+Files are fetched into a local directory, **which must already exist**, referred to as 'OUTPUT_DIRECTORY' in the following commands.
+
+To fetch all files:
+```
+  az storage blob download-batch --account-name <ACCOUNT_NAME> --source <BLOB_NAME> --pattern "*" -d "<OUTPUT_DIRECTORY>"
+```
+
+The pattern can be used to fetch particular files, for example all log files:
+```
+  az storage blob download-batch --account-name <ACCOUNT_NAME> --source <BLOB_NAME> --pattern "*.log" -d "<OUTPUT_DIRECTORY>"
+```
+
+To fetch a single file, specify 'REMOTE_FILENAME' for the name of the file in blob storage, and 'LOCAL_FILENAME' for the filename it will be fetched into:
+```
+  az storage blob download --account-name <ACCOUNT_NAME> --container-name <BLOB_NAME> --name <REMOTE_FILENAME> --file <LOCAL_FILENAME>
+```
+
+For full documentation, see the [`az storage blob` documentation](https://docs.microsoft.com/en-us/cli/azure/storage/blob?view=azure-cli-latest).
+
 ## Contributors
 
 We would like to acknowledge and thank the following people for their contributions:
 
-* Tim Greaves (@tmbgreaves)
-* Gerard Gorman (@ggorman)
-* Tania Allard (@trallard)
-* Diego Alonso Alvarez (@dalonsoa)
+* Tim Greaves ([@tmbgreaves](https://github.com/tmbgreaves))
+* Gerard Gorman ([@ggorman](https://github.com/ggorman))
+* Tania Allard ([@trallard](https://github.com/trallard))
+* Diego Alonso Alvarez ([@dalonsoa](https://github.com/dalonsoa))
