@@ -273,7 +273,7 @@ sed -e "s/<apiToken>/$apiToken/" \
 ./secret-template.yaml > ./secret.yaml
 
 # Format name for kubernetes
-HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -re 's/^([.-]+)//' -re 's/([.-]+)$//' )
+HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -e 's/^([.-]+)//' -e 's/([.-]+)$//' )
 
 echo "--> Installing Helm chart"
 helm install jupyterhub/binderhub \
@@ -299,12 +299,12 @@ echo "--> Finalising configurations"
 if [ -z "$DOCKER_ORGANISATION" ] ; then
   sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
-  -e "s/<jupyterhub_ip>/$JUPYTERHUB_IP/" \
+  -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
   ./config-template.yaml > ./config.yaml
 else
   sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
-  -e "s/<jupyterhub_ip>/$JUPYTERHUB_IP/" \
+  -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
   ./config-template.yaml > ./config.yaml
 fi
 
