@@ -12,8 +12,8 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
     # Update apt before starting, in case this is a new container
     APTPACKAGES=" \
       curl \
-      python \
-      python3 \
+      # python \
+      # python3 \
       openssl \
       jq \
       "
@@ -40,7 +40,7 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
     echo "--> Checking system packages and installing any missing packages"
     YUMPACKAGES=" \
       curl \
-      python \
+      # python \
       tar \
 	which \
       jq \
@@ -52,14 +52,14 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
         ${sudo_command} yum install -y $package
 	fi
     done
-    if ! command -v python3 >/dev/null 2>&1 ; then
-      if [ -f /etc/fedora-release ] ; then
-        ${sudo_command} yum install -y python3 python3-pyyaml
-      else
-        ${sudo_command} yum install -y epel-release
-        ${sudo_command} yum install -y python36 python36-PyYAML
-      fi
-    fi
+    # if ! command -v python3 >/dev/null 2>&1 ; then
+    #   if [ -f /etc/fedora-release ] ; then
+    #     ${sudo_command} yum install -y python3 python3-pyyaml
+    #   else
+    #     ${sudo_command} yum install -y epel-release
+    #     ${sudo_command} yum install -y python36 python36-PyYAML
+    #   fi
+    # fi
     if ! command -v az >/dev/null 2>&1 ; then
       echo "--> Attempting to install Azure-CLI with yum packages"
       ${sudo_command} rpm --import https://packages.microsoft.com/keys/microsoft.asc
@@ -84,8 +84,8 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
     echo "--> Checking system packages and installing any missing packages"
     ZYPPERPACKAGES=" \
       curl \
-      python \
-      python3 \
+      # python \
+      # python3 \
       tar \
       which \
       jq \
@@ -103,7 +103,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
       ${sudo_command} zypper addrepo --name 'Azure CLI' --check https://packages.microsoft.com/yumrepos/azure-cli azure-cli
       ${sudo_command} zypper install --from azure-cli -y azure-cli
       # The az-cli installer misses python-xml dependency on suse
-      ${sudo_command} zypper install -y python-xml
+      # ${sudo_command} zypper install -y python-xml
     fi
     if ! command -v kubectl >/dev/null 2>&1 ; then
       echo "--> Attempting to install kubectl with zypper packages"
@@ -114,7 +114,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 ## Mystery linux system without any of our recognised package managers
   else
     command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
-    command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
+    # command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
     command -v jq >/dev/null 2>&1 || { echo >&2 "jq not found; please install and re-run this script."; exit 1; }
     echo "--> Attempting to install Azure-CLI with curl"
     if ! command -v az >/dev/null 2>&1 ; then
@@ -131,7 +131,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 ## Helm isn't well packaged for Linux, alas
   if ! command -v helm >/dev/null 2>&1 ; then
     command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
-    command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
+    # command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
     command -v tar >/dev/null 2>&1 || { echo >&2 "tar not found; please install and re-run this script."; exit 1; }
     command -v which >/dev/null 2>&1 || { echo >&2 "which not found; please install and re-run this script."; exit 1; }
     echo "--> Helm doesn't have a system package; attempting to install with curl"
@@ -146,7 +146,7 @@ elif [[ ${OSTYPE} == 'darwin'* ]] ; then
     echo "--> Checking brew packages and installing any missing packages"
     BREWPACKAGES=" \
       curl \
-      python \
+      # python \
       azure-cli \
       kubernetes-cli \
       kubernetes-helm \
@@ -160,7 +160,7 @@ elif [[ ${OSTYPE} == 'darwin'* ]] ; then
     done
   else
     command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
-    command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
+    # command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
     command -v tar >/dev/null 2>&1 || { echo >&2 "tar not found; please install and re-run this script."; exit 1; }
     command -v which >/dev/null 2>&1 || { echo >&2 "which not found; please install and re-run this script."; exit 1; }
     echo "--> Attempting to install Azure-CLI with curl"
@@ -181,4 +181,3 @@ elif [[ ${OSTYPE} == 'darwin'* ]] ; then
     fi
   fi
 fi
-
