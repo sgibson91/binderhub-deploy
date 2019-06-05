@@ -3,7 +3,7 @@
 # Exit immediately if a pipeline returns a non-zero status
 set -e
 
-## Detection of the deploy mode 
+## Detection of the deploy mode
 #
 # This script should handle both interactive deployment when run by a user
 # on their local system, and also running as a container entrypoint when
@@ -49,9 +49,9 @@ else
 
   # Read in config file and assign variables for the non-container case
   configFile='config.json'
-  
+
   echo "--> Reading configuration from ${configFile}"
-  
+
   AZURE_SUBSCRIPTION=`jq -r '.azure .subscription' ${configFile}`
   BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
   BINDERHUB_VERSION=`jq -r '.binderhub .version' ${configFile}`
@@ -87,10 +87,10 @@ else
     fi
   done
 
-  # Check if any optional variables are set null; if so, reset them to a 
+  # Check if any optional variables are set null; if so, reset them to a
   # zero-length string for later checks. If they failed to read at all,
   # possibly due to an invalid json file, they will be returned as a
-  # zero-length string -- this is attempting to make the 'not set' 
+  # zero-length string -- this is attempting to make the 'not set'
   # value the same in either case.
   if [ x${SP_APP_ID} == 'xnull' ] ; then SP_APP_ID='' ; fi
   if [ x${SP_APP_KEY} == 'xnull' ] ; then SP_APP_KEY='' ; fi
@@ -141,7 +141,7 @@ AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
 
 # Azure login will be different depending on whether this script is running
 # with or without service principal details supplied.
-# 
+#
 # If all the SP enironment is set, use that. Otherwise, fall back to an
 # interactive login.
 
@@ -252,27 +252,27 @@ helm repo update
 # Get this script's path
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-# Generate the scripts paths - make sure these are found
-config_script="${DIR}/create_config.py"
-secret_script="${DIR}/create_secret.py"
-
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub:
 echo "--> Generating initial configuration file"
-if [ -z "$DOCKER_ORGANISATION" ] ; then
-  python3 $config_script -id=$DOCKER_USERNAME --prefix=$DOCKER_IMAGE_PREFIX --force
+if [ -z "${DOCKER_ORGANISATION}" ] ; then
+  sed -e "s/<docker-id>/${DOCKER_USERNAME}/" \
+      -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+      ${DIR}/config-template.yaml > ${DIR}/config.yaml
 else
-  python3 $config_script -id=$DOCKER_USERNAME --prefix=$DOCKER_IMAGE_PREFIX -org=$DOCKER_ORGANISATION --force
+  sed -e "s/<docker-id>/${DOCKER_ORGANISATION}/" \
+      -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+      ${DIR}/config-template.yaml > ${DIR}/config.yaml
 fi
 
 echo "--> Generating initial secrets file"
 
-python3 $secret_script --apiToken=$apiToken \
---secretToken=$secretToken \
--id=$DOCKER_USERNAME \
---password=$DOCKER_PASSWORD \
---force
+sed -e "s/<apiToken>/${apiToken}/" \
+    -e "s/<secretToken>/${secretToken}/" \
+    -e "s/<docker-id>/${DOCKER_USERNAME}" \
+    -e "s/<password>/${DOCKER_PASSWORD}/" \
+    ${DIR}/secret-template.yaml > ${DIR}/secret.yaml
 
-# Format name for kubernetes 
+# Format name for kubernetes
 HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -re 's/^([.-]+)//' -re 's/([.-]+)$//' )
 
 echo "--> Installing Helm chart"
@@ -280,55 +280,53 @@ helm install jupyterhub/binderhub \
 --version=$BINDERHUB_VERSION \
 --name=$HELM_BINDERHUB_NAME \
 --namespace=$HELM_BINDERHUB_NAME \
--f ./secret.yaml \
--f ./config.yaml \
+-f ${DIR}/secret.yaml \
+-f ${DIR}/config.yaml \
 --timeout=3600 | tee helm-chart-install.log
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 echo "--> Retrieving JupyterHub IP"
-jupyterhub_ip=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
-while [ "$jupyterhub_ip" = '<pending>' ] || [ "$jupyterhub_ip" = "" ]
+JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
+while [ "${JUPYTERHUB_IP}}" = '<pending>' ] || [ "${JUPYTERHUB_IP}}" = "" ]
 do
     echo "Sleeping 30s before checking again"
     sleep 30
-    jupyterhub_ip=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
-    echo "JupyterHub IP: $jupyterhub_ip" | tee jupyterhub-ip.log
+    JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
+    echo "JupyterHub IP: ${JUPYTERHUB_IP}}" | tee jupyterhub-ip.log
 done
 
 echo "--> Finalising configurations"
 if [ -z "$DOCKER_ORGANISATION" ] ; then
-  python3 $config_script -id=$DOCKER_USERNAME \
-  --prefix=$DOCKER_IMAGE_PREFIX \
-  --jupyterhub_ip=$jupyterhub_ip \
-  --force
+  sed -e "s/<docker-id>/${DOCKER_USERNAME}/" \
+      -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+      -e "s/<jupyterhub_ip>/${JUPYTERHUB_IP}/" \
+      ${DIR}/config-template.yaml > ${DIR}/config.yaml
 else
-  python3 $config_script -id=$DOCKER_USERNAME \
-  --prefix=$DOCKER_IMAGE_PREFIX \
-  -org=$DOCKER_ORGANISATION \
-  --jupyterhub_ip=$jupyterhub_ip \
-  --force
+  sed -e "s/<docker-id>/${DOCKER_ORGANISATION}/" \
+      -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+      -e "s/<jupyterhub_ip>/${JUPYTERHUB_IP}/" \
+      ${DIR}/config-template.yaml > ${DIR}/config.yaml
 fi
 
-helm repo update
 echo "--> Updating Helm chart"
 helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
 --version=$BINDERHUB_VERSION \
--f secret.yaml \
--f config.yaml | tee helm-upgrade.log
+-f ${DIR}/secret.yaml \
+-f ${DIR}/config.yaml | tee helm-upgrade.log
 
 # Print Binder IP address
-binder_ip=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
-while [ "$binder_ip" = '<pending>' ] || [ "$binder_ip" = "" ]
+BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
+while [ "${BINDER_IP}" = '<pending>' ] || [ "${BINDER_IP}" = "" ]
 do
     echo "Sleeping 30s before checking again"
     sleep 30
-    binder_ip=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
-    echo "Binder IP: $binder_ip" | tee binder-ip.log
+    BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
+    echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
 done
 
 if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   # Finally, save outputs to blob storage
-  # 
+  #
   # Create a storage account
   echo "--> Creating storage account"
   CONTAINER_NAME="${BINDERHUB_NAME}deploylogs"
