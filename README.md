@@ -28,11 +28,7 @@ git clone https://github.com/alan-turing-institute/binderhub-deploy.git
 cd binderhub-deploy
 ```
 
-The Python files require Python version >= 3.6 and the dependencies can be installed as follows.
-
-```
-pip install -r requirements.txt
-```
+The Python files `create_config.py` and `create_secret.py` require Python version >= 3.6, but no extra packages are needed.
 
 To make the scripts executable and then run them, do the following:
 
