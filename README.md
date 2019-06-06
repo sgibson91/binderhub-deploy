@@ -21,6 +21,7 @@ Your resources will be frozen once your subscription expires, then deleted if yo
   - [`deploy.sh`](#deploysh)
   - [`logs.sh`](#logssh)
   - [`info.sh`](#infosh)
+  - [`upgrade.sh`](#upgradesh)
   - [`teardown.sh`](#teardownsh)
 - ["Deploy to Azure" Button](#deploy-to-azure-button)
   - [Service Principal Creation](#service-principal-creation)
@@ -114,11 +115,17 @@ It reads from `config.json` in order to get the BinderHub name.
 The script will print the pod status of the cluster and the IP addresses of both the JupyterHub and BinderHub to the terminal.
 It reads the BinderHub name from `config.json`.
 
+### upgrade.sh
+
+This script will automatically upgrade the helm chart deployment configuring the BinderHub and then prints the Kubernetes pods.
+It reads the BinderHub name and Helm chart version from `config.json`.
+
 ### teardown.sh
 
 This script will purge the Helm release, delete the Kubernetes namespace and then delete the Azure Resource Group containing the computational resources.
 It will read the namespaces from `config.json`.
 The user should check the [Azure Portal](https://portal.azure.com/#home) to verify the resources have been deleted.
+It will also purge the cluster information from your `kubectl` configuration file.
 
 ## "Deploy to Azure" Button
 
