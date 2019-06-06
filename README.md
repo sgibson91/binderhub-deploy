@@ -124,6 +124,7 @@ It reads the BinderHub name and Helm chart version from `config.json`.
 
 This script will purge the Helm release, delete the Kubernetes namespace and then delete the Azure Resource Group containing the computational resources.
 The user should check the [Azure Portal](https://portal.azure.com/#home) to verify the resources have been deleted.
+It will also purge the cluster information from your `kubectl` configuration file.
 
 ## Azure Deployment
 
