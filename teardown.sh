@@ -28,7 +28,7 @@ echo "--> Deleting the resource group: NetworkWatcherRG"
 az group delete -n NetworkWatcherRG --yes --no-wait
 
 echo "NOTE: It is a long running process to delete a resource group."
-echo "      The groups are probably still undergoing deleteion presently."
+echo "      The groups are probably still undergoing deletion presently."
 echo "Double check resources are down:"
 echo "               https://portal.azure.com/#home -> Click on Resource Groups"
 echo "Check your DockerHub registry:"
