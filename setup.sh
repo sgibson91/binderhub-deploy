@@ -50,11 +50,11 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
     fi
     echo "--> Checking system packages and installing any missing packages"
     YUMPACKAGES=" \
+      jq \
       curl \
       python \
       tar \
       which \
-      jq \
       openssl \
       "
     for package in $YUMPACKAGES ; do
@@ -142,6 +142,8 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 ## Mystery linux system without any of our recognised package managers
   else
     command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
+    command -v awk >/dev/null 2>&1 || { echo >&2 "awk not found; please install and re-run this script."; exit 1; }
+    command -v grep >/dev/null 2>&1 || { echo >&2 "grep not found; please install and re-run this script."; exit 1; }
     command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
     command -v jq >/dev/null 2>&1 || { echo >&2 "jq not found; please install and re-run this script."; exit 1; }
     echo "--> Attempting to install Azure-CLI with curl"
@@ -159,6 +161,8 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 ## Helm isn't well packaged for Linux, alas
   if ! command -v helm >/dev/null 2>&1 ; then
     command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
+    command -v awk >/dev/null 2>&1 || { echo >&2 "awk not found; please install and re-run this script."; exit 1; }
+    command -v grep >/dev/null 2>&1 || { echo >&2 "grep not found; please install and re-run this script."; exit 1; }
     command -v python >/dev/null 2>&1 || { echo >&2 "python not found; please install and re-run this script."; exit 1; }
     command -v tar >/dev/null 2>&1 || { echo >&2 "tar not found; please install and re-run this script."; exit 1; }
     command -v which >/dev/null 2>&1 || { echo >&2 "which not found; please install and re-run this script."; exit 1; }
