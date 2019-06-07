@@ -41,7 +41,9 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
       curl \
       python \
       tar \
+      which \
       jq \
+      openssl \
       "
     for package in $YUMPACKAGES ; do
       if ! rpm -q $package > /dev/null ; then
