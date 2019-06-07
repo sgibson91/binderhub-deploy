@@ -118,7 +118,7 @@ else
     DOCKER_PASSWORD: ${DOCKER_PASSWORD}
     DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
     DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
-    "
+    " | tee read-config.log
 
   # Check/get the user's Docker credentials
   if [ -z $DOCKER_USERNAME ] ; then
