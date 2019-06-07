@@ -4,6 +4,3 @@ config.json
 # Ignore config and secret yaml files
 config.yaml
 secret.yaml
-
-# Ignore generated log files
-*.log
