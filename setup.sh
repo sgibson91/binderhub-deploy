@@ -101,6 +101,32 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
       zypper install -y kubectl
     fi
 
+## pacman-based systems
+  elif command -v pacman >/dev/null 2>&1 ; then
+    echo "--> Checking system packages and installing any missing packages"
+    PACMANPACKAGES=" \
+      curl \
+      python \
+      tar \
+      which \
+      jq \
+      gcc \
+      awk \
+      grep \
+      openssl \
+      kubectl \
+      "
+    for package in $PACMANPACKAGES ; do
+      if ! pacman -Q $package 2> /dev/null ; then
+        echo "--> pacman installing $package"
+        ${sudo_command} pacman -Sy --noconfirm $package
+	fi
+    done
+    if ! command -v az >/dev/null 2>&1 ; then
+      echo "--> Attempting to install Azure-CLI with curl"
+      curl -L https://aka.ms/InstallAzureCli | sh
+    fi
+
 ## Mystery linux system without any of our recognised package managers
   else
     command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
@@ -108,7 +134,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
     command -v jq >/dev/null 2>&1 || { echo >&2 "jq not found; please install and re-run this script."; exit 1; }
     echo "--> Attempting to install Azure-CLI with curl"
     if ! command -v az >/dev/null 2>&1 ; then
-      curl -L https://aka.ms/InstallAzureCli
+      curl -L https://aka.ms/InstallAzureCli | sh
     fi
     echo "--> Attempting to install kubectl with curl"
     if ! command -v kubectl >/dev/null 2>&1 ; then
