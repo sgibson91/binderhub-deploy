@@ -258,10 +258,12 @@ if [ -z "${DOCKER_ORGANISATION}" ] ; then
   sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   ./config-template.yaml > ./config.yaml
+  cat ./config.yaml | tee initial-config.log
 else
   sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   ./config-template.yaml > ./config.yaml
+  cat ./config.yaml | tee initial-config.log
 fi
 
 echo "--> Generating initial secrets file"
@@ -271,6 +273,7 @@ sed -e "s/<apiToken>/$apiToken/" \
 -e "s/<docker-id>/$DOCKER_USERNAME/" \
 -e "s/<password>/$DOCKER_PASSWORD/" \
 ./secret-template.yaml > ./secret.yaml
+cat ./secret.yaml | tee secret-yaml.log
 
 # Format name for kubernetes
 HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//' )
@@ -301,11 +304,13 @@ if [ -z "$DOCKER_ORGANISATION" ] ; then
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
   ./config-template.yaml > ./config.yaml
+  cat ./config.yaml | tee updated-config.log
 else
   sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
   ./config-template.yaml > ./config.yaml
+  cat ./config.yaml | tee updated-config.log
 fi
 
 echo "--> Updating Helm chart"
