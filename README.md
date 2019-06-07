@@ -130,7 +130,7 @@ It will also purge the cluster information from your `kubectl` configuration fil
 
 To deploy [Binderhub](https://binderhub.readthedocs.io/) to Azure use the deploy button below.
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Falan-turing-institute%2Fbinderhub-deploy%2Fhotfix%2logs%2Fazure%2Fpaas%2Farm%2Fazure.deploy.json)
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Falan-turing-institute%2Fbinderhub-deploy%2Fhotfix-logs%2Fazure%2Fpaas%2Farm%2Fazure.deploy.json)
 
 ### Monitoring deployment progress
 
