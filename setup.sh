@@ -36,6 +36,18 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
 
 ## yum-based systems
   elif command -v yum >/dev/null 2>&1 ; then
+    if [ "$(cat /etc/redhat-release | grep -i centos)" ] ; then
+      echo "***************************************************************"
+      echo "* You appear to be running CentOS. A required package, jq, is *"
+      echo "* not available from core repositories but can be installed   *"
+      echo "* from the epel-release repository. If a jq install fails,    *"
+      echo "* run the following command as root (or with sudo) to enable  *"
+      echo "* the epel repository:                                        *"
+      echo "*                                                             *"
+      echo "*                  yum -y install epel-release                *"
+      echo "*                                                             *"
+      echo "***************************************************************"
+    fi
     echo "--> Checking system packages and installing any missing packages"
     YUMPACKAGES=" \
       curl \
