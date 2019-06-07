@@ -142,7 +142,7 @@ AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
 # Azure login will be different depending on whether this script is running
 # with or without service principal details supplied.
 #
-# If all the SP enironment is set, use that. Otherwise, fall back to an
+# If all the SP environments are set, use those. Otherwise, fall back to an
 # interactive login.
 
 
