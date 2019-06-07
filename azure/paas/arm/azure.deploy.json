@@ -34,7 +34,7 @@
       "type": "string",
       "minLength": 1,
       "metadata": {
-        "description": "The version of BinderHub to be deployed. This normally takes the form of versionnumber-hash, ie, 0.2.0-ae57d8. Refer to https://jupyterhub.github.io/helm-chart/#development-releases-binderhub for valid version numbers." 
+        "description": "The version of BinderHub to be deployed. This normally takes the form of versionnumber-hash, ie, 0.2.0-ae57d8. Refer to https://jupyterhub.github.io/helm-chart/#development-releases-binderhub for valid version numbers."
       }
     },
     "aksNodeCount": {
@@ -63,7 +63,7 @@
     "dockerUsername": {
       "type": "string",
       "minLength": 1,
-      "metadata": { 
+      "metadata": {
         "description": "The name of the user for Dockerhub"
       }
     },
@@ -91,7 +91,7 @@
     "setupDockerImage": {
       "type": "string",
       "minLength": 1,
-      "defaultValue": "tmbgreaves/binderhub-setup:latest",
+      "defaultValue": "sgibson91/binderhub-setup:latest",
       "metadata": {
         "description": "Docker image to use for the binderhub application setup. Must be publicly accessible."
       }
