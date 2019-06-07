@@ -3,7 +3,7 @@
 # Exit immediately if a pipeline returns a non-zero status
 set -e
 
-## Detection of the deploy mode 
+## Detection of the deploy mode
 #
 # This script should handle both interactive deployment when run by a user
 # on their local system, and also running as a container entrypoint when
@@ -49,9 +49,9 @@ else
 
   # Read in config file and assign variables for the non-container case
   configFile='config.json'
-  
+
   echo "--> Reading configuration from ${configFile}"
-  
+
   AZURE_SUBSCRIPTION=`jq -r '.azure .subscription' ${configFile}`
   BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
   BINDERHUB_VERSION=`jq -r '.binderhub .version' ${configFile}`
@@ -87,10 +87,10 @@ else
     fi
   done
 
-  # Check if any optional variables are set null; if so, reset them to a 
+  # Check if any optional variables are set null; if so, reset them to a
   # zero-length string for later checks. If they failed to read at all,
   # possibly due to an invalid json file, they will be returned as a
-  # zero-length string -- this is attempting to make the 'not set' 
+  # zero-length string -- this is attempting to make the 'not set'
   # value the same in either case.
   if [ x${SP_APP_ID} == 'xnull' ] ; then SP_APP_ID='' ; fi
   if [ x${SP_APP_KEY} == 'xnull' ] ; then SP_APP_KEY='' ; fi
@@ -141,7 +141,7 @@ AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
 
 # Azure login will be different depending on whether this script is running
 # with or without service principal details supplied.
-# 
+#
 # If all the SP enironment is set, use that. Otherwise, fall back to an
 # interactive login.
 
@@ -272,7 +272,7 @@ python3 $secret_script --apiToken=$apiToken \
 --password=$DOCKER_PASSWORD \
 --force
 
-# Format name for kubernetes 
+# Format name for kubernetes
 HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -re 's/^([.-]+)//' -re 's/([.-]+)$//' )
 
 echo "--> Installing Helm chart"
@@ -328,7 +328,7 @@ done
 
 if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   # Finally, save outputs to blob storage
-  # 
+  #
   # Create a storage account
   echo "--> Creating storage account"
   CONTAINER_NAME="${BINDERHUB_NAME}deploylogs"
