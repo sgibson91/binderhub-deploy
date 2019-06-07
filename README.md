@@ -29,6 +29,8 @@ git clone https://github.com/alan-turing-institute/binderhub-deploy.git
 cd binderhub-deploy
 ```
 
+The Python files `create_config.py` and `create_secret.py` require Python version >= 3.6, but no extra packages are needed.
+
 To make the scripts executable and then run them, do the following:
 
 ```
@@ -75,8 +77,6 @@ Fill the quotation marks with your desired namespaces, etc.
 
 You can copy [`template-config.json`](template-config.json) should you require.
 
-**Please note that all entries in `template-config.json` must be surrounded by double quotation marks (`"`), with the exception of `node_count`.**
-
 #### Important for Free Trial subscriptions
 
 If you have signed up to an Azure Free Trial subscription, you are not allowed to deploy more than 4 **cores**.
@@ -98,7 +98,7 @@ Command line install scripts were found in the following documentation:
 
 ### deploy.sh
 
-This script reads in values from `config.json`, deploys a Kubernetes cluster, then creates `config.yaml` and `secret.yaml` files respectively (using `config-template.yaml` and `secret-template.yaml`).
+This script reads in values from `config.json`, deploys a Kubernetes cluster, then creates `config.yaml` and `secret.yaml` files via `create_config.py` and `create_secret.py` respectively (using `config-template.yaml` and `secret-template.yaml`).
 The script will ask for your Docker ID and password if you haven't supplied them in the config file.
 The ID is your Docker username, NOT the email.
 If you have provided a Docker organisation in `config.json`, then Docker ID **MUST** be a member of this organisation.
