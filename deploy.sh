@@ -273,7 +273,7 @@ sed -e "s/<apiToken>/$apiToken/" \
 ./secret-template.yaml > ./secret.yaml
 
 # Format name for kubernetes
-HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -e 's/^([.-]+)//' -e 's/([.-]+)$//' )
+HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//' )
 
 echo "--> Installing Helm chart"
 helm install jupyterhub/binderhub \
