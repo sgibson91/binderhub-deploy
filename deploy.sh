@@ -166,8 +166,6 @@ AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
 # If all the SP environments are set, use those. Otherwise, fall back to an
 # interactive login.
 
-echo $DOCKER_USERNAME
-
 if [ -z $SP_APP_ID ] || [ -z $SP_APP_KEY ] || [ -z $SP_TENANT_ID ] ; then
   echo "--> Attempting to log in to Azure as a user"
   if ! az login -o none; then
@@ -271,21 +269,16 @@ secretToken=`openssl rand -hex 32`
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 helm repo update
 
-# Get this script's path
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub:
 echo "--> Generating initial configuration file"
 if [ -z "${DOCKER_ORGANISATION}" ] ; then
   sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   ./config-template.yaml > ./config.yaml
-  cat ./config.yaml | tee initial-config.log
 else
   sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   ./config-template.yaml > ./config.yaml
-  cat ./config.yaml | tee initial-config.log
 fi
 
 echo "--> Generating initial secrets file"
@@ -295,7 +288,6 @@ sed -e "s/<apiToken>/$apiToken/" \
 -e "s/<docker-id>/$DOCKER_USERNAME/" \
 -e "s/<password>/$DOCKER_PASSWORD/" \
 ./secret-template.yaml > ./secret.yaml
-cat ./secret.yaml | tee secret-yaml.log
 
 # Format name for kubernetes
 HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//' )
@@ -326,13 +318,11 @@ if [ -z "$DOCKER_ORGANISATION" ] ; then
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
   ./config-template.yaml > ./config.yaml
-  cat ./config.yaml | tee updated-config.log
 else
   sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
   ./config-template.yaml > ./config.yaml
-  cat ./config.yaml | tee updated-config.log
 fi
 
 echo "--> Updating Helm chart"
