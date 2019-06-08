@@ -274,12 +274,12 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub:
 echo "--> Generating initial configuration file"
 if [ -z "${DOCKER_ORGANISATION}" ] ; then
-  sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
+  sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   ./config-template.yaml > ./config.yaml
   cat ./config.yaml | tee initial-config.log
 else
-  sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
+  sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   ./config-template.yaml > ./config.yaml
   cat ./config.yaml | tee initial-config.log
@@ -319,13 +319,13 @@ done
 
 echo "--> Finalising configurations"
 if [ -z "$DOCKER_ORGANISATION" ] ; then
-  sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
+  sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
   ./config-template.yaml > ./config.yaml
   cat ./config.yaml | tee updated-config.log
 else
-  sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
+  sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
   ./config-template.yaml > ./config.yaml
