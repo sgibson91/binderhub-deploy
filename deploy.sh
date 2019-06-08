@@ -60,6 +60,9 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
     " | tee read-config.log
 
+  # Check if DOCKER_ORGANISATION is set to null. Return empty string if true.
+  if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
+
   # Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
   AZURE_SUBSCRIPTION=$(echo $AZURE_SUBSCRIPTION | sed -r "s/^\/subscriptions\///")
 
