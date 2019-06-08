@@ -42,6 +42,24 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     fi
   done
 
+  echo "--> Configuration parsed from blue button:
+    AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+    BINDERHUB_NAME: ${BINDERHUB_NAME}
+    BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+    CONTACT_EMAIL: ${CONTACT_EMAIL}
+    RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+    RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+    AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+    AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+    SP_APP_ID: ${SP_APP_ID}
+    SP_APP_KEY: ${SP_APP_KEY}
+    SP_TENANT_ID: ${SP_TENANT_ID}
+    DOCKER_USERNAME: ${DOCKER_USERNAME}
+    DOCKER_PASSWORD: ${DOCKER_PASSWORD}
+    DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+    DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
+    " | tee read-config.log
+
   # Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
   AZURE_SUBSCRIPTION=$(echo $AZURE_SUBSCRIPTION | sed -r "s/^\/subscriptions\///")
 
@@ -145,6 +163,7 @@ AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
 # If all the SP environments are set, use those. Otherwise, fall back to an
 # interactive login.
 
+echo $DOCKER_USERNAME
 
 if [ -z $SP_APP_ID ] || [ -z $SP_APP_KEY ] || [ -z $SP_TENANT_ID ] ; then
   echo "--> Attempting to log in to Azure as a user"
@@ -255,12 +274,12 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub:
 echo "--> Generating initial configuration file"
 if [ -z "${DOCKER_ORGANISATION}" ] ; then
-  sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
+  sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   ./config-template.yaml > ./config.yaml
   cat ./config.yaml | tee initial-config.log
 else
-  sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
+  sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   ./config-template.yaml > ./config.yaml
   cat ./config.yaml | tee initial-config.log
@@ -300,13 +319,13 @@ done
 
 echo "--> Finalising configurations"
 if [ -z "$DOCKER_ORGANISATION" ] ; then
-  sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
+  sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
   ./config-template.yaml > ./config.yaml
   cat ./config.yaml | tee updated-config.log
 else
-  sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
+  sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
   ./config-template.yaml > ./config.yaml
