@@ -3,6 +3,9 @@
 # Exit immediately if a pipeline returns a non-zero status
 set -e
 
+# Get this script's path
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 ## Detection of the deploy mode
 #
 # This script should handle both interactive deployment when run by a user
@@ -69,7 +72,7 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
 else
 
   # Read in config file and assign variables for the non-container case
-  configFile='config.json'
+  configFile='${DIR}/config.json'
 
   echo "--> Reading configuration from ${configFile}"
 
@@ -274,11 +277,11 @@ echo "--> Generating initial configuration file"
 if [ -z "${DOCKER_ORGANISATION}" ] ; then
   sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
-  ./config-template.yaml > ./config.yaml
+  ${DIR}/config-template.yaml > ${DIR}/config.yaml
 else
   sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
-  ./config-template.yaml > ./config.yaml
+  ${DIR}/config-template.yaml > ${DIR}/config.yaml
 fi
 
 echo "--> Generating initial secrets file"
@@ -287,7 +290,7 @@ sed -e "s/<apiToken>/$apiToken/" \
 -e "s/<secretToken>/$secretToken/" \
 -e "s/<docker-id>/$DOCKER_USERNAME/" \
 -e "s/<password>/$DOCKER_PASSWORD/" \
-./secret-template.yaml > ./secret.yaml
+${DIR}/secret-template.yaml > ${DIR}/secret.yaml
 
 # Format name for kubernetes
 HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//' )
@@ -297,8 +300,8 @@ helm install jupyterhub/binderhub \
 --version=$BINDERHUB_VERSION \
 --name=$HELM_BINDERHUB_NAME \
 --namespace=$HELM_BINDERHUB_NAME \
--f ./secret.yaml \
--f ./config.yaml \
+-f ${DIR}/secret.yaml \
+-f ${DIR}/config.yaml \
 --timeout=3600 | tee helm-chart-install.log
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
@@ -317,19 +320,19 @@ if [ -z "$DOCKER_ORGANISATION" ] ; then
   sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
-  ./config-template.yaml > ./config.yaml
+  ${DIR}/config-template.yaml > ${DIR}/config.yaml
 else
   sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
-  ./config-template.yaml > ./config.yaml
+  ${DIR}/config-template.yaml > ${DIR}/config.yaml
 fi
 
 echo "--> Updating Helm chart"
 helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
 --version=$BINDERHUB_VERSION \
--f ./secret.yaml \
--f ./config.yaml | tee helm-upgrade.log
+-f ${DIR}/secret.yaml \
+-f ${DIR}/config.yaml | tee helm-upgrade.log
 
 # Print Binder IP address
 BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
@@ -359,15 +362,15 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   echo "--> Pushing log files"
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
     --destination ${CONTAINER_NAME} --source "." \
-    --pattern "*.log"
+    --pattern "${DIR}/*.log"
   echo "--> Pushing yaml files"
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
     --destination ${CONTAINER_NAME} --source "." \
-    --pattern "*.yaml"
+    --pattern "${DIR}/*.yaml"
   echo "--> Getting and pushing ssh keys"
-  cp ~/.ssh/id_rsa ./id_rsa_${BINDERHUB_NAME}
-  cp ~/.ssh/id_rsa.pub ./id_rsa_${BINDERHUB_NAME}.pub
+  cp ~/.ssh/id_rsa ${DIR}/id_rsa_${BINDERHUB_NAME}
+  cp ~/.ssh/id_rsa.pub ${DIR}/id_rsa_${BINDERHUB_NAME}.pub
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
-    --destination ${CONTAINER_NAME} --source "." \
+    --destination ${CONTAINER_NAME} --source "${DIR}" \
     --pattern "id*"
 fi
