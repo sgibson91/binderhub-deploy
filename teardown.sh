@@ -11,7 +11,7 @@ AKS_USERNAME=`echo users.clusterUser_${RESOURCE_GROUP}_${AKS_NAME}`
 echo "--> Purging the helm chart"
 helm delete ${BINDERHUB_NAME} --purge
 
-echo "--> Deleting the namespace: ${BINDERHUB_NAME}}"
+echo "--> Deleting the namespace: ${BINDERHUB_NAME}"
 kubectl delete namespace ${BINDERHUB_NAME}
 
 echo "--> Purging the kubectl config file"
