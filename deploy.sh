@@ -61,7 +61,7 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     DOCKER_PASSWORD: ${DOCKER_PASSWORD}
     DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
     DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
-    " | tee read-config.log
+    " | tee ${DIR}/read-config.log
 
   # Check if DOCKER_ORGANISATION is set to null. Return empty string if true.
   if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
@@ -142,7 +142,7 @@ else
     DOCKER_PASSWORD: ${DOCKER_PASSWORD}
     DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
     DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
-    " | tee read-config.log
+    " | tee ${DIR}/read-config.log
 
   # Check/get the user's Docker credentials
   if [ -z $DOCKER_USERNAME ] ; then
@@ -197,7 +197,7 @@ az account set -s "$AZURE_SUBSCRIPTION"
 echo "--> Checking if resource group exists: ${RESOURCE_GROUP_NAME}"
 if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]] ; then
   echo "--> Creating new resource group: ${RESOURCE_GROUP_NAME}"
-  az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table | tee rg-create.log
+  az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table | tee ${DIR}/rg-create.log
 else
   echo "--> Resource group ${RESOURCE_GROUP_NAME} found."
 fi
@@ -208,11 +208,11 @@ Resource Group: ${RESOURCE_GROUP_NAME}
 Cluster name:   ${AKS_NAME}
 Node count:     ${AKS_NODE_COUNT}
 Node VM size:   ${AKS_NODE_VM_SIZE}"
-az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table ${AKS_SP} | tee aks-create.log
+az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table ${AKS_SP} | tee ${DIR}/aks-create.log
 
 # Get kubectl credentials from Azure
 echo "--> Fetching kubectl credentials from Azure"
-az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table | tee get-credentials.log
+az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table | tee ${DIR}/get-credentials.log
 
 # Check nodes are ready
 nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)"
@@ -224,26 +224,26 @@ echo
 
 # Setup ServiceAccount for tiller
 echo "--> Setting up tiller service account"
-kubectl --namespace kube-system create serviceaccount tiller | tee tiller-service-account.log
+kubectl --namespace kube-system create serviceaccount tiller | tee ${DIR}/tiller-service-account.log
 
 # Give the ServiceAccount full permissions to manage the cluster
 echo "--> Giving the ServiceAccount full permissions to manage the cluster"
-kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller | tee cluster-role-bindings.log
+kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller | tee ${DIR}/cluster-role-bindings.log
 
 # Initialise helm and tiller
 echo "--> Initialising helm and tiller"
-helm init --service-account tiller --wait | tee helm-init.log
+helm init --service-account tiller --wait | tee ${DIR}/helm-init.log
 
 # Secure tiller against attacks from within the cluster
 echo "--> Securing tiller against attacks from within the cluster"
-kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --patch='[{"op": "add", "path": "/spec/template/spec/containers/0/command", "value": ["/tiller", "--listen=localhost:44134"]}]' | tee tiller-securing.log
+kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --patch='[{"op": "add", "path": "/spec/template/spec/containers/0/command", "value": ["/tiller", "--listen=localhost:44134"]}]' | tee ${DIR}/tiller-securing.log
 
 # Waiting until tiller pod is ready
 tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')"
 while [[ ! x${tillerStatus} == xRunning ]] ; do echo -n $(date) ; echo " : tiller pod status : ${tillerStatus} " ; sleep 30 ; tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')" ; done
 echo
 echo "--> AKS system pods status:"
-kubectl get pods --namespace kube-system | tee kubectl-get-pods.log
+kubectl get pods --namespace kube-system | tee ${DIR}/kubectl-get-pods.log
 echo
 
 # Check helm has been configured correctly
@@ -302,7 +302,7 @@ helm install jupyterhub/binderhub \
 --namespace=$HELM_BINDERHUB_NAME \
 -f ${DIR}/secret.yaml \
 -f ${DIR}/config.yaml \
---timeout=3600 | tee helm-chart-install.log
+--timeout=3600 | tee ${DIR}/helm-chart-install.log
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 echo "--> Retrieving JupyterHub IP"
@@ -312,7 +312,7 @@ do
     echo "Sleeping 30s before checking again"
     sleep 30
     JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
-    echo "JupyterHub IP: ${JUPYTERHUB_IP}" | tee jupyterhub-ip.log
+    echo "JupyterHub IP: ${JUPYTERHUB_IP}" | tee ${DIR}/jupyterhub-ip.log
 done
 
 echo "--> Finalising configurations"
@@ -332,7 +332,7 @@ echo "--> Updating Helm chart"
 helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
 --version=$BINDERHUB_VERSION \
 -f ${DIR}/secret.yaml \
--f ${DIR}/config.yaml | tee helm-upgrade.log
+-f ${DIR}/config.yaml | tee ${DIR}/helm-upgrade.log
 
 # Print Binder IP address
 echo "--> Retrieving Binder IP"
@@ -343,7 +343,7 @@ do
     echo "Sleeping 30s before checking again"
     sleep 30
     BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
-    echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
+    echo "Binder IP: ${BINDER_IP}" | tee ${DIR}/binder-ip.log
 done
 
 if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
@@ -355,24 +355,24 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   STORAGE_ACCOUNT_NAME="$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -c -20)$(openssl rand -hex 2)"
   az storage account create \
     --name ${STORAGE_ACCOUNT_NAME} --resource-group ${RESOURCE_GROUP_NAME} \
-    --sku Standard_LRS -o table | tee storage-create.log
+    --sku Standard_LRS -o table | tee ${DIR}/storage-create.log
   # Create a container
   echo "--> Creating storage container: ${CONTAINER_NAME}"
   az storage container create --account-name ${STORAGE_ACCOUNT_NAME} \
-    --name ${CONTAINER_NAME} | tee container-create.log
+    --name ${CONTAINER_NAME} | tee ${DIR}/container-create.log
   # Push the files
   echo "--> Pushing log files"
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
-    --destination ${CONTAINER_NAME} --source "." \
+    --destination ${CONTAINER_NAME} --source "${DIR}" \
     --pattern "${DIR}/*.log"
   echo "--> Pushing yaml files"
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
-    --destination ${CONTAINER_NAME} --source "." \
+    --destination ${CONTAINER_NAME} --source "${DIR}" \
     --pattern "${DIR}/*.yaml"
   echo "--> Getting and pushing ssh keys"
   cp ~/.ssh/id_rsa ${DIR}/id_rsa_${BINDERHUB_NAME}
   cp ~/.ssh/id_rsa.pub ${DIR}/id_rsa_${BINDERHUB_NAME}.pub
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
     --destination ${CONTAINER_NAME} --source "${DIR}" \
-    --pattern "id*"
+    --pattern "${DIR}/id*"
 fi
