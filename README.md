@@ -166,16 +166,19 @@ To deploy [BinderHub](https://binderhub.readthedocs.io/) to Azure in a single cl
 
 You will be asked to provide a [Service Principal](https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals) in the form launched when you click the "Deploy to Azure" button above.
 
+[**NOTE:** The following instructions can also be run in a local terminal session.
+They will require the Azure command line to be installed, so make sure to run [`setup.sh`](./setup.sh) first.]
+
 To create a Service Principal, go to the [Azure Portal](https://portal.azure.com/) (and login!) and open the Cloud Shell:
 
-<html><img src="images/open_shell_in_azure.png" alt="Open Shell in Azure"></html>
+![Open Shell in Azure](images/open_shell_in_azure.png)
 
 You may be asked to create storage when you open the shell.
 This is expected, click "Create".
 
 Make sure the shell is set to Bash, not PowerShell.
 
-<html><img src="images/bash_shell.png" alt="Bash Shell"></html>
+![Bash Shell](images/bash_shell.png)
 
 Set the subscription you'd like to deploy your BinderHub on.
 
@@ -185,7 +188,7 @@ az account set -s <subscription>
 
 This image shows the command being executed for an "Azure Pass - Sponsorship" subscription.
 
-<html><img src="images/set_subscription.png" alt="Set Subscription"></html>
+![Set Subscription](images/set_subscription.png)
 
 You will need the subscription ID, which you can retrieve by running:
 
@@ -193,7 +196,7 @@ You will need the subscription ID, which you can retrieve by running:
 az account list --refresh --output table
 ```
 
-<html><img src="images/az_account_list.png" alt="List subscriptions"></html>
+![List Subscriptions](images/az_account_list.png)
 
 Next, create the Service Principal with the following command.
 Make sure to give it a sensible name!
@@ -202,7 +205,7 @@ Make sure to give it a sensible name!
 az ad sp create-for-rbac --name binderhub-sp --role contributor --scopes /subscriptions/<subscription ID from above>
 ```
 
-<html><img src="images/create-for-rbac.png" alt="Create Service Principal"></html>
+![Create Service PRincipal](images/create-for-rbac.png)
 
 The fields `appId`, `password` and `tenant` are the required pieces of information.
 These should be copied into the "Service Principal App ID", "Service Principal App Key" and "Service Principal Tenant ID" fields in the form, respectively.
@@ -213,13 +216,24 @@ These should be copied into the "Service Principal App ID", "Service Principal A
 
 To monitor the progress of the blue-button deployment, go to the [Azure portal](https://portal.azure.com/) and select "Resource Groups" from the left hand pane.
 Then in the central pane select the resource group you chose to deploy into.
+
+![Select Resource Group](images/select_resource_group.png)
+
 This will give you a right hand pane containing the resources within the group.
 You may need to "refresh" until you see a new container instance.
+
+![Select Container Instance](images/select_container_instance.png)
+
 When it appears, select it and then in the new pane go to "Settings->Containers".
 You should see your new container listed.
+
+![Container Events](images/container_events.png)
+
 Select it, then in the lower right hand pane select "Logs".
 You may need to "refresh" this to display the logs until the container starts up.
 The logs are also not auto-updating, so keep refreshing them to see progress.
+
+![Container Logs](images/container_logs.png)
 
 ### Retrieving Deployment Output from Azure
 
