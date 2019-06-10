@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Exit immediately if a pipeline returns a non-zero status
-set -e
+set -euo pipefail
 
 # Get this script's path
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -262,7 +262,7 @@ while ! helm version ; do
   sleep 30
 done
 # Revert to error-intolerance
-set -e
+set -euo pipefail
 
 # Create tokens for the secrets file:
 apiToken=`openssl rand -hex 32`
