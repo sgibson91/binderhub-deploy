@@ -29,6 +29,7 @@ You should contact your IT Services for further information regarding permission
   - [Service Principal Creation](#service-principal-creation)
   - [Monitoring Deployment Progress](#monitoring-deployment-progress)
   - [Retrieving Deployment Output from Azure](#retrieving-deployment-output-from-azure)
+  - [Accessing your BinderHub after Deployment](#accessing-your-binderhub-after-deployment)
 - [Contributors](#contributors)
 
 ---
@@ -272,6 +273,17 @@ To fetch a single file, specify `REMOTE_FILENAME` for the name of the file in bl
 ```
 
 For full documentation, see the [`az storage blob` documentation](https://docs.microsoft.com/en-us/cli/azure/storage/blob?view=azure-cli-latest).
+
+### Accessing your BinderHub after Deployment
+
+Once the deployment has succeeded and you've downloaded the log files, visit the IP address of your Binder page to test it's working.
+
+The Binder IP address can be found by running the following:
+```
+cat <OUTPUT_DIRECTORY>/binder-ip.log
+```
+
+A good repository to test your BinderHub with is [binder-examples/requirements](https://github.com/binder-examples/requirements)
 
 ## Contributors
 
