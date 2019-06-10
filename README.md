@@ -173,14 +173,14 @@ They will require the Azure command line to be installed, so make sure to run [`
 
 To create a Service Principal, go to the [Azure Portal](https://portal.azure.com/) (and login!) and open the Cloud Shell:
 
-<html><img src="images/open_shell_in_azure.png" alt="Open Shell in Azure"></html>
+![Open Shell in Azure](images/open_shell_in_azure.png)
 
 You may be asked to create storage when you open the shell.
 This is expected, click "Create".
 
 Make sure the shell is set to Bash, not PowerShell.
 
-<html><img src="images/bash_shell.png" alt="Bash Shell"></html>
+![Bash Shell](images/bash_shell.png)
 
 Set the subscription you'd like to deploy your BinderHub on.
 
