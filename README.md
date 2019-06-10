@@ -30,6 +30,7 @@ You should contact your IT Services for further information regarding permission
   - [Monitoring Deployment Progress](#monitoring-deployment-progress)
   - [Retrieving Deployment Output from Azure](#retrieving-deployment-output-from-azure)
   - [Accessing your BinderHub after Deployment](#accessing-your-binderhub-after-deployment)
+- [Customising your BinderHub Deployment](#customising-your-binderhub-deployment)
 - [Contributors](#contributors)
 
 ---
@@ -284,6 +285,15 @@ cat <OUTPUT_DIRECTORY>/binder-ip.log
 ```
 
 A good repository to test your BinderHub with is [binder-examples/requirements](https://github.com/binder-examples/requirements)
+
+## Customising your BinderHub Deployment
+
+Customising your BinderHub deployment is as simple as editing `config.yaml` and/or `secret.yaml` and then upgrading the BinderHub Helm Chart.
+The Helm Chart can be upgraded by running [`upgrade.sh`](./upgrade.sh) (make sure you have the CLIs installed by running [`setup.sh`](./setup.sh) first).
+
+The Jupyter guide to customising the underlying JupyterHub can be found [here](https://zero-to-jupyterhub.readthedocs.io/en/latest/extending-jupyterhub.html).
+
+The BinderHub guide for changing the landing page logo can be found [here](https://binderhub.readthedocs.io/en/latest/customizing.html#template-customization).
 
 ## Contributors
 
