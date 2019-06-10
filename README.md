@@ -252,7 +252,7 @@ Make a note of the name of this blob, which will be `BLOB_NAME` in the following
 The Azure CLI can be used to fetch files from the blob.
 Files are fetched into a local directory, **which must already exist**, referred to as `OUTPUT_DIRECTORY` in the following commands.
 
-You can run [`setup.sh`](./setup.sh) to install the Azure CLI.
+You can run [`setup.sh`](./setup.sh) to install the Azure CLI or use the cloud shell on the [Azure Portal](https://portal.azure.com).
 
 To fetch all files:
 ```
