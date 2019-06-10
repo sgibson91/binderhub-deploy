@@ -72,7 +72,7 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
 else
 
   # Read in config file and assign variables for the non-container case
-  configFile=${DIR}'/config.json'
+  configFile="${DIR}/config.json""
 
   echo "--> Reading configuration from ${configFile}"
 
