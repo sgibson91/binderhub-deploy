@@ -337,7 +337,7 @@ helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
 # Print Binder IP address
 echo "--> Retrieving Binder IP"
 BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
-echo "Binder IP: ${BINDER_IP}"
+echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
 while [ "${BINDER_IP}" = '<pending>' ] || [ "${BINDER_IP}" = "" ]
 do
     echo "Sleeping 30s before checking again"
