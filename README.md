@@ -241,19 +241,25 @@ The logs are also not auto-updating, so keep refreshing them to see progress.
 
 ### Retrieving Deployment Output from Azure
 
-When Binderhub is deployed using the "Deploy to Azure" button (or with a local container), output logs, YAML files, and ssh keys are pushed to an Azure storage account to preserve them once the container exits.
+When BinderHub is deployed using the "Deploy to Azure" button (or with a local container), output logs, YAML files, and ssh keys are pushed to an Azure storage account to preserve them once the container exits.
 The storage account is created in the same resource group as the Kubernetes cluster, and files are pushed into a storage blob within the account.
 
 Both the storage blob name and the storage account name are derived from the name you gave to your BinderHub instance, but may be modified and/or have a random seed appended.
 To find the storage account name, navigate to your resource group by selecting "Resource Groups" in the left-most panel of the [Azure Portal](https://portal.azure.com/), then clicking on the resource group containing your BinderHub instance.
 Along with any pre-existing resources (for example, if you re-used an existing resource group), you should see three new resources: a container instance, a Kubernetes service, and a storage account.
-
 Make a note of the name of the storage account (referred to in the following commands as `ACCOUNT_NAME`) then select this storage account.
+
+![Storage Account](images/storage_account.png)
+
 In the new pane that opens, select "Blobs" from the "Services" section.
 You should see a single blob listed.
 Make a note of the name of this blob, which will be `BLOB_NAME` in the following commands.
 
-The Azure CLI can be used to fetch files from the blob.
+![Blob Storage](images/blob_storage.png)
+
+![Select Blob Storage](images/select_blob_storage.png)
+
+The Azure CLI can be used to fetch files from the blob (either in the cloud shell in the [Azure Portal](https://portal.azure.com), or in a local terminal session if you've run [`setup.sh`](.setup.sh) first).
 Files are fetched into a local directory, **which must already exist**, referred to as `OUTPUT_DIRECTORY` in the following commands.
 
 You can run [`setup.sh`](./setup.sh) to install the Azure CLI or use the cloud shell on the [Azure Portal](https://portal.azure.com).
