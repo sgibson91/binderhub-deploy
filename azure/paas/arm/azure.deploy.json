@@ -91,7 +91,7 @@
     "setupDockerImage": {
       "type": "string",
       "minLength": 1,
-      "defaultValue": "sgibson91/binderhub-setup:latest",
+      "defaultValue": "sgibson91/binderhub-setup:v1",
       "metadata": {
         "description": "Docker image to use for the BinderHub deployment. Must be publicly accessible."
       }
