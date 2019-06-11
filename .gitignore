@@ -7,3 +7,6 @@ secret.yaml
 
 # Ignore generated log files
 *.log
+
+# Ignore VSCode settings
+.vscode/
