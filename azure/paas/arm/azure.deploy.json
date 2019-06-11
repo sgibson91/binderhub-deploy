@@ -101,10 +101,6 @@
       ]
     }
   },
-  "variables": {
-    "sgibson91/binderhub-setup:v1": "sgibson91/binderhub-setup:v1",
-    "sgibson91/binderhub-setup:latest": "sgibson91/binderhub-setup:latest"
-  },
   "resources": [
     {
       "name": "[concat(parameters('binderHubName'), 'setup')]",
