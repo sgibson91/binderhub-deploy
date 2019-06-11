@@ -1,7 +1,10 @@
 #!/bin/bash
 
 # Exit immediately if a pipeline returns a non-zero status
-set -e
+set -euo pipefail
+
+# Get this script's path
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 ## Detection of the deploy mode
 #
@@ -42,13 +45,34 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     fi
   done
 
+  echo "--> Configuration parsed from blue button:
+    AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+    BINDERHUB_NAME: ${BINDERHUB_NAME}
+    BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+    CONTACT_EMAIL: ${CONTACT_EMAIL}
+    RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+    RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+    AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+    AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+    SP_APP_ID: ${SP_APP_ID}
+    SP_APP_KEY: ${SP_APP_KEY}
+    SP_TENANT_ID: ${SP_TENANT_ID}
+    DOCKER_USERNAME: ${DOCKER_USERNAME}
+    DOCKER_PASSWORD: ${DOCKER_PASSWORD}
+    DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+    DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
+    " | tee read-config.log
+
+  # Check if DOCKER_ORGANISATION is set to null. Return empty string if true.
+  if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
+
   # Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
   AZURE_SUBSCRIPTION=$(echo $AZURE_SUBSCRIPTION | sed -r "s/^\/subscriptions\///")
 
 else
 
   # Read in config file and assign variables for the non-container case
-  configFile='config.json'
+  configFile="${DIR}/config.json"
 
   echo "--> Reading configuration from ${configFile}"
 
@@ -118,7 +142,7 @@ else
     DOCKER_PASSWORD: ${DOCKER_PASSWORD}
     DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
     DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
-    "
+    " | tee read-config.log
 
   # Check/get the user's Docker credentials
   if [ -z $DOCKER_USERNAME ] ; then
@@ -142,9 +166,8 @@ AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
 # Azure login will be different depending on whether this script is running
 # with or without service principal details supplied.
 #
-# If all the SP enironment is set, use that. Otherwise, fall back to an
+# If all the SP environments are set, use those. Otherwise, fall back to an
 # interactive login.
-
 
 if [ -z $SP_APP_ID ] || [ -z $SP_APP_KEY ] || [ -z $SP_TENANT_ID ] ; then
   echo "--> Attempting to log in to Azure as a user"
@@ -239,7 +262,7 @@ while ! helm version ; do
   sleep 30
 done
 # Revert to error-intolerance
-set -e
+set -euo pipefail
 
 # Create tokens for the secrets file:
 apiToken=`openssl rand -hex 32`
@@ -249,19 +272,16 @@ secretToken=`openssl rand -hex 32`
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 helm repo update
 
-# Get this script's path
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub:
 echo "--> Generating initial configuration file"
 if [ -z "${DOCKER_ORGANISATION}" ] ; then
   sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
-  ./config-template.yaml > ./config.yaml
+  ${DIR}/config-template.yaml > ${DIR}/config.yaml
 else
   sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
-  ./config-template.yaml > ./config.yaml
+  ${DIR}/config-template.yaml > ${DIR}/config.yaml
 fi
 
 echo "--> Generating initial secrets file"
@@ -270,7 +290,7 @@ sed -e "s/<apiToken>/$apiToken/" \
 -e "s/<secretToken>/$secretToken/" \
 -e "s/<docker-id>/$DOCKER_USERNAME/" \
 -e "s/<password>/$DOCKER_PASSWORD/" \
-./secret-template.yaml > ./secret.yaml
+${DIR}/secret-template.yaml > ${DIR}/secret.yaml
 
 # Format name for kubernetes
 HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//' )
@@ -280,8 +300,8 @@ helm install jupyterhub/binderhub \
 --version=$BINDERHUB_VERSION \
 --name=$HELM_BINDERHUB_NAME \
 --namespace=$HELM_BINDERHUB_NAME \
--f ./secret.yaml \
--f ./config.yaml \
+-f ${DIR}/secret.yaml \
+-f ${DIR}/config.yaml \
 --timeout=3600 | tee helm-chart-install.log
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
@@ -300,22 +320,24 @@ if [ -z "$DOCKER_ORGANISATION" ] ; then
   sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
-  ./config-template.yaml > ./config.yaml
+  ${DIR}/config-template.yaml > ${DIR}/config.yaml
 else
   sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
-  ./config-template.yaml > ./config.yaml
+  ${DIR}/config-template.yaml > ${DIR}/config.yaml
 fi
 
 echo "--> Updating Helm chart"
 helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
 --version=$BINDERHUB_VERSION \
--f ./secret.yaml \
--f ./config.yaml | tee helm-upgrade.log
+-f ${DIR}/secret.yaml \
+-f ${DIR}/config.yaml | tee helm-upgrade.log
 
 # Print Binder IP address
+echo "--> Retrieving Binder IP"
 BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
+echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
 while [ "${BINDER_IP}" = '<pending>' ] || [ "${BINDER_IP}" = "" ]
 do
     echo "Sleeping 30s before checking again"
@@ -348,8 +370,8 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     --destination ${CONTAINER_NAME} --source "." \
     --pattern "*.yaml"
   echo "--> Getting and pushing ssh keys"
-  cp ~/.ssh/id_rsa ./id_rsa_${BINDERHUB_NAME}
-  cp ~/.ssh/id_rsa.pub ./id_rsa_${BINDERHUB_NAME}.pub
+  cp ~/.ssh/id_rsa ${DIR}/id_rsa_${BINDERHUB_NAME}
+  cp ~/.ssh/id_rsa.pub ${DIR}/id_rsa_${BINDERHUB_NAME}.pub
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
     --destination ${CONTAINER_NAME} --source "." \
     --pattern "id*"

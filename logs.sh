@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
+# Get this script's path
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 # Read config.json and get BinderHub name
-configFile='config.json'
+configFile="${DIR}/config.json"
 AKS_RESOURCE_GROUP=`jg -r '.azure .res_grp_name' ${configFile}`
 BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
 AKS_NAME=`echo ${BINDERHUB_NAME}-AKS`

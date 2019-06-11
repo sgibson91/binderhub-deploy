@@ -6,35 +6,35 @@
       "type": "securestring",
       "minLength": 1,
       "metadata": {
-        "description": "ID of your service principal. Will be used by the setup script to create Azure resources on your behalf."
+        "description": "ID of your Service Principal. Will be used by the deploy script to create Azure resources on your behalf."
       }
     },
     "servicePrincipalAppKey": {
       "type": "securestring",
       "minLength": 1,
       "metadata": {
-        "description": "Key of your service principal. Will be used by the setup script to create Azure resources on your behalf."
+        "description": "Password of your Service Principal. Will be used by the deploy script to create Azure resources on your behalf."
       }
     },
     "servicePrincipalTenantId": {
       "type": "securestring",
       "minLength": 1,
       "metadata": {
-        "description": "Tenant ID of your service principal. Will be used by the setup script to create Azure resources on your behalf."
+        "description": "Tenant ID of your Service Principal. Will be used by the deploy script to create Azure resources on your behalf."
       }
     },
     "binderhubName": {
       "type": "string",
       "minLength": 1,
       "metadata": {
-        "description": "Name for the application to be deployed. Must be unique across Azure. Your deployment will be accessible at <app-name>.<resource-group-location>.cloudapp.azure.com"
+        "description": "Namespace to deploy the BinderHub into on the Kubernetes cluster. This will be used to manage the BinderHub resources. Must also be unique across Azure. Your deployment will be accessible at <app-name>.<resource-group-location>.cloudapp.azure.com"
       }
     },
     "binderhubVersion": {
       "type": "string",
       "minLength": 1,
       "metadata": {
-        "description": "The version of BinderHub to be deployed. This normally takes the form of versionnumber-hash, ie, 0.2.0-ae57d8. Refer to https://jupyterhub.github.io/helm-chart/#development-releases-binderhub for valid version numbers." 
+        "description": "The version of the BinderHub Helm Chart to be deployed. This normally takes the form of versionnumber-hash, ie, 0.2.0-ae57d8. Refer to https://jupyterhub.github.io/helm-chart/#development-releases-binderhub for valid version numbers."
       }
     },
     "aksNodeCount": {
@@ -42,7 +42,7 @@
       "minValue": 1,
       "defaultValue": 3,
       "metadata": {
-        "description": "The initial number of nodes to create in the AKS cluster"
+        "description": "The initial number of nodes to create in the AKS cluster."
       }
     },
     "aksNodeVmSize": {
@@ -50,7 +50,7 @@
       "minLength": 1,
       "defaultValue": "Standard_DS2_v2",
       "metadata": {
-        "description": "The default VM size to use for the AKS cluster"
+        "description": "The default VM size to use for the AKS cluster."
       }
     },
     "contactEmail": {
@@ -63,37 +63,37 @@
     "dockerUsername": {
       "type": "string",
       "minLength": 1,
-      "metadata": { 
-        "description": "The name of the user for Dockerhub"
+      "metadata": {
+        "description": "The name of a valid DockerHub user account."
       }
     },
     "dockerPassword": {
       "type": "securestring",
       "minLength": 8,
       "metadata": {
-        "description": "The password of the user for Dockerhub"
+        "description": "The user password for DockerHub"
       }
     },
     "dockerPrefix": {
       "type": "string",
       "minLength": 1,
       "metadata": {
-        "description": "Prefix to use for docker containers"
+        "description": "Prefix to use for docker containers created by the BinderHub"
       }
     },
     "dockerOrganisation": {
       "type": "string",
       "defaultValue": "null",
       "metadata": {
-        "description": "Organisation to use for Dockerhub; this is an optional value"
+        "description": "Organisation to use for Dockerhub; this is an optional value. Docker Username must be a member of this organisation if used."
       }
     },
     "setupDockerImage": {
       "type": "string",
       "minLength": 1,
-      "defaultValue": "tmbgreaves/binderhub-setup:latest",
+      "defaultValue": "sgibson91/binderhub-setup:v1",
       "metadata": {
-        "description": "Docker image to use for the binderhub application setup. Must be publicly accessible."
+        "description": "Docker image to use for the BinderHub deployment. Must be publicly accessible."
       }
     }
   },
