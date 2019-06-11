@@ -94,11 +94,7 @@
       "defaultValue": "sgibson91/binderhub-setup:v1",
       "metadata": {
         "description": "Docker image to use for the BinderHub deployment. Must be publicly accessible."
-      },
-      "allowedValues": [
-        "sgibson91/binderhub-setup:v1",
-        "sgibson91/binderhub-setup:latest"
-      ]
+      }
     }
   },
   "resources": [
