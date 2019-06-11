@@ -89,23 +89,9 @@
       }
     },
     "setupDockerImage": {
-      "type": "Microsoft.Common.DropDown",
+      "type": "string",
+      "minLength": 1,
       "defaultValue": "sgibson91/binderhub-setup:v1",
-      "toolTip": "",
-      "constraints": {
-        "allowedValues": [
-          {
-            "label": "sgibson91/binderhub-setup:v1",
-            "value": "sgibson91/binderhub-setup:v1"
-          },
-          {
-            "label": "sgibson91/binderhub-setup:latest",
-            "value": "sgibson91/binderhub-setup:latest"
-          }
-        ],
-        "required": true
-      },
-      "visible": true,
       "metadata": {
         "description": "Docker image to use for the BinderHub deployment. Must be publicly accessible."
       }
