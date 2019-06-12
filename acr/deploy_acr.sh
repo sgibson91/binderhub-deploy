@@ -320,7 +320,7 @@ elif [ x${CONTAINER_REGISTRY} == 'xacr' ] ; then
   -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
   -e "s/<username>/${SP_APP_ID}/" \
   -e "s/<password>/${SP_APP_KEY}/" \
-  ${DIR}/config-template-acr.yaml > ${DIR}/config-acr.yaml
+  ${DIR}/config-template-acr.yaml > ${DIR}/config.yaml
 
   echo "--> Generating initial secrets file"
   sed -e "s/<apiToken>/${apiToken}/" \
@@ -328,7 +328,7 @@ elif [ x${CONTAINER_REGISTRY} == 'xacr' ] ; then
   -e "s/<acr-login-server>/${ACR_LOGIN_SERVER}"
   -e "s/<username>/${SP_APP_ID}/" \
   -e "s/<password>/${SP_APP_KEY}/" \
-${DIR}/secret-template-acr.yaml > ${DIR}/secret-acr.yaml
+${DIR}/secret-template-acr.yaml > ${DIR}/secret.yaml
 fi
 
 # Format BinderHub name for Kubernetes
@@ -342,3 +342,59 @@ helm install jupyterhub/binderhub \
 -f ${DIR}/secret.yaml \
 -f ${DIR}/config.yaml \
 --timeout=3600
+
+# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
+echo "--> Retrieving JupyterHub IP"
+JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
+while [ "${JUPYTERHUB_IP}" = '<pending>' ] || [ "${JUPYTERHUB_IP}" = "" ]
+do
+    echo "Sleeping 30s before checking again"
+    sleep 30
+    JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
+    echo "JupyterHub IP: ${JUPYTERHUB_IP}"
+done
+
+if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
+
+  echo "--> Finalising configurations"
+  if [ -z "$DOCKER_ORGANISATION" ] ; then
+    sed -e "s/<docker-id>/${DOCKER_USERNAME}/" \
+    -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+    -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
+    ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  else
+    sed -e "s/<docker-id>/${DOCKER_ORGANISATION}/" \
+    -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+    -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
+    ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  fi
+
+elif [ x${CONTAINER_REGISTRY} == 'xacr' ] ; then
+
+  echo "--> Finalising configurations"
+  sed -e "s/<acr-login-server>/${ACR_LOGIN_SERVER}/" \
+  -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+  -e "s/<jupyterhub-ap>/${JUPYTERHUB_IP}/" \
+  -e "s/<username>/${SP_APP_ID}/" \
+  -e "s/<password>/${SP_APP_KEY}/" \
+  ${DIR}/config-template-acr.yaml > ${DIR}/config.yaml
+
+fi
+
+echo "--> Updating Helm chart"
+helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
+--version=$BINDERHUB_VERSION \
+-f ${DIR}/secret.yaml \
+-f ${DIR}/config.yaml
+
+# Print Binder IP address
+echo "--> Retrieving Binder IP"
+BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
+echo "Binder IP: ${BINDER_IP}"
+while [ "${BINDER_IP}" = '<pending>' ] || [ "${BINDER_IP}" = "" ]
+do
+    echo "Sleeping 30s before checking again"
+    sleep 30
+    BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
+    echo "Binder IP: ${BINDER_IP}"
+done
