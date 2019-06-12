@@ -1,9 +1,5 @@
 {
   "container_registry": "",
-  "acr": {
-    "registry_name": "",
-    "sku": "Basic"
-  },
   "azure": {
     "subscription": "",
     "res_grp_name": "",
@@ -17,12 +13,16 @@
   "binderhub": {
     "name": "",
     "version": "",
+    "image_prefix": "",
     "contact_email": ""
   },
   "docker": {
     "username": null,
     "password": null,
-    "org": null,
-    "image_prefix": ""
+    "org": null
+  },
+  "acr": {
+    "registry_name": "",
+    "sku": "Basic"
   }
 }
