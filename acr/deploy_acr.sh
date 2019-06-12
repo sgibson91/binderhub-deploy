@@ -151,3 +151,45 @@ else
   echo "--> Please provide a valid option for CONTAINER_REGISTRY.
     Options are: 'dockerhub' or 'acr'."
 fi
+
+# Generate a valid names for Azure
+AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
+
+# Azure login will be different depending on whether this script is running
+# with or without service principal details supplied.
+#
+# If all the SP environments are set, use those. Otherwise, fall back to an
+# interactive login.
+
+if [ -z $SP_APP_ID ] || [ -z $SP_APP_KEY ] || [ -z $SP_TENANT_ID ] ; then
+  echo "--> Attempting to log in to Azure as a user"
+  if ! az login --output none; then
+      echo "--> Unable to connect to Azure" >&2
+      exit 1
+  else
+      echo "--> Logged in to Azure"
+  fi
+else
+  echo "--> Attempting to log in to Azure with provided Service Principal"
+  if ! az login --output none --service-principal -u "${SP_APP_ID}" -p "${SP_APP_KEY}" -t "${SP_TENANT_ID}"; then
+    echo "--> Unable to connect to Azure" >&2
+    exit 1
+  else
+      echo "--> Logged in to Azure"
+      # Use this service principal for AKS creation
+      AKS_SP="--service-principal ${SP_APP_ID} --client-secret ${SP_APP_KEY}"
+  fi
+fi
+
+# Activate chosen subscription
+echo "--> Activating Azure subscription: ${AZURE_SUBSCRIPTION}"
+az account set -s "$AZURE_SUBSCRIPTION"
+
+# Create a new resource group if necessary
+echo "--> Checking if resource group exists: ${RESOURCE_GROUP_NAME}"
+if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]] ; then
+  echo "--> Creating new resource group: ${RESOURCE_GROUP_NAME}"
+  az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table | tee rg-create.log
+else
+  echo "--> Resource group ${RESOURCE_GROUP_NAME} found."
+fi
