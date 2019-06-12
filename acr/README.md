@@ -16,6 +16,10 @@ az ad sp create-for-rbac --name acr-sp-owner --role Owner --scope /subscription/
 
 ## Change in the `config.json` template
 
+`image_prefix` **must** be of the form `<project-name>/<prefix>` when deploying an ACR.
+This is due to a hard dependency of BinderHub on Google Cloud Registry format: `gcr.io/<gcloud-project-id>/<prefix>-name:tag`.
+`<project-name>` can be entirely fictional.
+
 ```
 {
   "container_registry": "",  // Choose DockerHub or ACR with 'dockerhub' or 'azurecr' values, respectively.
