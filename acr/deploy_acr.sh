@@ -190,7 +190,7 @@ az account set -s "$AZURE_SUBSCRIPTION"
 echo "--> Checking if resource group exists: ${RESOURCE_GROUP_NAME}"
 if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]] ; then
   echo "--> Creating new resource group: ${RESOURCE_GROUP_NAME}"
-  az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table | tee rg-create.log
+  az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table
 else
   echo "--> Resource group ${RESOURCE_GROUP_NAME} found"
 fi
@@ -221,3 +221,124 @@ if [ x${CONTAINER_REGISTRY} == 'xacr' ] ; then
   echo "--> Assigning AcrPush role to Service Principal"
   az role assignment create --assignee ${SP_APP_ID} --role 8311e382-0749-4cb8-b61a-304f252e45ec --scope $ACR_ID
 fi
+
+# Create an AKS cluster
+echo "--> Creating AKS cluster; this may take a few minutes to complete
+Resource Group: ${RESOURCE_GROUP_NAME}
+Cluster name:   ${AKS_NAME}
+Node count:     ${AKS_NODE_COUNT}
+Node VM size:   ${AKS_NODE_VM_SIZE}"
+az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table ${AKS_SP}
+
+# Get kubectl credentials from Azure
+echo "--> Fetching kubectl credentials from Azure"
+az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table
+
+# Check nodes are ready
+nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)"
+while [[ ${nodecount} -ne ${AKS_NODE_COUNT} ]] ; do echo -n $(date) ; echo " : ${nodecount} of ${AKS_NODE_COUNT} nodes ready" ; sleep 15 ; nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)" ; done
+echo
+echo "--> Cluster node status:"
+kubectl get node
+echo
+
+# Setup ServiceAccount for tiller
+echo "--> Setting up tiller service account"
+kubectl --namespace kube-system create serviceaccount tiller
+
+# Give the ServiceAccount full permissions to manage the cluster
+echo "--> Giving the ServiceAccount full permissions to manage the cluster"
+kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+
+# Initialise helm and tiller
+echo "--> Initialising helm and tiller"
+helm init --service-account tiller --wait
+
+# Secure tiller against attacks from within the cluster
+echo "--> Securing tiller against attacks from within the cluster"
+kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --patch='[{"op": "add", "path": "/spec/template/spec/containers/0/command", "value": ["/tiller", "--listen=localhost:44134"]}]'
+
+# Waiting until tiller pod is ready
+tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')"
+while [[ ! x${tillerStatus} == xRunning ]] ; do echo -n $(date) ; echo " : tiller pod status : ${tillerStatus} " ; sleep 30 ; tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')" ; done
+echo
+echo "--> AKS system pods status:"
+kubectl get pods --namespace kube-system
+echo
+
+# Check helm has been configured correctly
+echo "--> Verify Client and Server are running the same version number:"
+# Be error tolerant for this step
+set +e
+helmVersionAttempts=0
+while ! helm version ; do
+  ((helmVersionAttempts++))
+  echo "--> helm version attempt ${helmVersionAttempts} of 3 failed"
+  if (( helmVersionAttempts > 2 )) ; then
+    echo "--> Please check helm versions manually later. Run 'helm init --upgrade' if they do not match."
+    break
+  fi
+  echo "--> Waiting 30 seconds before attempting helm version check again"
+  sleep 30
+done
+# Revert to error-intolerance
+set -euo pipefail
+
+# Create tokens for the secrets file:
+apiToken=`openssl rand -hex 32`
+secretToken=`openssl rand -hex 32`
+
+# Get the latest helm chart for BinderHub:
+helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
+helm repo update
+
+# Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
+if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
+
+  echo "--> Generating initial configuration file"
+  if [ -z "${DOCKER_ORGANISATION}" ] ; then
+    sed -e "s/<docker-id>/${DOCKER_USERNAME}/" \
+    -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+    ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  else
+    sed -e "s/<docker-id>/${DOCKER_ORGANISATION}/" \
+    -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+    ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  fi
+
+  echo "--> Generating initial secrets file"
+  sed -e "s/<apiToken>/${apiToken}/" \
+  -e "s/<secretToken>/${secretToken}/" \
+  -e "s/<docker-id>/${DOCKER_USERNAME}/" \
+  -e "s/<password>/${DOCKER_PASSWORD}/" \
+  ${DIR}/secret-template.yaml > ${DIR}/secret.yaml
+
+elif [ x${CONTAINER_REGISTRY} == 'xacr' ] ; then
+
+  echo "--> Generating initial configuration file"
+  sed -e "s/<acr-login-server>/${ACR_LOGIN_SERVER}/" \
+  -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+  -e "s/<username>/${SP_APP_ID}/" \
+  -e "s/<password>/${SP_APP_KEY}/" \
+  ${DIR}/config-template-acr.yaml > ${DIR}/config-acr.yaml
+
+  echo "--> Generating initial secrets file"
+  sed -e "s/<apiToken>/${apiToken}/" \
+  -e "s/<secretToken>/${secretToken}/" \
+  -e "s/<acr-login-server>/${ACR_LOGIN_SERVER}"
+  -e "s/<username>/${SP_APP_ID}/" \
+  -e "s/<password>/${SP_APP_KEY}/" \
+${DIR}/secret-template-acr.yaml > ${DIR}/secret-acr.yaml
+fi
+
+# Format BinderHub name for Kubernetes
+HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//' )
+
+echo "--> Installing Helm chart"
+helm install jupyterhub/binderhub \
+--version=$BINDERHUB_VERSION \
+--name=$HELM_BINDERHUB_NAME \
+--namespace=$HELM_BINDERHUB_NAME \
+-f ${DIR}/secret.yaml \
+-f ${DIR}/config.yaml \
+--timeout=3600
