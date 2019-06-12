@@ -152,8 +152,9 @@ else
     Options are: 'dockerhub' or 'acr'."
 fi
 
-# Generate a valid names for Azure
+# Generate a valid names for Azure. ACR name must be alphanumeric only.
 AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
+REGISTRY_NAME=`echo ${REGISTRY_NAME} | tr -cd '[:alnum:]' | cut -c -50`
 
 # Azure login will be different depending on whether this script is running
 # with or without service principal details supplied.
@@ -163,7 +164,7 @@ AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
 
 if [ -z $SP_APP_ID ] || [ -z $SP_APP_KEY ] || [ -z $SP_TENANT_ID ] ; then
   echo "--> Attempting to log in to Azure as a user"
-  if ! az login --output none; then
+  if ! az login -o none; then
       echo "--> Unable to connect to Azure" >&2
       exit 1
   else
@@ -171,7 +172,7 @@ if [ -z $SP_APP_ID ] || [ -z $SP_APP_KEY ] || [ -z $SP_TENANT_ID ] ; then
   fi
 else
   echo "--> Attempting to log in to Azure with provided Service Principal"
-  if ! az login --output none --service-principal -u "${SP_APP_ID}" -p "${SP_APP_KEY}" -t "${SP_TENANT_ID}"; then
+  if ! az login -o none --service-principal -u "${SP_APP_ID}" -p "${SP_APP_KEY}" -t "${SP_TENANT_ID}"; then
     echo "--> Unable to connect to Azure" >&2
     exit 1
   else
@@ -191,5 +192,32 @@ if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]] ; then
   echo "--> Creating new resource group: ${RESOURCE_GROUP_NAME}"
   az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table | tee rg-create.log
 else
-  echo "--> Resource group ${RESOURCE_GROUP_NAME} found."
+  echo "--> Resource group ${RESOURCE_GROUP_NAME} found"
+fi
+
+# If Azure container registry is required, create an ACR and give Service Principal AcrPush role.
+if [ x${CONTAINER_REGISTRY} == 'xacr' ] ; then
+  echo "--> Checking ACR name availability"
+  REGISTRY_NAME_AVAIL=`az acr check-name -n ${REGISTRY_NAME} --query nameAvailable -o tsv`
+  while [ ${REGISTRY_NAME_AVAIL} == false ]
+  do
+    echo "--> Name ${REGISTRY_NAME} not available. Appending 4 random characters."
+    REGISTRY_NAME="$(echo ${REGISTRY_NAME} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -c -50)$(openssl rand -hex 2)"
+    echo "--> New name: ${REGISTRY_NAME}"
+    REGISTRY_NAME_AVAIL=`az acr check-name -n ${REGISTRY_NAME} --query nameAvailable -o tsv`
+  done
+
+  echo "--> Creating ACR"
+  az acr create -n $REGISTRY_NAME -g $RESOURCE_GROUP_NAME --sku $REGISTRY_SKU --admin-enabled true -o table
+
+  echo "--> Logging in to ${REGISTRY_NAME}"
+  az acr login -n $REGISTRY_NAME
+
+  # Populating some variables
+  ACR_LOGIN_SERVER=`az acr list -g ${RESOURCE_GROUP_NAME} --query '[].{acrLoginServer:loginServer}' -o tsv`
+  ACR_ID=`az acr show -n ${REGISTRY_NAME} -g ${RESOURCE_GROUP_NAME} --query 'id' -o tsv`
+
+  # Assigning AcrPush role to Service Principal using AcrPush's specific object-ID
+  echo "--> Assigning AcrPush role to Service Principal"
+  az role assignment create --assignee ${SP_APP_ID} --role 8311e382-0749-4cb8-b61a-304f252e45ec --scope $ACR_ID
 fi
