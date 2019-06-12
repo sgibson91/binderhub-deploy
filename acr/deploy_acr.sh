@@ -18,7 +18,7 @@ BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
 BINDERHUB_VERSION=`jq -r '.binderhub .version' ${configFile}`
 CONTACT_EMAIL=`jq -r '.binderhub .contact_email' ${configFile}`
 CONTAINER_REGISTRY=`jq -r '.container_registry' ${configFile}`
-DOCKER_IMAGE_PREFIX=`jq -r '.docker .image_prefix' ${configFile}`
+DOCKER_IMAGE_PREFIX=`jq -r '.binderhub .image_prefix' ${configFile}`
 RESOURCE_GROUP_LOCATION=`jq -r '.azure .location' ${configFile}`
 RESOURCE_GROUP_NAME=`jq -r '.azure .res_grp_name' ${configFile}`
 SP_APP_ID=`jq -r '.azure .sp_app_id' ${configFile}`
@@ -46,7 +46,7 @@ for required_var in $REQUIREDVARS ; do
   fi
 done
 
-# Test value of CONTAINER_REGISTRY. Must be either "dockerhub" or "acr"
+# Test value of CONTAINER_REGISTRY. Must be either "dockerhub" or "azurecr"
 if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
   echo "--> Getting DockerHub requirements"
 
@@ -106,7 +106,7 @@ if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
     SP_TENANT_ID: ${SP_TENANT_ID}
     "
 
-elif [ x${CONTAINER_REGISTRY} == 'xacr' ] ; then
+elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
   echo "--> Getting configuration for Azure Container Registry"
 
   # Read in ACR configuration
@@ -129,6 +129,9 @@ elif [ x${CONTAINER_REGISTRY} == 'xacr' ] ; then
     fi
   done
 
+  # ACR name must be alphanumeric only and 50 characters or less
+  REGISTRY_NAME=`echo ${REGISTRY_NAME} | tr -cd '[:alnum:]' | cut -c -50`
+
   echo "--> Configuration read in:
     AKS_NODE_COUNT: ${AKS_NODE_COUNT}
     AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
@@ -149,12 +152,11 @@ elif [ x${CONTAINER_REGISTRY} == 'xacr' ] ; then
 
 else
   echo "--> Please provide a valid option for CONTAINER_REGISTRY.
-    Options are: 'dockerhub' or 'acr'."
+    Options are: 'dockerhub' or 'azurecr'."
 fi
 
-# Generate a valid names for Azure. ACR name must be alphanumeric only.
+# Generate a valid name for the AKS cluster
 AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
-REGISTRY_NAME=`echo ${REGISTRY_NAME} | tr -cd '[:alnum:]' | cut -c -50`
 
 # Azure login will be different depending on whether this script is running
 # with or without service principal details supplied.
@@ -196,7 +198,7 @@ else
 fi
 
 # If Azure container registry is required, create an ACR and give Service Principal AcrPush role.
-if [ x${CONTAINER_REGISTRY} == 'xacr' ] ; then
+if [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
   echo "--> Checking ACR name availability"
   REGISTRY_NAME_AVAIL=`az acr check-name -n ${REGISTRY_NAME} --query nameAvailable -o tsv`
   while [ ${REGISTRY_NAME_AVAIL} == false ]
@@ -313,7 +315,7 @@ if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
   -e "s/<password>/${DOCKER_PASSWORD}/" \
   ${DIR}/secret-template.yaml > ${DIR}/secret.yaml
 
-elif [ x${CONTAINER_REGISTRY} == 'xacr' ] ; then
+elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
 
   echo "--> Generating initial configuration file"
   sed -e "s/<acr-login-server>/${ACR_LOGIN_SERVER}/" \
@@ -325,7 +327,7 @@ elif [ x${CONTAINER_REGISTRY} == 'xacr' ] ; then
   echo "--> Generating initial secrets file"
   sed -e "s/<apiToken>/${apiToken}/" \
   -e "s/<secretToken>/${secretToken}/" \
-  -e "s/<acr-login-server>/${ACR_LOGIN_SERVER}"
+  -e "s/<acr-login-server>/${ACR_LOGIN_SERVER}/" \
   -e "s/<username>/${SP_APP_ID}/" \
   -e "s/<password>/${SP_APP_KEY}/" \
 ${DIR}/secret-template-acr.yaml > ${DIR}/secret.yaml
@@ -369,7 +371,7 @@ if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
     ${DIR}/config-template.yaml > ${DIR}/config.yaml
   fi
 
-elif [ x${CONTAINER_REGISTRY} == 'xacr' ] ; then
+elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
 
   echo "--> Finalising configurations"
   sed -e "s/<acr-login-server>/${ACR_LOGIN_SERVER}/" \
