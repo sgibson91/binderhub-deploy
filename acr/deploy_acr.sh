@@ -318,8 +318,8 @@ if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
 elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
 
   echo "--> Generating initial configuration file"
-  sed -e "s/<acr-login-server>/${ACR_LOGIN_SERVER}/" \
-  -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+  sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@" \
+  -e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
   -e "s/<username>/${SP_APP_ID}/" \
   -e "s/<password>/${SP_APP_KEY}/" \
   ${DIR}/config-template-acr.yaml > ${DIR}/config.yaml
@@ -327,7 +327,7 @@ elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
   echo "--> Generating initial secrets file"
   sed -e "s/<apiToken>/${apiToken}/" \
   -e "s/<secretToken>/${secretToken}/" \
-  -e "s/<acr-login-server>/${ACR_LOGIN_SERVER}/" \
+  -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@" \
   -e "s/<username>/${SP_APP_ID}/" \
   -e "s/<password>/${SP_APP_KEY}/" \
 ${DIR}/secret-template-acr.yaml > ${DIR}/secret.yaml
@@ -374,8 +374,8 @@ if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
 elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
 
   echo "--> Finalising configurations"
-  sed -e "s/<acr-login-server>/${ACR_LOGIN_SERVER}/" \
-  -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+  sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@" \
+  -e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
   -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
   -e "s/<username>/${SP_APP_ID}/" \
   -e "s/<password>/${SP_APP_KEY}/" \
