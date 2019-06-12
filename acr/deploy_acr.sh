@@ -376,7 +376,7 @@ elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
   echo "--> Finalising configurations"
   sed -e "s/<acr-login-server>/${ACR_LOGIN_SERVER}/" \
   -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-  -e "s/<jupyterhub-ap>/${JUPYTERHUB_IP}/" \
+  -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
   -e "s/<username>/${SP_APP_ID}/" \
   -e "s/<password>/${SP_APP_KEY}/" \
   ${DIR}/config-template-acr.yaml > ${DIR}/config.yaml
