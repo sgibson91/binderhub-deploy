@@ -1,0 +1,15 @@
+config:
+  BinderHub:
+    use_registry: true
+    image_prefix: <acr-login-server>/<prefix>-
+    hub_url: http://<jupyterhub-ip>
+  DockerRegistry:
+    token_url: "https://<acr-login-server>/oauth2/token?service=<acr-login-server>"
+
+jupyterhub:
+  hub:
+    imagePullSecret:
+      enabled: true
+      registry: <acr-login-server>
+      username: <username>
+      password: <password>
