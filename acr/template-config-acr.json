@@ -22,7 +22,7 @@
     "org": null
   },
   "acr": {
-    "registry_name": "",
+    "registry_name": null,
     "sku": "Basic"
   }
 }
