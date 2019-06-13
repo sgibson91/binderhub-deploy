@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Exit immediately if a pipeline returns a non-zero status
-set -euo pipefail
+set -eo pipefail
 
 # Get this script's path
 DIR="$( cd "$( dirname "$BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -267,6 +267,8 @@ else
     echo "    Options are: 'dockerhub' or 'azurecr'."
   fi
 fi
+
+set -euo pipefail
 
 # Normalise resource group location to remove spaces and have lowercase
 RESOURCE_GROUP_LOCATION=`echo ${RESOURCE_GROUP_LOCATION//[[:blank::]]/} | tr '[:upper:]' '[:lower:]'`
