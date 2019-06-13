@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Exit immediately if a pipeline returns a non-zero status
-set -euo pipefail
+set -eo pipefail
 
 # Get this script's path
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -159,6 +159,8 @@ else
     fi
   fi
 fi
+
+set -euo pipefail
 
 # Generate a valid name for the AKS cluster
 AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
