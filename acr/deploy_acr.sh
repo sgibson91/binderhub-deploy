@@ -6,121 +6,153 @@ set -euo pipefail
 # Get this script's path
 DIR="$( cd "$( dirname "$BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-# Read in config file and assign variables for the non-container case
-configFile="${DIR}/config.json"
+## Detection of the deploy mode
+#
+# This script should handle both interactive deployment when run by a user
+# on their local system, and also running as a container entrypoint when
+# used either for a container-based local deployment or when deployed via an
+# Azure blue button setup.
+#
+# Check whether BINDERHUB_CONTAINER_MODE is set, and if so assume running
+# as a container-based install, checking that all required input is present
+# in the form of environment variables
 
-echo "--> Reading configuration from ${configFile}"
-
-AKS_NODE_COUNT=`jq -r '.azure .node_count' ${configFile}`
-AKS_NODE_VM_SIZE=`jq -r '.azure .vm_size' ${configFile}`
-AZURE_SUBSCRIPTION=`jq -r '.azure .subscription' ${configFile}`
-BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
-BINDERHUB_VERSION=`jq -r '.binderhub .version' ${configFile}`
-CONTACT_EMAIL=`jq -r '.binderhub .contact_email' ${configFile}`
-CONTAINER_REGISTRY=`jq -r '.container_registry' ${configFile}`
-DOCKER_IMAGE_PREFIX=`jq -r '.binderhub .image_prefix' ${configFile}`
-RESOURCE_GROUP_LOCATION=`jq -r '.azure .location' ${configFile}`
-RESOURCE_GROUP_NAME=`jq -r '.azure .res_grp_name' ${configFile}`
-SP_APP_ID=`jq -r '.azure .sp_app_id' ${configFile}`
-SP_APP_KEY=`jq -r '.azure .sp_app_key' ${configFile}`
-SP_TENANT_ID=`jq -r '.azure .sp_tenant_id' ${configFile}`
-
-# Check that the variables are all set non-zero, non-null
-REQUIREDVARS=" \
-        AKS_NODE_COUNT \
-        AKS_NODE_VM_SIZE \
-        AZURE_SUBSCRIPTION \
-        BINDERHUB_NAME \
-        BINDERHUB_VERSION \
-        CONTACT_EMAIL \
-        CONTAINER_REGISTRY \
-        DOCKER_IMAGE_PREFIX \
-        RESOURCE_GROUP_NAME \
-        RESOURCE_GROUP_LOCATION \
-        "
-
-for required_var in $REQUIREDVARS ; do
-  if [ -z "${!required_var}" ] || [ x${required_var} == 'xnull' ] ; then
-    echo "--> ${required_var} must be set for deployment" >&2
-    exit 1
-  fi
-done
-
-# Test value of CONTAINER_REGISTRY. Must be either "dockerhub" or "azurecr"
-if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
-  echo "--> Getting DockerHub requirements"
-
-  # Check if any optional variables are set null; if so, reset them to a
-  # zero-length string for later checks. If they failed to read at all,
-  # possibly due to an invalid json file, they will be returned as a
-  # zero-length string -- this is attempting to make the 'not set'
-  # value the same in either case
-  if [ x${SP_APP_ID} == 'xnull' ] ; then SP_APP_ID='' ; fi
-  if [ x${SP_APP_KEY} == 'xnull' ] ; then SP_APP_KEY='' ; fi
-  if [ x${SP_TENANT_ID} == 'xnull' ] ; then SP_TENANT_ID='' ; fi
-
-  # Read Docker credentials from config file
-  DOCKER_ORGANISATION=`jq -r '.docker .org' ${configFile}`
-  DOCKER_PASSWORD=`jq -r '.docker .password' ${configFile}`
-  DOCKER_USERNAME=`jq -r '.docker .username' ${configFile}`
-
-  # Check that Docker credentials have been set
-  if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
-  if [ x${DOCKER_PASSWORD} == 'xnull' ] ; then DOCKER_PASSWORD='' ; fi
-  if [ x${DOCKER_USERNAME} == 'xnull' ] ; then DOCKER_USERNAME='' ; fi
-
-  # Check/get the user's Docker credentials
-  if [ -z $DOCKER_USERNAME ] ; then
-    if [ ! -z "$DOCKER_ORGANISATION" ] ; then
-      echo "--> Your Docker IS must be a member of the ${DOCKER_ORGANISATION} organisation"
-    fi
-    read -p "DockerHub ID: " DOCKER_USERNAME
-    read -sp "DockerHub password: " DOCKER_PASSWORD
-    echo
-  else
-    if [ -z $DOCKER_PASSWORD ] ; then
-      read -sp "DockerHub password for ${DOCKER_USERNAME}: " DOCKER_PASSWORD
-      echo
-    fi
-  fi
-
-  # Normalise resource group location to remove spaces and have lowercase
-  RESOURCE_GROUP_LOCATION=`echo ${RESOURCE_GROUP_LOCATION//[[:blank::]]/} | tr '[:upper:]' '[:lower:]'`
-
-  echo "--> Configuration read in:
-    AKS_NODE_COUNT: ${AKS_NODE_COUNT}
-    AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
-    AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
-    BINDERHUB_NAME: ${BINDERHUB_NAME}
-    BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-    CONTACT_EMAIL: ${CONTACT_EMAIL}
-    CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
-    DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-    DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
-    DOCKER_PASSWORD: ${DOCKER_PASSWORD}
-    DOCKER_USERNAME: ${DOCKER_USERNAME}
-    RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
-    RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
-    SP_APP_ID: ${SP_APP_ID}
-    SP_APP_KEY: ${SP_APP_KEY}
-    SP_TENANT_ID: ${SP_TENANT_ID}
-    " | tee read-config.log
-
-elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
-  echo "--> Getting configuration for Azure Container Registry"
-
-  # Read in ACR configuration
-  REGISTRY_NAME=`jq -r '.acr .registry_name' ${configFile}`
-  REGISTRY_SKU=`jq -r '.acr .sku' ${configFile}`
-
-  # Checking required variables
+if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
+  echo "--> Deployment operating in container mode"
+  echo "--> Checking required environment variables"
+  # Set out a list of required variables for this script
   REQUIREDVARS=" \
-      REGISTRY_NAME \
-      REGISTRY_SKU \
-      SP_APP_ID \
-      SP_APP_KEY \
-      SP_TENANT_ID \
-      "
+          AKS_NODE_COUNT \
+          AKS_NODE_VM_SIZE \
+          AZURE_SUBSCRIPTION \
+          BINDERHUB_NAME \
+          BINDERHUB_VERSION \
+          CONTACT_EMAIL \
+          CONTAINER_REGISTRY \
+          DOCKER_IMAGE_PREFIX \
+          RESOURCE_GROUP_NAME \
+          RESOURCE_GROUP_LOCATION \
+          SP_APP_ID \
+          SP_APP_KEY \
+          SP_TENANT_ID \
+          "
+  for required_var in $REQUIREDVARS ; do
+    if [ -z "${!required_var}" ] ; then
+      echo "--> ${required_var} must be set for container-based setup" >&2
+      exit 1
+    fi
+  done
+
+  if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
+
+    REQUIREDVARS=" \
+            DOCKER_USERNAME \
+            DOCKER_PASSWORD \
+            "
+
+    for required_var in $REQUIREDVARS ; do
+      if [ -z "${!required_var}" ] ; then
+        echo "--> ${required_var} must be set for container-based setup" >&2
+        exit 1
+      fi
+    done
+
+    echo "--> Configuration parsed from blue button:
+      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+      BINDERHUB_NAME: ${BINDERHUB_NAME}
+      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      CONTACT_EMAIL: ${CONTACT_EMAIL}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+      SP_APP_ID: ${SP_APP_ID}
+      SP_APP_KEY: ${SP_APP_KEY}
+      SP_TENANT_ID: ${SP_TENANT_ID}
+      DOCKER_USERNAME: ${DOCKER_USERNAME}
+      DOCKER_PASSWORD: ${DOCKER_PASSWORD}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
+      " | tee read-config.log
+
+    # Check if DOCKER_ORGANISATION is set to null. Return empty string if true.
+    if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
+
+  elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
+
+    REQUIREDVARS=" \
+            REGISTRY_NAME \
+            REGISTRY_SKU \
+            "
+
+    for required_var in $REQUIREDVARS ; do
+      if [ -z "${!required_var}" ] ; then
+        echo "--> ${required_var} must be set for container-based setup" >&2
+        exit 1
+      fi
+    done
+
+    echo "--> Configuration parsed from blue button:
+      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+      BINDERHUB_NAME: ${BINDERHUB_NAME}
+      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      CONTACT_EMAIL: ${CONTACT_EMAIL}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+      SP_APP_ID: ${SP_APP_ID}
+      SP_APP_KEY: ${SP_APP_KEY}
+      SP_TENANT_ID: ${SP_TENANT_ID}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      REGISTRY_NAME: ${REGISTRY_NAME}
+      REGISTRY_SKU: ${REGISTRY_SKU}
+      " | tee read-config.log
+
+  else
+    echo "--> Please provide a valid option for CONTAINER_REGISTRY."
+    echo "    Options are 'dockerhub' or 'azurecr'."
+  fi
+
+  # Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
+  AZURE_SUBSCRIPTION=$(echo $AZURE_SUBSCRIPTION | sed -r "s/^\/subscriptions\///")
+
+else
+
+  # Read in config file and assign variables for the non-container case
+  configFile="${DIR}/config.json"
+
+  echo "--> Reading configuration from ${configFile}"
+
+  AKS_NODE_COUNT=`jq -r '.azure .node_count' ${configFile}`
+  AKS_NODE_VM_SIZE=`jq -r '.azure .vm_size' ${configFile}`
+  AZURE_SUBSCRIPTION=`jq -r '.azure .subscription' ${configFile}`
+  BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
+  BINDERHUB_VERSION=`jq -r '.binderhub .version' ${configFile}`
+  CONTACT_EMAIL=`jq -r '.binderhub .contact_email' ${configFile}`
+  CONTAINER_REGISTRY=`jq -r '.container_registry' ${configFile}`
+  DOCKER_IMAGE_PREFIX=`jq -r '.binderhub .image_prefix' ${configFile}`
+  RESOURCE_GROUP_LOCATION=`jq -r '.azure .location' ${configFile}`
+  RESOURCE_GROUP_NAME=`jq -r '.azure .res_grp_name' ${configFile}`
+  SP_APP_ID=`jq -r '.azure .sp_app_id' ${configFile}`
+  SP_APP_KEY=`jq -r '.azure .sp_app_key' ${configFile}`
+  SP_TENANT_ID=`jq -r '.azure .sp_tenant_id' ${configFile}`
+
+  # Check that the variables are all set non-zero, non-null
+  REQUIREDVARS=" \
+          AKS_NODE_COUNT \
+          AKS_NODE_VM_SIZE \
+          AZURE_SUBSCRIPTION \
+          BINDERHUB_NAME \
+          BINDERHUB_VERSION \
+          CONTACT_EMAIL \
+          CONTAINER_REGISTRY \
+          DOCKER_IMAGE_PREFIX \
+          RESOURCE_GROUP_NAME \
+          RESOURCE_GROUP_LOCATION \
+          "
 
   for required_var in $REQUIREDVARS ; do
     if [ -z "${!required_var}" ] || [ x${required_var} == 'xnull' ] ; then
@@ -129,31 +161,115 @@ elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
     fi
   done
 
-  # ACR name must be alphanumeric only and 50 characters or less
-  REGISTRY_NAME=`echo ${REGISTRY_NAME} | tr -cd '[:alnum:]' | cut -c -50`
+  # Test value of CONTAINER_REGISTRY. Must be either "dockerhub" or "azurecr"
+  if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
+    echo "--> Getting DockerHub requirements"
 
-  echo "--> Configuration read in:
-    AKS_NODE_COUNT: ${AKS_NODE_COUNT}
-    AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
-    AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
-    BINDERHUB_NAME: ${BINDERHUB_NAME}
-    BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-    CONTACT_EMAIL: ${CONTACT_EMAIL}
-    CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
-    DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-    REGISTRY_NAME: ${REGISTRY_NAME}
-    REGISTRY_SKU: ${REGISTRY_SKU}
-    RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
-    RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
-    SP_APP_ID: ${SP_APP_ID}
-    SP_APP_KEY: ${SP_APP_KEY}
-    SP_TENANT_ID: ${SP_TENANT_ID}
-    " | tee read-config.log
+    # Check if any optional variables are set null; if so, reset them to a
+    # zero-length string for later checks. If they failed to read at all,
+    # possibly due to an invalid json file, they will be returned as a
+    # zero-length string -- this is attempting to make the 'not set'
+    # value the same in either case
+    if [ x${SP_APP_ID} == 'xnull' ] ; then SP_APP_ID='' ; fi
+    if [ x${SP_APP_KEY} == 'xnull' ] ; then SP_APP_KEY='' ; fi
+    if [ x${SP_TENANT_ID} == 'xnull' ] ; then SP_TENANT_ID='' ; fi
 
-else
-  echo "--> Please provide a valid option for CONTAINER_REGISTRY.
-    Options are: 'dockerhub' or 'azurecr'."
+    # Read Docker credentials from config file
+    DOCKER_ORGANISATION=`jq -r '.docker .org' ${configFile}`
+    DOCKER_PASSWORD=`jq -r '.docker .password' ${configFile}`
+    DOCKER_USERNAME=`jq -r '.docker .username' ${configFile}`
+
+    # Check that Docker credentials have been set
+    if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
+    if [ x${DOCKER_PASSWORD} == 'xnull' ] ; then DOCKER_PASSWORD='' ; fi
+    if [ x${DOCKER_USERNAME} == 'xnull' ] ; then DOCKER_USERNAME='' ; fi
+
+    # Check/get the user's Docker credentials
+    if [ -z $DOCKER_USERNAME ] ; then
+      if [ ! -z "$DOCKER_ORGANISATION" ] ; then
+        echo "--> Your Docker ID must be a member of the ${DOCKER_ORGANISATION} organisation"
+      fi
+      read -p "DockerHub ID: " DOCKER_USERNAME
+      read -sp "DockerHub password: " DOCKER_PASSWORD
+      echo
+    else
+      if [ -z $DOCKER_PASSWORD ] ; then
+        read -sp "DockerHub password for ${DOCKER_USERNAME}: " DOCKER_PASSWORD
+        echo
+      fi
+    fi
+
+    echo "--> Configuration read in:
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+      BINDERHUB_NAME: ${BINDERHUB_NAME}
+      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      CONTACT_EMAIL: ${CONTACT_EMAIL}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
+      DOCKER_PASSWORD: ${DOCKER_PASSWORD}
+      DOCKER_USERNAME: ${DOCKER_USERNAME}
+      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+      SP_APP_ID: ${SP_APP_ID}
+      SP_APP_KEY: ${SP_APP_KEY}
+      SP_TENANT_ID: ${SP_TENANT_ID}
+      " | tee read-config.log
+
+  elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
+    echo "--> Getting configuration for Azure Container Registry"
+
+    # Read in ACR configuration
+    REGISTRY_NAME=`jq -r '.acr .registry_name' ${configFile}`
+    REGISTRY_SKU=`jq -r '.acr .sku' ${configFile}`
+
+    # Checking required variables
+    REQUIREDVARS=" \
+        REGISTRY_NAME \
+        REGISTRY_SKU \
+        SP_APP_ID \
+        SP_APP_KEY \
+        SP_TENANT_ID \
+        "
+
+    for required_var in $REQUIREDVARS ; do
+      if [ -z "${!required_var}" ] || [ x${required_var} == 'xnull' ] ; then
+        echo "--> ${required_var} must be set for deployment" >&2
+        exit 1
+      fi
+    done
+
+    # ACR name must be alphanumeric only and 50 characters or less
+    REGISTRY_NAME=`echo ${REGISTRY_NAME} | tr -cd '[:alnum:]' | cut -c -50`
+
+    echo "--> Configuration read in:
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+      BINDERHUB_NAME: ${BINDERHUB_NAME}
+      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      CONTACT_EMAIL: ${CONTACT_EMAIL}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      REGISTRY_NAME: ${REGISTRY_NAME}
+      REGISTRY_SKU: ${REGISTRY_SKU}
+      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+      SP_APP_ID: ${SP_APP_ID}
+      SP_APP_KEY: ${SP_APP_KEY}
+      SP_TENANT_ID: ${SP_TENANT_ID}
+      " | tee read-config.log
+
+  else
+    echo "--> Please provide a valid option for CONTAINER_REGISTRY."
+    echo "    Options are: 'dockerhub' or 'azurecr'."
+  fi
 fi
+
+# Normalise resource group location to remove spaces and have lowercase
+RESOURCE_GROUP_LOCATION=`echo ${RESOURCE_GROUP_LOCATION//[[:blank::]]/} | tr '[:upper:]' '[:lower:]'`
 
 # Generate a valid name for the AKS cluster
 AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
