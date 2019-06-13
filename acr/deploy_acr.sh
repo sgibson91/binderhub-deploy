@@ -104,7 +104,7 @@ if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
     SP_APP_ID: ${SP_APP_ID}
     SP_APP_KEY: ${SP_APP_KEY}
     SP_TENANT_ID: ${SP_TENANT_ID}
-    "
+    " | tee read-config.log
 
 elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
   echo "--> Getting configuration for Azure Container Registry"
@@ -148,7 +148,7 @@ elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
     SP_APP_ID: ${SP_APP_ID}
     SP_APP_KEY: ${SP_APP_KEY}
     SP_TENANT_ID: ${SP_TENANT_ID}
-    "
+    " | tee read-config.log
 
 else
   echo "--> Please provide a valid option for CONTAINER_REGISTRY.
@@ -192,7 +192,7 @@ az account set -s "$AZURE_SUBSCRIPTION"
 echo "--> Checking if resource group exists: ${RESOURCE_GROUP_NAME}"
 if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]] ; then
   echo "--> Creating new resource group: ${RESOURCE_GROUP_NAME}"
-  az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table
+  az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table | tee rg-create.log
 else
   echo "--> Resource group ${RESOURCE_GROUP_NAME} found"
 fi
@@ -210,7 +210,7 @@ if [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
   done
 
   echo "--> Creating ACR"
-  az acr create -n $REGISTRY_NAME -g $RESOURCE_GROUP_NAME --sku $REGISTRY_SKU --admin-enabled true -o table
+  az acr create -n $REGISTRY_NAME -g $RESOURCE_GROUP_NAME --sku $REGISTRY_SKU --admin-enabled true -o table | tee acr-create.log
 
   echo "--> Logging in to ${REGISTRY_NAME}"
   az acr login -n $REGISTRY_NAME
@@ -221,7 +221,7 @@ if [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
 
   # Assigning AcrPush role to Service Principal using AcrPush's specific object-ID
   echo "--> Assigning AcrPush role to Service Principal"
-  az role assignment create --assignee ${SP_APP_ID} --role 8311e382-0749-4cb8-b61a-304f252e45ec --scope $ACR_ID
+  az role assignment create --assignee ${SP_APP_ID} --role 8311e382-0749-4cb8-b61a-304f252e45ec --scope $ACR_ID | tee role-assignment.log
 fi
 
 # Create an AKS cluster
@@ -230,42 +230,42 @@ Resource Group: ${RESOURCE_GROUP_NAME}
 Cluster name:   ${AKS_NAME}
 Node count:     ${AKS_NODE_COUNT}
 Node VM size:   ${AKS_NODE_VM_SIZE}"
-az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table ${AKS_SP}
+az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table ${AKS_SP} | tee aks-create.log
 
 # Get kubectl credentials from Azure
 echo "--> Fetching kubectl credentials from Azure"
-az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table
+az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table | tee get-credentials.log
 
 # Check nodes are ready
 nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)"
 while [[ ${nodecount} -ne ${AKS_NODE_COUNT} ]] ; do echo -n $(date) ; echo " : ${nodecount} of ${AKS_NODE_COUNT} nodes ready" ; sleep 15 ; nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)" ; done
 echo
 echo "--> Cluster node status:"
-kubectl get node
+kubectl get node | tee kubectl-status.log
 echo
 
 # Setup ServiceAccount for tiller
 echo "--> Setting up tiller service account"
-kubectl --namespace kube-system create serviceaccount tiller
+kubectl --namespace kube-system create serviceaccount tiller | tee tiller-service-account.log
 
 # Give the ServiceAccount full permissions to manage the cluster
 echo "--> Giving the ServiceAccount full permissions to manage the cluster"
-kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller | tee cluster-role-bindings.log
 
 # Initialise helm and tiller
 echo "--> Initialising helm and tiller"
-helm init --service-account tiller --wait
+helm init --service-account tiller --wait | tee helm-init.log
 
 # Secure tiller against attacks from within the cluster
 echo "--> Securing tiller against attacks from within the cluster"
-kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --patch='[{"op": "add", "path": "/spec/template/spec/containers/0/command", "value": ["/tiller", "--listen=localhost:44134"]}]'
+kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --patch='[{"op": "add", "path": "/spec/template/spec/containers/0/command", "value": ["/tiller", "--listen=localhost:44134"]}]' | tee tiller-securing.log
 
 # Waiting until tiller pod is ready
 tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')"
 while [[ ! x${tillerStatus} == xRunning ]] ; do echo -n $(date) ; echo " : tiller pod status : ${tillerStatus} " ; sleep 30 ; tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')" ; done
 echo
 echo "--> AKS system pods status:"
-kubectl get pods --namespace kube-system
+kubectl get pods --namespace kube-system | tee kubectl-get-pods.log
 echo
 
 # Check helm has been configured correctly
@@ -343,17 +343,17 @@ helm install jupyterhub/binderhub \
 --namespace=$HELM_BINDERHUB_NAME \
 -f ${DIR}/secret.yaml \
 -f ${DIR}/config.yaml \
---timeout=3600
+--timeout=3600 | tee helm-chart-install.log
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 echo "--> Retrieving JupyterHub IP"
-JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
+JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1` | tee jupyterhub-ip.log
 while [ "${JUPYTERHUB_IP}" = '<pending>' ] || [ "${JUPYTERHUB_IP}" = "" ]
 do
     echo "Sleeping 30s before checking again"
     sleep 30
     JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
-    echo "JupyterHub IP: ${JUPYTERHUB_IP}"
+    echo "JupyterHub IP: ${JUPYTERHUB_IP}" | tee jupyterhub-ip.log
 done
 
 if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
@@ -387,16 +387,16 @@ echo "--> Updating Helm chart"
 helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
 --version=$BINDERHUB_VERSION \
 -f ${DIR}/secret.yaml \
--f ${DIR}/config.yaml
+-f ${DIR}/config.yaml | tee helm-upgrade.log
 
 # Print Binder IP address
 echo "--> Retrieving Binder IP"
 BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
-echo "Binder IP: ${BINDER_IP}"
+echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
 while [ "${BINDER_IP}" = '<pending>' ] || [ "${BINDER_IP}" = "" ]
 do
     echo "Sleeping 30s before checking again"
     sleep 30
     BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
-    echo "Binder IP: ${BINDER_IP}"
+    echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
 done
