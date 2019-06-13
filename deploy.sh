@@ -264,7 +264,7 @@ while ! helm version ; do
   sleep 30
 done
 # Revert to error-intolerance
-set -eo pipefail
+set -euo pipefail
 
 # Create tokens for the secrets file:
 apiToken=`openssl rand -hex 32`
