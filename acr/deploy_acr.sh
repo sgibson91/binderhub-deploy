@@ -511,3 +511,34 @@ do
     BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
     echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
 done
+
+if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
+  # Finall, save outputs to blob storage
+  #
+  # Create storage account
+  echo "--> Creating storage account"
+  CONTAINER_NAME="${BINDERHUB_NAME}deploylogs"
+  STORAGE_ACCOUNT_NAME="$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -c -20)$(openssl rand -hex 2)"
+  az storage account create \
+    --name ${STORAGE_ACCOUNT_NAME} --resource-group ${RESOURCE_GROUP_NAME} \
+    --sku Standard_LRS -o table | tee storage-create.log
+  # Create a container
+  echo "--> Creating storage container: ${CONTAINER_NAME}"
+  az storage container create --account-name ${STORAGE_ACCOUNT_NAME} \
+    --name ${CONTAINER_NAME} | tee container-create.log
+  # Push the files
+  echo "--> Pushing log files"
+  az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
+    --destination ${CONTAINER_NAME} --source "." \
+    --pattern "*.log"
+  echo "--> Pushing yaml files"
+  az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
+    --destination ${CONTAINER_NAME} --source "." \
+    --pattern "*.yaml"
+  echo "--> Getting and pushing ssh keys"
+  cp ~/.ssh/id_rsa ${DIR}/id_rsa_${BINDERHUB_NAME}
+  cp ~/.ssh/id_rsa.pub ${DIR}/id_rsa_${BINDERHUB_NAME}.pub
+  az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
+    --destination ${CONTAINER_NAME} --source "." \
+    --pattern "id*"
+fi
