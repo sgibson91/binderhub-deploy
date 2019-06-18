@@ -1,0 +1,4 @@
+run-container.sh
+secret.yaml
+config.yaml
+*.log
