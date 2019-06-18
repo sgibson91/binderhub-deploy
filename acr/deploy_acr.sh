@@ -292,7 +292,7 @@ if [ -z $SP_APP_ID ] || [ -z $SP_APP_KEY ] || [ -z $SP_TENANT_ID ] ; then
   fi
 else
   echo "--> Attempting to log in to Azure with provided Service Principal"
-  if ! az login -o none --service-principal -u "${SP_APP_ID}" -p "${SP_APP_KEY}" -t "${SP_TENANT_ID}"; then
+  if ! az login --service-principal -u "${SP_APP_ID}" -p "${SP_APP_KEY}" -t "${SP_TENANT_ID}"; then
     echo "--> Unable to connect to Azure" >&2
     exit 1
   else
