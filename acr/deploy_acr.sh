@@ -330,9 +330,6 @@ if [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
   echo "--> Creating ACR"
   az acr create -n $REGISTRY_NAME -g $RESOURCE_GROUP_NAME --sku $REGISTRY_SKU --admin-enabled true -o table | tee acr-create.log
 
-  # echo "--> Logging in to ${REGISTRY_NAME}"
-  # az acr login -n $REGISTRY_NAME
-
   # Populating some variables
   ACR_LOGIN_SERVER=`az acr list -g ${RESOURCE_GROUP_NAME} --query '[].{acrLoginServer:loginServer}' -o tsv`
   ACR_ID=`az acr show -n ${REGISTRY_NAME} -g ${RESOURCE_GROUP_NAME} --query 'id' -o tsv`
