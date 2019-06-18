@@ -160,7 +160,7 @@ else
   fi
 fi
 
-set -euo pipefail
+set -eo pipefail
 
 # Generate a valid name for the AKS cluster
 AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
@@ -264,7 +264,7 @@ while ! helm version ; do
   sleep 30
 done
 # Revert to error-intolerance
-set -euo pipefail
+set -eo pipefail
 
 # Create tokens for the secrets file:
 apiToken=`openssl rand -hex 32`
