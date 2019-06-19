@@ -198,6 +198,10 @@
                 {
                   "name": "DOCKER_ORGANISATION",
                   "value": "[parameters('dockerOrganisation')]"
+                },
+                {
+                  "name": "CONTAINER_REGISTRY",
+                  "value": "[parameters('containerRegistry')"
                 }
               ],
               "resources": {
