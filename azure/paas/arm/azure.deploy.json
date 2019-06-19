@@ -60,20 +60,6 @@
         "description": "An email address at which you can be reached. This will be used by Let's Encrypt to manage your TLS certificates."
       }
     },
-    "dockerUsername": {
-      "type": "string",
-      "minLength": 1,
-      "metadata": {
-        "description": "The name of a valid DockerHub user account."
-      }
-    },
-    "dockerPassword": {
-      "type": "securestring",
-      "minLength": 8,
-      "metadata": {
-        "description": "The user password for DockerHub"
-      }
-    },
     "dockerPrefix": {
       "type": "string",
       "minLength": 1,
@@ -81,12 +67,41 @@
         "description": "Prefix to use for docker containers created by the BinderHub"
       }
     },
+    "containerRegistry": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "dockerhub",
+      "metadata": {
+        "description": "Choose between Docker Hub or Azure Container Registry"
+      },
+      "allowedValues": [
+        "dockerhub",
+        "azurecr"
+      ]
+    },
+    "dockerUsername": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "The name of a valid Docker Hub user account."
+      },
+      "condition": "[equals(parameters('containerRegistry'),'dockerhub']"
+    },
+    "dockerPassword": {
+      "type": "securestring",
+      "minLength": 8,
+      "metadata": {
+        "description": "The user password for Docker Hub"
+      },
+      "condition": "[equals(parameters('containerRegistry'),'dockerhub']"
+    },
     "dockerOrganisation": {
       "type": "string",
       "defaultValue": "null",
       "metadata": {
-        "description": "Organisation to use for Dockerhub; this is an optional value. Docker Username must be a member of this organisation if used."
-      }
+        "description": "Organisation to use for Docker Hub; this is an optional value. Docker Username must be a member of this organisation if used."
+      },
+      "condition": "[equals(parameters('containerRegistry'),'dockerhub']"
     },
     "setupDockerImage": {
       "type": "string",
