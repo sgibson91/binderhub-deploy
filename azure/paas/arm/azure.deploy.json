@@ -110,15 +110,16 @@
     },
     "containerRegistrySku": {
       "type": "string",
+      "minLength": 1,
       "defaultValue": "Basic",
+      "metadata": {
+        "description": "Capacity and pricing tier for the Azure Container Registry. See the following website for details: https://docs.microsoft.com/en-us/azure/container-registry/container-registry-skus"
+      },
       "allowedValues": [
         "Basic",
         "Standard",
         "Premium"
-      ],
-      "metadata": {
-        "description": "Capacity and pricing tier for the Azure Container Registry. See the following website for details: https://docs.microsoft.com/en-us/azure/container-registry/container-registry-skus"
-      }
+      ]
     },
     "setupDockerImage": {
       "type": "string",
