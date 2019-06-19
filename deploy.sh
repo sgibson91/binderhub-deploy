@@ -417,7 +417,7 @@ if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
   if [ -z "${DOCKER_ORGANISATION}" ] ; then
     sed -e "s/<docker-id>/${DOCKER_USERNAME}/" \
     -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-    ${DIR}/config-template.yaml > ${DIR}/config.yaml
+    ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
   else
     sed -e "s/<docker-id>/${DOCKER_ORGANISATION}/" \
     -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
