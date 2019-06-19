@@ -513,11 +513,11 @@ do
 done
 
 if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
-  # Finall, save outputs to blob storage
+  # Finally, save outputs to blob storage
   #
   # Create storage account
   echo "--> Creating storage account"
-  CONTAINER_NAME="${BINDERHUB_NAME}deploylogs"
+  CONTAINER_NAME="$(echo ${BINDERHUB_NAME}deploylogs | tr '[:upper:]' '[:lower:]')"
   STORAGE_ACCOUNT_NAME="$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -c -20)$(openssl rand -hex 2)"
   az storage account create \
     --name ${STORAGE_ACCOUNT_NAME} --resource-group ${RESOURCE_GROUP_NAME} \
