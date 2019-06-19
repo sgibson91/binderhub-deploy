@@ -111,7 +111,7 @@
     "containerRegistrySku": {
       "type": "string",
       "defaultValue": "Basic",
-      "choices": [
+      "allowedValues": [
         "Basic",
         "Standard",
         "Premium"
