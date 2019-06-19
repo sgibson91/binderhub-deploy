@@ -82,7 +82,7 @@
     "dockerUsername": {
       "type": "string",
       "minLength": 1,
-      "defaultValue": "[if(equals([parameters('containerRegistry')], 'dockerhub'), '', 'null']",
+      "defaultValue": "[if(equals([parameters('containerRegistry')], 'dockerhub'), '', 'null')]",
       "metadata": {
         "description": "The name of a valid Docker Hub user account."
       }
@@ -90,7 +90,7 @@
     "dockerPassword": {
       "type": "securestring",
       "minLength": 8,
-      "defaultValue": "[if(equals([parameters('containerRegistry')], 'dockerhub'), '', 'null']",
+      "defaultValue": "[if(equals([parameters('containerRegistry')], 'dockerhub'), '', 'null')]",
       "metadata": {
         "description": "The user password for Docker Hub"
       }
@@ -100,8 +100,7 @@
       "defaultValue": "null",
       "metadata": {
         "description": "Organisation to use for Docker Hub; this is an optional value. Docker Username must be a member of this organisation if used."
-      },
-      "condition": "[equals(parameters('containerRegistry'),'dockerhub']"
+      }
     },
     "setupDockerImage": {
       "type": "string",
