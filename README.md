@@ -4,7 +4,7 @@
 
 [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) is a cloud-based, multi-server technology used for hosting repoducible computing environments and interactive Jupyter Notebooks built from code repositories.
 
-This repo contains a set of scripts to automatically deploy a BinderHub onto [Microsoft Azure](https://azure.microsoft.com/en-gb/), and connect a [DockerHub](https://hub.docker.com/) container registry, so that you can host your own [Binder](https://mybinder.readthedocs.io/en/latest/) service.
+This repo contains a set of scripts to automatically deploy a BinderHub onto [Microsoft Azure](https://azure.microsoft.com/en-gb/), and connect either a [Docker Hub](https://hub.docker.com/) account/organisation or an [Azure Container Registry](https://azure.microsoft.com/en-gb/services/container-registry/), so that you can host your own [Binder](https://mybinder.readthedocs.io/en/latest/) service.
 
 This repo is based on the following set of deployment scripts for Google Cloud: [nicain/binder-deploy](https://github.com/nicain/binder-deploy)
 
@@ -19,6 +19,7 @@ You should contact your IT Services for further information regarding permission
 ## Table of Contents
 
 - [Usage](#usage)
+  - [Choosing between Docker Hub and Azure Container Registry](#Choosing-between-Docker-Hub-and-Azure-Container-Registry)
   - [`setup.sh`](#setupsh)
   - [`deploy.sh`](#deploysh)
   - [`logs.sh`](#logssh)
@@ -63,36 +64,42 @@ You need to create a file called `config.json` which has the format described in
 Fill the quotation marks with your desired namespaces, etc.
 `config.json` is git-ignored so sensitive information, such as passwords and Service Principals, cannot not be pushed to GitHub.
 
-* For a list of available data centre regions, [see here](https://azure.microsoft.com/en-us/global-infrastructure/locations/).
+* For a list of available data centre regions, [see here](https://azure.microsoft.com/en-gb/global-infrastructure/locations/).
   This should be a _region_ and **not** a _location_, for example "West Europe" or "Central US".
   These can be equivalently written as `westeurope` and `centralus`, respectively.
 * For a list of available Linux Virtual Machines, [see here](https://docs.microsoft.com/en-gb/azure/virtual-machines/linux/sizes-general).
   This should be something like, for example `Standard_D2s_v3`.
 * The versions of the BinderHub Helm Chart can be found [here](https://jupyterhub.github.io/helm-chart/#development-releases-binderhub) and are of the form `0.2.0-<commit-hash>`.
   It is advised to select the most recent version unless you specifically require an older one.
+* If you are deploying an Azure Container Registry, find out more about the SKU tiers [here](https://docs.microsoft.com/en-gb/azure/container-registry/container-registry-skus).
 
 ```
 {
+  "container_registry": "",  // Choose Docker Hub or ACR with 'dockerhub' or 'azurecr' values, respectively.
   "azure": {
-    "subscription": "",   // Azure subscription name or ID (a hex-string)
-    "res_grp_name": "",   // Azure Resource Group name
-    "location": "",       // Azure Data Centre region
-    "node_count": 1,      // Number of nodes to deploy. 3 is preferrable for a stable cluster, but may be liable to caps.
-    "vm_size": "",        // Azure virtual machine type to deploy
-    "sp_app_id": null,    // Azure service principal ID (optional)
-    "sp_app_key": null,   // Azure service principal password (optional)
-    "sp_tenant_id": null  // Azure tenant ID (optional)
+    "subscription": "",      // Azure subscription name or ID (a hex-string)
+    "res_grp_name": "",      // Azure Resource Group name
+    "location": "",          // Azure Data Centre region
+    "node_count": 1,         // Number of nodes to deploy. 3 is preferrable for a stable cluster, but may be liable to caps.
+    "vm_size": "",           // Azure virtual machine type to deploy
+    "sp_app_id": null,       // Azure service principal ID (optional)
+    "sp_app_key": null,      // Azure service principal password (optional)
+    "sp_tenant_id": null     // Azure tenant ID (optional)
   },
   "binderhub": {
-    "name": "",           // Name of your BinderHub
-    "version": "",        // Helm chart version to deploy, should be 0.2.0-<commit-hash>
-    "contact_email": ""   // Email for letsencrypt https certificate. CANNOT be left blank.
+    "name": "",              // Name of your BinderHub
+    "version": "",           // Helm chart version to deploy, should be 0.2.0-<commit-hash>
+    "image_prefix": "",      // The prefix to preprend to Docker images (e.g. "binder-prod")
+    "contact_email": ""      // Email for letsencrypt https certificate. CANNOT be left blank.
   },
   "docker": {
-    "username": null,     // Docker username (can be supplied at runtime)
-    "password": null,     // Docker password (can be supplied at runtime)
-    "org": null,          // A DockerHub organisation to push images to (optional)
-    "image_prefix": ""    // The prefix to preprend to Docker images (e.g. "binder-prod")
+    "username": null,        // Docker username (can be supplied at runtime)
+    "password": null,        // Docker password (can be supplied at runtime)
+    "org": null              // A Docker Hub organisation to push images to (optional)
+  },
+  "acr": {
+    "registry_name": null,   // Name to give the ACR. This must be alpha-numerical and unique to Azure.
+    "sku": "Basic"           // The SKU capacity and pricing tier for the ACR
   }
 }
 ```
@@ -109,13 +116,50 @@ How many cores you deploy depends on your choice of `node_count` and `vm_size`.
 For example, a `Standard_D2s_v3` machine has 2 cores.
 Therefore, setting `node_count` to 2 will deploy 4 cores and you will have reached your quota for cores on your Free Trial subscription.
 
+### Choosing between Docker Hub and Azure Container Registry
+
+To select either a Docker Hub account/organisation or an Azure Container Registry (ACR), you must set the top-level `container_regsitry` key in `config.json` to either `dockerhub` or `azurecr` respectively.
+This will tell `deploy.sh` which variables and YAML templates to use.
+Then fill in the values under either the `dockerhub` or `acr` key as required.
+
+Using a Docker Hub account/organisation has the benefit of being relatively simple to set up.
+However, all the BinderHub images pushed there will be publicly available.
+For a few extra steps, deploying an ACR will allow the BinderHub images to be pushed to a private repository.
+
+#### Important Caveats when deploying an ACR
+
+**Service Principal:**
+
+In the [Service Principal Creation](#Service-Principal-Creation) section, we cover how to create a Service Principal in order to deploy a BinderHub.
+When following these steps, the `--role` argument of `Contributor` should be replaced with `Owner`.
+This is because the Service Principal will need the [`AcrPush`](https://docs.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles#acrpush) role in order to push images to the ACR and the `Contributor` role does not have permission to create new role assignments.
+
+**Image Prefix:**
+
+When deploying an ACR, you **must** set `image_prefix` in `config.json` in the form of:
+```
+<project-name>/<prefix>
+```
+
+`<project-name>` can be entirely fictional.
+We recommend using `binderhub.name` or `acr.registry_name` here.
+
+This is not necessary for Docker Hub as BinderHub "knows" about the Docker Hub naming convention.
+
+This stems from BinderHub assuming an image name of the form:
+```
+<registry-server>/<project-id>/<prefix>-name:tag
+```
+
+See [this issue](https://github.com/jupyterhub/binderhub/issues/800) for further discussion.
+
 ### `setup.sh`
 
 This script checks whether the required command line tools are already installed.
 If any are missing, the script uses the system package manager or [`curl`](https://curl.haxx.se/docs/) to install the command line interfaces (CLIs).
 The CLIs to be installed are:
 
-* [Microsoft Azure (`azure-cli`)](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update)
+* [Microsoft Azure (`azure-cli`)](https://docs.microsoft.com/en-gb/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update)
 * [Kubernetes (`kubectl`)](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-using-curl)
 * [Helm (`helm`)](https://helm.sh/docs/using_helm/#from-script)
 
@@ -124,14 +168,16 @@ Any dependencies that are not automatically installed by these packages will als
 ### `deploy.sh`
 
 This script reads in values from `config.json` and deploys a Kubernetes cluster.
-It then creates `config.yaml` and `secret.yaml` files, respectively, using [`config-template.yaml`](./config-template.yaml) and [`secret-template.yaml`](./secret-template.yaml).
+It then creates `config.yaml` and `secret.yaml` files which are used to install the BinderHub using the templates in the [`templates` folder](./templates/).
 
-The script will ask for your Docker ID and password if you haven't supplied them in the config file.
+If you have chosen a Docker Hub account/organisation, the script will ask for your Docker ID and password if you haven't supplied them in the config file.
 The ID is your Docker username, **NOT** the associated email.
 If you have provided a Docker organisation in `config.json`, then Docker ID **MUST** be a member of this organisation.
 
+If you have chosen an ACR, the script will create one and assign the `AcrPush` role to your Service Principal.
+The registry server and Service Principal credentials will then be parsed into `config.yaml` and `secret.yaml` so that the BinderHub can connect to the ACR.
+
 Both a JupyterHub and BinderHub are installed via a Helm Chart onto the deployed Kubernetes cluster and the `config.yaml` file is updated with the JupyterHub IP address.
-The BinderHub is then linked to the provided DockerHub account to store the created images.
 
 `config.yaml` and `secret.yaml` are both git-ignored so that secrets cannot be pushed back to GitHub.
 
@@ -168,7 +214,7 @@ To deploy [BinderHub](https://binderhub.readthedocs.io/) to Azure in a single cl
 
 ### Service Principal Creation
 
-You will be asked to provide a [Service Principal](https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals) in the form launched when you click the "Deploy to Azure" button above.
+You will be asked to provide a [Service Principal](https://docs.microsoft.com/en-gb/azure/active-directory/develop/app-objects-and-service-principals) in the form launched when you click the "Deploy to Azure" button above.
 
 [**NOTE:** The following instructions can also be run in a local terminal session.
 They will require the Azure command line to be installed, so make sure to run [`setup.sh`](./setup.sh) first.]
@@ -206,10 +252,15 @@ Next, create the Service Principal with the following command.
 Make sure to give it a sensible name!
 
 ```
-az ad sp create-for-rbac --name binderhub-sp --role contributor --scopes /subscriptions/<subscription ID from above>
+az ad sp create-for-rbac --name binderhub-sp --role Contributor --scopes /subscriptions/<subscription ID from above>
 ```
 
-![Create Service PRincipal](images/create-for-rbac.png)
+**NOTE:** If you are deploying an ACR rather than connecting to Docker Hub, then this command should be:
+```
+az ad sp create-for-rbac --name binderhub-sp --role Owner --scopes /subscriptions/<subscription ID from above>
+```
+
+![Create Service Principal](images/create-for-rbac.png)
 
 The fields `appId`, `password` and `tenant` are the required pieces of information.
 These should be copied into the "Service Principal App ID", "Service Principal App Key" and "Service Principal Tenant ID" fields in the form, respectively.
@@ -279,7 +330,7 @@ To fetch a single file, specify `REMOTE_FILENAME` for the name of the file in bl
   az storage blob download --account-name <ACCOUNT_NAME> --container-name <BLOB_NAME> --name <REMOTE_FILENAME> --file <LOCAL_FILENAME>
 ```
 
-For full documentation, see the [`az storage blob` documentation](https://docs.microsoft.com/en-us/cli/azure/storage/blob?view=azure-cli-latest).
+For full documentation, see the [`az storage blob` documentation](https://docs.microsoft.com/en-gb/cli/azure/storage/blob?view=azure-cli-latest).
 
 ### Accessing your BinderHub after Deployment
 
