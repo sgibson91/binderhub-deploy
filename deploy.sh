@@ -326,6 +326,7 @@ if [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
     echo "--> New name: ${REGISTRY_NAME}"
     REGISTRY_NAME_AVAIL=`az acr check-name -n ${REGISTRY_NAME} --query nameAvailable -o tsv`
   done
+  echo "--> Name available"
 
   echo "--> Creating ACR"
   az acr create -n $REGISTRY_NAME -g $RESOURCE_GROUP_NAME --sku $REGISTRY_SKU -o table | tee acr-create.log
@@ -525,20 +526,20 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   # Create a container
   echo "--> Creating storage container: ${CONTAINER_NAME}"
   az storage container create --account-name ${STORAGE_ACCOUNT_NAME} \
-    --name ${CONTAINER_NAME} | tee container-create.log
+    --name ${CONTAINER_NAME} -o table | tee container-create.log
   # Push the files
   echo "--> Pushing log files"
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
     --destination ${CONTAINER_NAME} --source "." \
-    --pattern "*.log"
+    --pattern "*.log" -o table
   echo "--> Pushing yaml files"
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
     --destination ${CONTAINER_NAME} --source "." \
-    --pattern "*.yaml"
+    --pattern "*.yaml" -o table
   echo "--> Getting and pushing ssh keys"
   cp ~/.ssh/id_rsa ${DIR}/id_rsa_${BINDERHUB_NAME}
   cp ~/.ssh/id_rsa.pub ${DIR}/id_rsa_${BINDERHUB_NAME}.pub
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
     --destination ${CONTAINER_NAME} --source "." \
-    --pattern "id*"
+    --pattern "id*" -o table
 fi
