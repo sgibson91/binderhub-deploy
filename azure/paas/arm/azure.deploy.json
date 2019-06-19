@@ -82,7 +82,6 @@
     "dockerUsername": {
       "type": "string",
       "minLength": 1,
-      "defaultValue": "[if(equals([parameters('containerRegistry')], 'dockerhub'), '', 'null')]",
       "metadata": {
         "description": "The name of a valid Docker Hub user account."
       }
@@ -90,7 +89,6 @@
     "dockerPassword": {
       "type": "securestring",
       "minLength": 8,
-      "defaultValue": "[if(equals([parameters('containerRegistry')], 'dockerhub'), '', 'null')]",
       "metadata": {
         "description": "The user password for Docker Hub"
       }
