@@ -100,6 +100,26 @@
         "description": "Organisation to use for Docker Hub; this is an optional value. Docker Username must be a member of this organisation if used."
       }
     },
+    "containerRegistryName": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 50,
+      "metadata": {
+        "description": "NAme to be given to the Azure Container Registry. Must be unique to Azure."
+      }
+    },
+    "containerRegistrySku": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "choices": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ],
+      "metadata": {
+        "description": "Capacity and pricing tier for the Azure Container Registry. See the following website for details: https://docs.microsoft.com/en-us/azure/container-registry/container-registry-skus"
+      }
+    },
     "setupDockerImage": {
       "type": "string",
       "minLength": 1,
@@ -199,6 +219,14 @@
                 {
                   "name": "CONTAINER_REGISTRY",
                   "value": "[parameters('containerRegistry')"
+                },
+                {
+                  "name": "REGISTRY_NAME",
+                  "value": "[parameters('containerRegsitryName')]"
+                },
+                {
+                  "name": "REGISTRY_SKU",
+                  "value": "[parameters('containerRegsitrySku')]"
                 }
               ],
               "resources": {
