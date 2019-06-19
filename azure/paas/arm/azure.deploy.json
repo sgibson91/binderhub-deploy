@@ -48,7 +48,7 @@
     "aksNodeVmSize": {
       "type": "string",
       "minLength": 1,
-      "defaultValue": "Standard_DS2_v2",
+      "defaultValue": "Standard_D2s_v3",
       "metadata": {
         "description": "The default VM size to use for the AKS cluster."
       }
