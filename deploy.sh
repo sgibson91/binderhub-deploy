@@ -338,6 +338,10 @@ if [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
   # Assigning AcrPush role to Service Principal using AcrPush's specific object-ID
   echo "--> Assigning AcrPush role to Service Principal"
   az role assignment create --assignee ${SP_APP_ID} --role 8311e382-0749-4cb8-b61a-304f252e45ec --scope $ACR_ID | tee role-assignment.log
+
+  # Reassign IMAGE_PREFIX to conform with BinderHub's expectation:
+  # <container-registry>/<project-id>/<prefix>-name:tag
+  IMAGE_PREFIX=${BINDERHUB_NAME}/${IMAGE_PREFIX}
 fi
 
 # Create an AKS cluster
