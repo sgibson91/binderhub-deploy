@@ -75,31 +75,31 @@ Fill the quotation marks with your desired namespaces, etc.
 
 ```
 {
-  "container_registry": "",  // Choose Docker Hub or ACR with 'dockerhub' or 'azurecr' values, respectively.
+  "container_registry": "",        // Choose Docker Hub or ACR with 'dockerhub' or 'azurecr' values, respectively.
   "azure": {
-    "subscription": "",      // Azure subscription name or ID (a hex-string)
-    "res_grp_name": "",      // Azure Resource Group name
-    "location": "",          // Azure Data Centre region
-    "node_count": 1,         // Number of nodes to deploy. 3 is preferrable for a stable cluster, but may be liable to caps.
-    "vm_size": "",           // Azure virtual machine type to deploy
-    "sp_app_id": null,       // Azure service principal ID (optional)
-    "sp_app_key": null,      // Azure service principal password (optional)
-    "sp_tenant_id": null     // Azure tenant ID (optional)
+    "subscription": "",            // Azure subscription name or ID (a hex-string)
+    "res_grp_name": "",            // Azure Resource Group name
+    "location": "",                // Azure Data Centre region
+    "node_count": 1,               // Number of nodes to deploy. 3 is preferrable for a stable cluster, but may be liable to caps.
+    "vm_size": "Standard_D2s_v3",  // Azure virtual machine type to deploy
+    "sp_app_id": null,             // Azure service principal ID (optional)
+    "sp_app_key": null,            // Azure service principal password (optional)
+    "sp_tenant_id": null           // Azure tenant ID (optional)
   },
   "binderhub": {
-    "name": "",              // Name of your BinderHub
-    "version": "",           // Helm chart version to deploy, should be 0.2.0-<commit-hash>
-    "image_prefix": "",      // The prefix to preprend to Docker images (e.g. "binder-prod")
-    "contact_email": ""      // Email for letsencrypt https certificate. CANNOT be left blank.
+    "name": "",                    // Name of your BinderHub
+    "version": "",                 // Helm chart version to deploy, should be 0.2.0-<commit-hash>
+    "image_prefix": "",            // The prefix to preprend to Docker images (e.g. "binder-prod")
+    "contact_email": ""            // Email for letsencrypt https certificate. CANNOT be left blank.
   },
   "docker": {
-    "username": null,        // Docker username (can be supplied at runtime)
-    "password": null,        // Docker password (can be supplied at runtime)
-    "org": null              // A Docker Hub organisation to push images to (optional)
+    "username": null,              // Docker username (can be supplied at runtime)
+    "password": null,              // Docker password (can be supplied at runtime)
+    "org": null                    // A Docker Hub organisation to push images to (optional)
   },
   "acr": {
-    "registry_name": null,   // Name to give the ACR. This must be alpha-numerical and unique to Azure.
-    "sku": "Basic"           // The SKU capacity and pricing tier for the ACR
+    "registry_name": null,         // Name to give the ACR. This must be alpha-numerical and unique to Azure.
+    "sku": "Basic"                 // The SKU capacity and pricing tier for the ACR
   }
 }
 ```
@@ -133,25 +133,6 @@ For a few extra steps, deploying an ACR will allow the BinderHub images to be pu
 In the [Service Principal Creation](#Service-Principal-Creation) section, we cover how to create a Service Principal in order to deploy a BinderHub.
 When following these steps, the `--role` argument of `Contributor` should be replaced with `Owner`.
 This is because the Service Principal will need the [`AcrPush`](https://docs.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles#acrpush) role in order to push images to the ACR and the `Contributor` role does not have permission to create new role assignments.
-
-**Image Prefix:**
-
-When deploying an ACR, you **must** set `image_prefix` in `config.json` in the form of:
-```
-<project-name>/<prefix>
-```
-
-`<project-name>` can be entirely fictional.
-We recommend using `binderhub.name` or `acr.registry_name` here.
-
-This is not necessary for Docker Hub as BinderHub "knows" about the Docker Hub naming convention.
-
-This stems from BinderHub assuming an image name of the form:
-```
-<registry-server>/<project-id>/<prefix>-name:tag
-```
-
-See [this issue](https://github.com/jupyterhub/binderhub/issues/800) for further discussion.
 
 ### `setup.sh`
 
