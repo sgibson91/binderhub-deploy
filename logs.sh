@@ -16,9 +16,7 @@ az aks get-credentials -n $AKS_NAME -g $AKS_RESOURCE_GROUP
 echo "--> Fetching JupyterHub logs"
 
 # Get pod name of the JupyterHub
-OUTPUT=`kubectl -n ${BINDERHUB_NAME} get pod | awk '{ print $1}' | tail -n 2`
-OUTPUT=($OUTPUT)
-HUB_POD=${OUTPUT[0]}
+HUB_POD=`kubectl get pods -n ${BINDERHUB_NAME} -o=jsonpath='{.items[*].metadata.name}' | tr ' ' '\n' | grep "^hub-"`
 
 # Print the JupyterHub logs to the terminal
 kubectl logs ${HUB_POD} -n ${BINDERHUB_NAME}
