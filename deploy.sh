@@ -104,7 +104,7 @@ else
           DOCKER_IMAGE_PREFIX \
           "
   for required_var in $REQUIREDVARS ; do
-    if [ -z "${!required_var}" ] || [ x${required_var} == 'xnull' ] ; then
+    if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ] ; then
       echo "--> ${required_var} must be set for deployment" >&2
       exit 1
     fi
