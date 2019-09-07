@@ -53,13 +53,6 @@
         "description": "The default VM size to use for the AKS cluster."
       }
     },
-    "contactEmail": {
-      "type": "string",
-      "minLength": 1,
-      "metadata": {
-        "description": "An email address at which you can be reached. This will be used by Let's Encrypt to manage your TLS certificates."
-      }
-    },
     "dockerUsername": {
       "type": "string",
       "minLength": 1,
@@ -165,10 +158,6 @@
                 {
                   "name": "AKS_NODE_VM_SIZE",
                   "value": "[parameters('aksNodeVmSize')]"
-                },
-                {
-                  "name": "CONTACT_EMAIL",
-                  "value": "[parameters('contactEmail')]"
                 },
                 {
                   "name": "DOCKER_USERNAME",
