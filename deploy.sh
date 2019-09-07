@@ -32,8 +32,6 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
           BINDERHUB_VERSION \
           AKS_NODE_COUNT \
           AKS_NODE_VM_SIZE \
-          DOCKERHUB_USERNAME \
-          DOCKERHUB_PASSWORD \
           DOCKER_IMAGE_PREFIX \
           CONTAINER_REGISTRY \
           "
