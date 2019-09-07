@@ -20,7 +20,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   echo "--> Deployment operating in container mode"
   echo "--> Checking required environment variables"
-  echo "CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}"
   # Set out a list of required variables for this script
   REQUIREDVARS=" \
           SP_APP_ID \
