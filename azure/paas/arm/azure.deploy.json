@@ -82,7 +82,7 @@
     },
     "dockerHubPassword": {
       "type": "securestring",
-      "minLength": 8,
+      "minLength": 4,
       "defaultValue": "null",
       "metadata": {
         "description": "The user password for Docker Hub"
