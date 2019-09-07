@@ -194,32 +194,32 @@
                   "value": "[parameters('aksNodeVmSize')]"
                 },
                 {
-                  "name": "DOCKER_USERNAME",
-                  "value": "[parameters('dockerUsername')]"
-                },
-                {
-                  "name": "DOCKER_PASSWORD",
-                  "value": "[parameters('dockerPassword')]"
-                },
-                {
                   "name": "DOCKER_IMAGE_PREFIX",
                   "value": "[parameters('dockerPrefix')]"
-                },
-                {
-                  "name": "DOCKER_ORGANISATION",
-                  "value": "[parameters('dockerOrganisation')]"
                 },
                 {
                   "name": "CONTAINER_REGISTRY",
                   "value": "[parameters('containerRegistry')"
                 },
                 {
+                  "name": "DOCKER_USERNAME",
+                  "value": "if(equals([parameters('containerRegistry)], 'dockerhub'), [parameters('dockerUsername')], 'null')"
+                },
+                {
+                  "name": "DOCKER_PASSWORD",
+                  "value": "if(equals([parameters('containerRegistry)], 'dockerhub'), [parameters('dockerPassword')], 'null')"
+                },
+                {
+                  "name": "DOCKER_ORGANISATION",
+                  "value": "if(equals([parameters('containerRegistry)], 'dockerhub'), [parameters('dockerOrganisation')], 'null')"
+                },
+                {
                   "name": "REGISTRY_NAME",
-                  "value": "[parameters('containerRegsitryName')]"
+                  "value": "if(equals([parameters('containerRegistry')], 'azurecr', [parameters('containerRegistryName')], 'null'"
                 },
                 {
                   "name": "REGISTRY_SKU",
-                  "value": "[parameters('containerRegsitrySku')]"
+                  "value": "if(equals([parameters('containerRegistry')], 'azurecr', [parameters('containerRegistrySku')], 'null'"
                 }
               ],
               "resources": {
