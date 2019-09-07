@@ -32,8 +32,8 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
           BINDERHUB_VERSION \
           AKS_NODE_COUNT \
           AKS_NODE_VM_SIZE \
-          DOCKER_USERNAME \
-          DOCKER_PASSWORD \
+          DOCKERHUB_USERNAME \
+          DOCKERHUB_PASSWORD \
           DOCKER_IMAGE_PREFIX \
           CONTAINER_REGISTRY \
           "
@@ -47,8 +47,8 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
 
     REQUIREDVARS=" \
-            DOCKER_USERNAME \
-            DOCKER_PASSWORD \
+            DOCKERHUB_USERNAME \
+            DOCKERHUB_PASSWORD \
             "
 
     for required_var in $REQUIREDVARS ; do
@@ -71,13 +71,13 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
       SP_TENANT_ID: ${SP_TENANT_ID}
       DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
       CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
-      DOCKER_USERNAME: ${DOCKER_USERNAME}
-      DOCKER_PASSWORD: ${DOCKER_PASSWORD}
-      DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
+      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+      DOCKERHUB_PASSWORD: ${DOCKERHUB_PASSWORD}
+      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
       " | tee read-config.log
 
-    # Check if DOCKER_ORGANISATION is set to null. Return empty string if true.
-    if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
+    # Check if DOCKERHUB_ORGANISATION is set to null. Return empty string if true.
+    if [ x${DOCKERHUB_ORGANISATION} == 'xnull' ] ; then DOCKERHUB_ORGANISATION='' ; fi
 
   elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
 
@@ -173,26 +173,26 @@ else
 
 
     # Read Docker credentials from config file
-    DOCKER_ORGANISATION=`jq -r '.docker .org' ${configFile}`
-    DOCKER_PASSWORD=`jq -r '.docker .password' ${configFile}`
-    DOCKER_USERNAME=`jq -r '.docker .username' ${configFile}`
+    DOCKERHUB_ORGANISATION=`jq -r '.docker .org' ${configFile}`
+    DOCKERHUB_PASSWORD=`jq -r '.docker .password' ${configFile}`
+    DOCKERHUB_USERNAME=`jq -r '.docker .username' ${configFile}`
 
-    # Check that Docker credentials have been set
-    if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
-    if [ x${DOCKER_PASSWORD} == 'xnull' ] ; then DOCKER_PASSWORD='' ; fi
-    if [ x${DOCKER_USERNAME} == 'xnull' ] ; then DOCKER_USERNAME='' ; fi
+    # Check that Docker Hub credentials have been set
+    if [ x${DOCKERHUB_ORGANISATION} == 'xnull' ] ; then DOCKERHUB_ORGANISATION='' ; fi
+    if [ x${DOCKERHUB_PASSWORD} == 'xnull' ] ; then DOCKERHUB_PASSWORD='' ; fi
+    if [ x${DOCKERHUB_USERNAME} == 'xnull' ] ; then DOCKERHUB_USERNAME='' ; fi
 
-    # Check/get the user's Docker credentials
-    if [ -z $DOCKER_USERNAME ] ; then
-      if [ ! -z "$DOCKER_ORGANISATION" ] ; then
-        echo "--> Your Docker ID must be a member of the ${DOCKER_ORGANISATION} organisation"
+    # Check/get the user's Docker Hub credentials
+    if [ -z $DOCKERHUB_USERNAME ] ; then
+      if [ ! -z "$DOCKERHUB_ORGANISATION" ] ; then
+        echo "--> Your Docker ID must be a member of the ${DOCKERHUB_ORGANISATION} organisation"
       fi
-      read -p "DockerHub ID: " DOCKER_USERNAME
-      read -sp "DockerHub password: " DOCKER_PASSWORD
+      read -p "DockerHub ID: " DOCKERHUB_USERNAME
+      read -sp "DockerHub password: " DOCKERHUB_PASSWORD
       echo
     else
-      if [ -z $DOCKER_PASSWORD ] ; then
-        read -sp "DockerHub password for ${DOCKER_USERNAME}: " DOCKER_PASSWORD
+      if [ -z $DOCKERHUB_PASSWORD ] ; then
+        read -sp "Docker Hub password for ${DOCKERHUB_USERNAME}: " DOCKERHUB_PASSWORD
         echo
       fi
     fi
@@ -210,9 +210,9 @@ else
       SP_TENANT_ID: ${SP_TENANT_ID}
       DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
       CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
-      DOCKER_USERNAME: ${DOCKER_USERNAME}
-      DOCKER_PASSWORD: ${DOCKER_PASSWORD}
-      DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
+      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+      DOCKERHUB_PASSWORD: ${DOCKERHUB_PASSWORD}
+      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
       " | tee read-config.log
 
   elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
@@ -414,12 +414,12 @@ helm repo update
 if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
 
   echo "--> Generating initial configuration file"
-  if [ -z "${DOCKER_ORGANISATION}" ] ; then
-    sed -e "s/<docker-id>/${DOCKER_USERNAME}/" \
+  if [ -z "${DOCKERHUB_ORGANISATION}" ] ; then
+    sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
     -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
     ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
   else
-    sed -e "s/<docker-id>/${DOCKER_ORGANISATION}/" \
+    sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
     -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
     ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
   fi
@@ -427,8 +427,8 @@ if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
   echo "--> Generating initial secrets file"
   sed -e "s/<apiToken>/${apiToken}/" \
   -e "s/<secretToken>/${secretToken}/" \
-  -e "s/<docker-id>/${DOCKER_USERNAME}/" \
-  -e "s/<password>/${DOCKER_PASSWORD}/" \
+  -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+  -e "s/<password>/${DOCKERHUB_PASSWORD}/" \
   ${DIR}/templates/secret-template.yaml > ${DIR}/secret.yaml
 
 elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
@@ -473,14 +473,14 @@ done
 if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
 
   echo "--> Finalising configurations"
-  if [ -z "$DOCKER_ORGANISATION" ] ; then
-    sed -e "s/<docker-id>/${DOCKER_USERNAME}/" \
+  if [ -z "$DOCKERHUB_ORGANISATION" ] ; then
+    sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
     -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
     -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
     ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
   else
-    sed -e "s/<docker-id>/${DOCKER_ORGANISATION}/" \
-    -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+    sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
+    -e "s/<prefix>/${DOCKERHUB_IMAGE_PREFIX}/" \
     -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
     ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
   fi
