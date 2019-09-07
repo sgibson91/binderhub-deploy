@@ -1,4 +1,12 @@
-language: ruby
+os:
+  - linux
+  - os
+
+before_install:
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update             ; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew shellcheck graphviz; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then apt-get update                 ; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then brew apt-get install shellcheck; fi
 
 script:
   # Fail if any of these files have warnings
