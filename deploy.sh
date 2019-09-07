@@ -32,10 +32,8 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
           BINDERHUB_VERSION \
           AKS_NODE_COUNT \
           AKS_NODE_VM_SIZE \
-          DOCKER_USERNAME \
-          DOCKER_PASSWORD \
           DOCKER_IMAGE_PREFIX \
-          DOCKER_ORGANISATION \
+          CONTAINER_REGISTRY \
           "
   for required_var in $REQUIREDVARS ; do
     if [ -z "${!required_var}" ] ; then
@@ -44,24 +42,77 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     fi
   done
 
-  echo "--> Configuration parsed from blue button:
-    AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
-    BINDERHUB_NAME: ${BINDERHUB_NAME}
-    BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-    RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
-    RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
-    AKS_NODE_COUNT: ${AKS_NODE_COUNT}
-    AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
-    SP_APP_ID: ${SP_APP_ID}
-    SP_APP_KEY: ${SP_APP_KEY}
-    SP_TENANT_ID: ${SP_TENANT_ID}
-    DOCKER_USERNAME: ${DOCKER_USERNAME}
-    DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-    DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
-    " | tee read-config.log
+  if [ "$CONTAINER_REGISTRY" == 'dockerhub' ] ; then
 
-  # Check if DOCKER_ORGANISATION is set to null. Return empty string if true.
-  if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
+    REQUIREDVARS=" \
+            DOCKERHUB_USERNAME \
+            DOCKERHUB_PASSWORD \
+            "
+
+    for required_var in $REQUIREDVARS ; do
+      if [ -z "${!required_var}" ] ; then
+        echo "--> ${required_var} must be set for container-based setup" >&2
+        exit 1
+      fi
+    done
+
+    echo "--> Configuration parsed from blue button:
+      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+      BINDERHUB_NAME: ${BINDERHUB_NAME}
+      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+      SP_APP_ID: ${SP_APP_ID}
+      SP_APP_KEY: ${SP_APP_KEY}
+      SP_TENANT_ID: ${SP_TENANT_ID}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+      DOCKERHUB_PASSWORD: ${DOCKERHUB_PASSWORD}
+      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
+      " | tee read-config.log
+
+    # Check if DOCKERHUB_ORGANISATION is set to null. Return empty string if true.
+    if [ x${DOCKERHUB_ORGANISATION} == 'xnull' ] ; then DOCKERHUB_ORGANISATION='' ; fi
+
+  elif [ "$CONTAINER_REGISTRY" == 'azurecr' ] ; then
+
+    REQUIREDVARS=" \
+            REGISTRY_NAME \
+            REGISTRY_SKU \
+            "
+
+    for required_var in $REQUIREDVARS ; do
+      if [ -z "${!required_var}" ] ; then
+        echo "--> ${required_var} must be set for container-based setup" >&2
+        exit 1
+      fi
+    done
+
+    echo "--> Configuration parsed from blue button:
+      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+      BINDERHUB_NAME: ${BINDERHUB_NAME}
+      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+      SP_APP_ID: ${SP_APP_ID}
+      SP_APP_KEY: ${SP_APP_KEY}
+      SP_TENANT_ID: ${SP_TENANT_ID}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      REGISTRY_NAME: ${REGISTRY_NAME}
+      REGISTRY_SKU: ${REGISTRY_SKU}
+      " | tee read-config.log
+
+  else
+    echo "--> Please provide a valid option for CONTAINER_REGISTRY."
+    echo "    Options are 'dockerhub' or 'azurecr'."
+    exit 1
+  fi
 
   # Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
   AZURE_SUBSCRIPTION=$(echo $AZURE_SUBSCRIPTION | sed -r "s/^\/subscriptions\///")
@@ -83,10 +134,8 @@ else
   SP_APP_ID=`jq -r '.azure .sp_app_id' ${configFile}`
   SP_APP_KEY=`jq -r '.azure .sp_app_key' ${configFile}`
   SP_TENANT_ID=`jq -r '.azure .sp_tenant_id' ${configFile}`
-  DOCKER_USERNAME=`jq -r '.docker .username' ${configFile}`
-  DOCKER_PASSWORD=`jq -r '.docker .password' ${configFile}`
-  DOCKER_IMAGE_PREFIX=`jq -r '.docker .image_prefix' ${configFile}`
-  DOCKER_ORGANISATION=`jq -r '.docker .org' ${configFile}`
+  DOCKER_IMAGE_PREFIX=`jq -r '.binderhub .image_prefix' ${configFile}`
+  CONTAINER_REGISTRY=`jq -r '.container_registry' ${configFile}`
 
   # Check that the variables are all set non-zero, non-null
   REQUIREDVARS=" \
@@ -98,7 +147,9 @@ else
           AKS_NODE_COUNT \
           AKS_NODE_VM_SIZE \
           DOCKER_IMAGE_PREFIX \
+          CONTAINER_REGISTRY \
           "
+
   for required_var in $REQUIREDVARS ; do
     if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ] ; then
       echo "--> ${required_var} must be set for deployment" >&2
@@ -110,50 +161,112 @@ else
   # zero-length string for later checks. If they failed to read at all,
   # possibly due to an invalid json file, they will be returned as a
   # zero-length string -- this is attempting to make the 'not set'
-  # value the same in either case.
+  # value the same in either case
   if [ x${SP_APP_ID} == 'xnull' ] ; then SP_APP_ID='' ; fi
   if [ x${SP_APP_KEY} == 'xnull' ] ; then SP_APP_KEY='' ; fi
   if [ x${SP_TENANT_ID} == 'xnull' ] ; then SP_TENANT_ID='' ; fi
-  if [ x${DOCKER_USERNAME} == 'xnull' ] ; then DOCKER_USERNAME='' ; fi
-  if [ x${DOCKER_PASSWORD} == 'xnull' ] ; then DOCKER_PASSWORD='' ; fi
-  if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
 
-  # Normalise resource group location to remove spaces and have lowercase
-  RESOURCE_GROUP_LOCATION=`echo ${RESOURCE_GROUP_LOCATION//[[:blank:]]/} | tr '[:upper:]' '[:lower:]'`
+  # Test value of CONTAINER_REGISTRY. Must be either "dockerhub" or "azurecr"
+  if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
+    echo "--> Getting DockerHub requirements"
 
-  echo "--> Configuration read in:
-    AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
-    BINDERHUB_NAME: ${BINDERHUB_NAME}
-    BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-    RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
-    RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
-    AKS_NODE_COUNT: ${AKS_NODE_COUNT}
-    AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
-    SP_APP_ID: ${SP_APP_ID}
-    SP_APP_KEY: ${SP_APP_KEY}
-    SP_TENANT_ID: ${SP_TENANT_ID}
-    DOCKER_USERNAME: ${DOCKER_USERNAME}
-    DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-    DOCKER_ORGANISATION: ${DOCKER_ORGANISATION}
-    " | tee read-config.log
 
-  # Check/get the user's Docker credentials
-  if [ -z $DOCKER_USERNAME ] ; then
-    if [ ! -z "$DOCKER_ORGANISATION" ]; then
-      echo "--> Your docker ID must be a member of the ${DOCKER_ORGANISATION} organisation"
-    fi
-    read -p "DockerHub ID: " DOCKER_USERNAME
-    read -sp "DockerHub password: " DOCKER_PASSWORD
-    echo
-  else
-    if [ -z $DOCKER_PASSWORD ] ; then
-      read -sp "DockerHub password for ${DOCKER_USERNAME}: " DOCKER_PASSWORD
+    # Read Docker credentials from config file
+    DOCKERHUB_ORGANISATION=`jq -r '.docker .org' ${configFile}`
+    DOCKERHUB_PASSWORD=`jq -r '.docker .password' ${configFile}`
+    DOCKERHUB_USERNAME=`jq -r '.docker .username' ${configFile}`
+
+    # Check that Docker Hub credentials have been set
+    if [ x${DOCKERHUB_ORGANISATION} == 'xnull' ] ; then DOCKERHUB_ORGANISATION='' ; fi
+    if [ x${DOCKERHUB_PASSWORD} == 'xnull' ] ; then DOCKERHUB_PASSWORD='' ; fi
+    if [ x${DOCKERHUB_USERNAME} == 'xnull' ] ; then DOCKERHUB_USERNAME='' ; fi
+
+    # Check/get the user's Docker Hub credentials
+    if [ -z $DOCKERHUB_USERNAME ] ; then
+      if [ ! -z "$DOCKERHUB_ORGANISATION" ] ; then
+        echo "--> Your Docker ID must be a member of the ${DOCKERHUB_ORGANISATION} organisation"
+      fi
+      read -p "DockerHub ID: " DOCKERHUB_USERNAME
+      read -sp "DockerHub password: " DOCKERHUB_PASSWORD
       echo
+    else
+      if [ -z $DOCKERHUB_PASSWORD ] ; then
+        read -sp "Docker Hub password for ${DOCKERHUB_USERNAME}: " DOCKERHUB_PASSWORD
+        echo
+      fi
     fi
+
+    echo "--> Configuration read in:
+      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+      BINDERHUB_NAME: ${BINDERHUB_NAME}
+      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+      SP_APP_ID: ${SP_APP_ID}
+      SP_APP_KEY: ${SP_APP_KEY}
+      SP_TENANT_ID: ${SP_TENANT_ID}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+      DOCKERHUB_PASSWORD: ${DOCKERHUB_PASSWORD}
+      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
+      " | tee read-config.log
+
+  elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
+    echo "--> Getting configuration for Azure Container Registry"
+
+    # Read in ACR configuration
+    REGISTRY_NAME=`jq -r '.acr .registry_name' ${configFile}`
+    REGISTRY_SKU=`jq -r '.acr .sku' ${configFile}`
+
+    # Checking required variables
+    REQUIREDVARS=" \
+        REGISTRY_NAME \
+        REGISTRY_SKU \
+        SP_APP_ID \
+        SP_APP_KEY \
+        SP_TENANT_ID \
+        "
+
+    for required_var in $REQUIREDVARS ; do
+      if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ] ; then
+        echo "--> ${required_var} must be set for deployment" >&2
+        exit 1
+      fi
+    done
+
+    # ACR name must be alphanumeric only and 50 characters or less
+    REGISTRY_NAME=`echo ${REGISTRY_NAME} | tr -cd '[:alnum:]' | cut -c -50`
+
+    echo "--> Configuration read in:
+      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+      BINDERHUB_NAME: ${BINDERHUB_NAME}
+      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+      SP_APP_ID: ${SP_APP_ID}
+      SP_APP_KEY: ${SP_APP_KEY}
+      SP_TENANT_ID: ${SP_TENANT_ID}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      REGISTRY_NAME: ${REGISTRY_NAME}
+      REGISTRY_SKU: ${REGISTRY_SKU}
+      " | tee read-config.log
+
+  else
+    echo "--> Please provide a valid option for CONTAINER_REGISTRY."
+    echo "    Options are: 'dockerhub' or 'azurecr'."
   fi
 fi
 
 set -eo pipefail
+
+# Normalise resource group location to remove spaces and have lowercase
+RESOURCE_GROUP_LOCATION=`echo ${RESOURCE_GROUP_LOCATION//[[:blank::]]/} | tr '[:upper:]' '[:lower:]'`
 
 # Generate a valid name for the AKS cluster
 AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
@@ -173,7 +286,7 @@ if [ -z $SP_APP_ID ] || [ -z $SP_APP_KEY ] || [ -z $SP_TENANT_ID ] ; then
       echo "--> Logged in to Azure"
   fi
 else
-  echo "--> Attempting to log in to Azure with service principal ${SP_APP_ID}"
+  echo "--> Attempting to log in to Azure with provided Service Principal"
   if ! az login --service-principal -u "${SP_APP_ID}" -p "${SP_APP_KEY}" -t "${SP_TENANT_ID}"; then
     echo "--> Unable to connect to Azure" >&2
     exit 1
@@ -194,7 +307,36 @@ if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]] ; then
   echo "--> Creating new resource group: ${RESOURCE_GROUP_NAME}"
   az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table | tee rg-create.log
 else
-  echo "--> Resource group ${RESOURCE_GROUP_NAME} found."
+  echo "--> Resource group ${RESOURCE_GROUP_NAME} found"
+fi
+
+# If Azure container registry is required, create an ACR and give Service Principal AcrPush role.
+if [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
+  echo "--> Checking ACR name availability"
+  REGISTRY_NAME_AVAIL=`az acr check-name -n ${REGISTRY_NAME} --query nameAvailable -o tsv`
+  while [ ${REGISTRY_NAME_AVAIL} == false ]
+  do
+    echo "--> Name ${REGISTRY_NAME} not available. Appending 4 random characters."
+    REGISTRY_NAME="$(echo ${REGISTRY_NAME} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -c -50)$(openssl rand -hex 2)"
+    echo "--> New name: ${REGISTRY_NAME}"
+    REGISTRY_NAME_AVAIL=`az acr check-name -n ${REGISTRY_NAME} --query nameAvailable -o tsv`
+  done
+  echo "--> Name available"
+
+  echo "--> Creating ACR"
+  az acr create -n $REGISTRY_NAME -g $RESOURCE_GROUP_NAME --sku $REGISTRY_SKU -o table | tee acr-create.log
+
+  # Populating some variables
+  ACR_LOGIN_SERVER=`az acr list -g ${RESOURCE_GROUP_NAME} --query '[].{acrLoginServer:loginServer}' -o tsv`
+  ACR_ID=`az acr show -n ${REGISTRY_NAME} -g ${RESOURCE_GROUP_NAME} --query 'id' -o tsv`
+
+  # Assigning AcrPush role to Service Principal using AcrPush's specific object-ID
+  echo "--> Assigning AcrPush role to Service Principal"
+  az role assignment create --assignee ${SP_APP_ID} --role 8311e382-0749-4cb8-b61a-304f252e45ec --scope $ACR_ID | tee role-assignment.log
+
+  # Reassign IMAGE_PREFIX to conform with BinderHub's expectation:
+  # <container-registry>/<project-id>/<prefix>-name:tag
+  IMAGE_PREFIX=${BINDERHUB_NAME}/${IMAGE_PREFIX}
 fi
 
 # Create an AKS cluster
@@ -250,7 +392,7 @@ while ! helm version ; do
   ((helmVersionAttempts++))
   echo "--> helm version attempt ${helmVersionAttempts} of 3 failed"
   if (( helmVersionAttempts > 2 )) ; then
-    echo "--> Please check helm versions manually later"
+    echo "--> Please check helm versions manually later. Run 'helm init --upgrade' if they do not match."
     break
   fi
   echo "--> Waiting 30 seconds before attempting helm version check again"
@@ -267,27 +409,44 @@ secretToken=`openssl rand -hex 32`
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 helm repo update
 
-# Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub:
-echo "--> Generating initial configuration file"
-if [ -z "${DOCKER_ORGANISATION}" ] ; then
-  sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
-  -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
-  ${DIR}/config-template.yaml > ${DIR}/config.yaml
-else
-  sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
-  -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
-  ${DIR}/config-template.yaml > ${DIR}/config.yaml
+# Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
+if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
+
+  echo "--> Generating initial configuration file"
+  if [ -z "${DOCKERHUB_ORGANISATION}" ] ; then
+    sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+    -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+    ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
+  else
+    sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
+    -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+    ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
+  fi
+
+  echo "--> Generating initial secrets file"
+  sed -e "s/<apiToken>/${apiToken}/" \
+  -e "s/<secretToken>/${secretToken}/" \
+  -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+  -e "s/<password>/${DOCKERHUB_PASSWORD}/" \
+  ${DIR}/templates/secret-template.yaml > ${DIR}/secret.yaml
+
+elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
+
+  echo "--> Generating initial configuration file"
+  sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
+  -e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
+  ${DIR}/templates/acr-config-template.yaml > ${DIR}/config.yaml
+
+  echo "--> Generating initial secrets file"
+  sed -e "s/<apiToken>/${apiToken}/" \
+  -e "s/<secretToken>/${secretToken}/" \
+  -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@" \
+  -e "s/<username>/${SP_APP_ID}/" \
+  -e "s/<password>/${SP_APP_KEY}/" \
+${DIR}/templates/acr-secret-template.yaml > ${DIR}/secret.yaml
 fi
 
-echo "--> Generating initial secrets file"
-
-sed -e "s/<apiToken>/$apiToken/" \
--e "s/<secretToken>/$secretToken/" \
--e "s/<docker-id>/$DOCKER_USERNAME/" \
--e "s/<password>/$DOCKER_PASSWORD/" \
-${DIR}/secret-template.yaml > ${DIR}/secret.yaml
-
-# Format name for kubernetes
+# Format BinderHub name for Kubernetes
 HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//' )
 
 echo "--> Installing Helm chart"
@@ -301,7 +460,7 @@ helm install jupyterhub/binderhub \
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 echo "--> Retrieving JupyterHub IP"
-JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
+JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1` | tee jupyterhub-ip.log
 while [ "${JUPYTERHUB_IP}" = '<pending>' ] || [ "${JUPYTERHUB_IP}" = "" ]
 do
     echo "Sleeping 30s before checking again"
@@ -310,17 +469,29 @@ do
     echo "JupyterHub IP: ${JUPYTERHUB_IP}" | tee jupyterhub-ip.log
 done
 
-echo "--> Finalising configurations"
-if [ -z "$DOCKER_ORGANISATION" ] ; then
-  sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
-  -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
-  -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
-  ${DIR}/config-template.yaml > ${DIR}/config.yaml
-else
-  sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
-  -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
-  -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
-  ${DIR}/config-template.yaml > ${DIR}/config.yaml
+if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
+
+  echo "--> Finalising configurations"
+  if [ -z "$DOCKERHUB_ORGANISATION" ] ; then
+    sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+    -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+    -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
+    ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
+  else
+    sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
+    -e "s/<prefix>/${DOCKERHUB_IMAGE_PREFIX}/" \
+    -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
+    ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
+  fi
+
+elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
+
+  echo "--> Finalising configurations"
+  sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
+  -e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
+  -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
+  ${DIR}/templates/acr-config-template.yaml > ${DIR}/config.yaml
+
 fi
 
 echo "--> Updating Helm chart"
@@ -346,7 +517,7 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   #
   # Create a storage account
   echo "--> Creating storage account"
-  CONTAINER_NAME="${BINDERHUB_NAME}deploylogs"
+  CONTAINER_NAME="$(echo ${BINDERHUB_NAME}deploylogs | tr '[:upper:]' '[:lower:]')"
   STORAGE_ACCOUNT_NAME="$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -c -20)$(openssl rand -hex 2)"
   az storage account create \
     --name ${STORAGE_ACCOUNT_NAME} --resource-group ${RESOURCE_GROUP_NAME} \
@@ -354,20 +525,20 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   # Create a container
   echo "--> Creating storage container: ${CONTAINER_NAME}"
   az storage container create --account-name ${STORAGE_ACCOUNT_NAME} \
-    --name ${CONTAINER_NAME} | tee container-create.log
+    --name ${CONTAINER_NAME} -o table | tee container-create.log
   # Push the files
   echo "--> Pushing log files"
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
     --destination ${CONTAINER_NAME} --source "." \
-    --pattern "*.log"
+    --pattern "*.log" -o table
   echo "--> Pushing yaml files"
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
     --destination ${CONTAINER_NAME} --source "." \
-    --pattern "*.yaml"
+    --pattern "*.yaml" -o table
   echo "--> Getting and pushing ssh keys"
   cp ~/.ssh/id_rsa ${DIR}/id_rsa_${BINDERHUB_NAME}
   cp ~/.ssh/id_rsa.pub ${DIR}/id_rsa_${BINDERHUB_NAME}.pub
   az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
     --destination ${CONTAINER_NAME} --source "." \
-    --pattern "id*"
+    --pattern "id*" -o table
 fi
