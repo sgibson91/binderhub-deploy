@@ -118,7 +118,7 @@ Therefore, setting `node_count` to 2 will deploy 4 cores and you will have reach
 
 ### Choosing between Docker Hub and Azure Container Registry
 
-To select either a Docker Hub account/organisation or an Azure Container Registry (ACR), you must set the top-level `container_regsitry` key in `config.json` to either `dockerhub` or `azurecr` respectively.
+To select either a Docker Hub account/organisation or an Azure Container Registry (ACR), you must set the top-level `container_registry` key in `config.json` to either `dockerhub` or `azurecr` respectively.
 This will tell `deploy.sh` which variables and YAML templates to use.
 Then fill in the values under either the `dockerhub` or `acr` key as required.
 
