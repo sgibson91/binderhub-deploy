@@ -42,7 +42,7 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     fi
   done
 
-  if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
+  if [ "$CONTAINER_REGISTRY" == 'dockerhub' ] ; then
 
     REQUIREDVARS=" \
             DOCKERHUB_USERNAME \
@@ -77,7 +77,7 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     # Check if DOCKERHUB_ORGANISATION is set to null. Return empty string if true.
     if [ x${DOCKERHUB_ORGANISATION} == 'xnull' ] ; then DOCKERHUB_ORGANISATION='' ; fi
 
-  elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
+  elif [ "$CONTAINER_REGISTRY" == 'azurecr' ] ; then
 
     REQUIREDVARS=" \
             REGISTRY_NAME \
@@ -111,6 +111,7 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
   else
     echo "--> Please provide a valid option for CONTAINER_REGISTRY."
     echo "    Options are 'dockerhub' or 'azurecr'."
+    exit 1
   fi
 
   # Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
