@@ -86,8 +86,7 @@ Fill the quotation marks with your desired namespaces, etc.
   },
   "binderhub": {
     "name": "",           // Name of your BinderHub
-    "version": "",        // Helm chart version to deploy, should be 0.2.0-<commit-hash>
-    "contact_email": ""   // Email for letsencrypt https certificate. CANNOT be left blank.
+    "version": ""         // Helm chart version to deploy, should be 0.2.0-<commit-hash>
   },
   "docker": {
     "username": null,     // Docker username (can be supplied at runtime)
@@ -324,7 +323,6 @@ docker run \
 -e "BINDERHUB_VERSION=<Chosen BinderHub version>" \
 -e "AKS_NODE_COUNT=1" \
 -e "AKS_NODE_VM_SIZE=Standard_D2s_v3" \
--e "CONTACT_EMAIL=<email address>" \
 -e "DOCKER_IMAGE_PREFIX=binder-dev" \
 -e "DOCKER_USERNAME=<Docker ID>" \
 -e "DOCKER_PASSWORD=<Docker password>" \
