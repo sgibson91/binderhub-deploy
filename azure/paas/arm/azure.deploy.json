@@ -101,7 +101,7 @@
       "maxLength": 50,
       "defaultValue": "null",
       "metadata": {
-        "description": "NAme to be given to the Azure Container Registry. Must be unique to Azure."
+        "description": "Name to be given to the Azure Container Registry. Must be unique to Azure."
       }
     },
     "containerRegistrySku": {
@@ -203,7 +203,7 @@
                 },
                 {
                   "name": "CONTAINER_REGISTRY",
-                  "value": "[parameters('containerRegistry')"
+                  "value": "[parameters('containerRegistry')]"
                 },
                 {
                   "name": "DOCKERHUB_USERNAME",
