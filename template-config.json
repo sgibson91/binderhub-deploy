@@ -11,8 +11,7 @@
   },
   "binderhub": {
     "name": "",
-    "version": "",
-    "contact_email": ""
+    "version": ""
   },
   "docker": {
     "username": null,
