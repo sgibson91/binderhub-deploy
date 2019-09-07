@@ -53,7 +53,7 @@
         "description": "The default VM size to use for the AKS cluster."
       }
     },
-    "dockerPrefix": {
+    "imagePrefix": {
       "type": "string",
       "minLength": 1,
       "metadata": {
@@ -72,21 +72,23 @@
         "azurecr"
       ]
     },
-    "dockerUsername": {
+    "dockerHubUsername": {
       "type": "string",
       "minLength": 1,
+      "defaultValue": "null",
       "metadata": {
         "description": "The name of a valid Docker Hub user account."
       }
     },
-    "dockerPassword": {
+    "dockerHubPassword": {
       "type": "securestring",
       "minLength": 8,
+      "defaultValue": "null",
       "metadata": {
         "description": "The user password for Docker Hub"
       }
     },
-    "dockerOrganisation": {
+    "dockerHubOrganisation": {
       "type": "string",
       "defaultValue": "null",
       "metadata": {
@@ -97,6 +99,7 @@
       "type": "string",
       "minLength": 5,
       "maxLength": 50,
+      "defaultValue": "null",
       "metadata": {
         "description": "NAme to be given to the Azure Container Registry. Must be unique to Azure."
       }
@@ -196,31 +199,31 @@
                 },
                 {
                   "name": "DOCKER_IMAGE_PREFIX",
-                  "value": "[parameters('dockerPrefix')]"
+                  "value": "[parameters('imagePrefix')]"
                 },
                 {
                   "name": "CONTAINER_REGISTRY",
                   "value": "[parameters('containerRegistry')"
                 },
                 {
-                  "name": "DOCKER_USERNAME",
-                  "value": "if(equals([parameters('containerRegistry)], 'dockerhub'), [parameters('dockerUsername')], 'null')"
+                  "name": "DOCKERHUB_USERNAME",
+                  "value": "[parameters('dockerHubUsername')]"
                 },
                 {
-                  "name": "DOCKER_PASSWORD",
-                  "value": "if(equals([parameters('containerRegistry)], 'dockerhub'), [parameters('dockerPassword')], 'null')"
+                  "name": "DOCKERHUB_PASSWORD",
+                  "value": "[parameters('dockerHubPassword')]"
                 },
                 {
-                  "name": "DOCKER_ORGANISATION",
-                  "value": "if(equals([parameters('containerRegistry)], 'dockerhub'), [parameters('dockerOrganisation')], 'null')"
+                  "name": "DOCKERHUB_ORGANISATION",
+                  "value": "[parameters('dockerHubOrganisation')]"
                 },
                 {
                   "name": "REGISTRY_NAME",
-                  "value": "if(equals([parameters('containerRegistry')], 'azurecr', [parameters('containerRegistryName')], 'null'"
+                  "value": "[parameters('containerRegistryName')]"
                 },
                 {
                   "name": "REGISTRY_SKU",
-                  "value": "if(equals([parameters('containerRegistry')], 'azurecr', [parameters('containerRegistrySku')], 'null'"
+                  "value": "[parameters('containerRegistrySku')]"
                 }
               ],
               "resources": {
