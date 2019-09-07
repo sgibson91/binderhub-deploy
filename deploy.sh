@@ -32,7 +32,6 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
           BINDERHUB_VERSION \
           AKS_NODE_COUNT \
           AKS_NODE_VM_SIZE \
-          CONTACT_EMAIL \
           DOCKER_USERNAME \
           DOCKER_PASSWORD \
           DOCKER_IMAGE_PREFIX \
@@ -49,7 +48,6 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
     BINDERHUB_NAME: ${BINDERHUB_NAME}
     BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-    CONTACT_EMAIL: ${CONTACT_EMAIL}
     RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
     RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
     AKS_NODE_COUNT: ${AKS_NODE_COUNT}
@@ -78,7 +76,6 @@ else
   AZURE_SUBSCRIPTION=`jq -r '.azure .subscription' ${configFile}`
   BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
   BINDERHUB_VERSION=`jq -r '.binderhub .version' ${configFile}`
-  CONTACT_EMAIL=`jq -r '.binderhub .contact_email' ${configFile}`
   RESOURCE_GROUP_LOCATION=`jq -r '.azure .location' ${configFile}`
   RESOURCE_GROUP_NAME=`jq -r '.azure .res_grp_name' ${configFile}`
   AKS_NODE_COUNT=`jq -r '.azure .node_count' ${configFile}`
@@ -100,7 +97,6 @@ else
           BINDERHUB_VERSION \
           AKS_NODE_COUNT \
           AKS_NODE_VM_SIZE \
-          CONTACT_EMAIL \
           DOCKER_IMAGE_PREFIX \
           "
   for required_var in $REQUIREDVARS ; do
@@ -129,7 +125,6 @@ else
     AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
     BINDERHUB_NAME: ${BINDERHUB_NAME}
     BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-    CONTACT_EMAIL: ${CONTACT_EMAIL}
     RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
     RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
     AKS_NODE_COUNT: ${AKS_NODE_COUNT}
