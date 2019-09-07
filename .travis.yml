@@ -17,4 +17,4 @@ script:
   # Fail if any of these files have warnings
   - shellcheck *.sh
 
-  sudo: required
+sudo: required
