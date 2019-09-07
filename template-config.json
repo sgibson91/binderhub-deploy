@@ -13,8 +13,7 @@
   "binderhub": {
     "name": "",
     "version": "",
-    "image_prefix": "",
-    "contact_email": ""
+    "image_prefix": ""
   },
   "docker": {
     "username": null,

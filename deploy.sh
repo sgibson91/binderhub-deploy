@@ -32,7 +32,8 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
           BINDERHUB_VERSION \
           AKS_NODE_COUNT \
           AKS_NODE_VM_SIZE \
-          CONTACT_EMAIL \
+          DOCKER_USERNAME \
+          DOCKER_PASSWORD \
           DOCKER_IMAGE_PREFIX \
           CONTAINER_REGISTRY \
           "
@@ -61,7 +62,6 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
       AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
       BINDERHUB_NAME: ${BINDERHUB_NAME}
       BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-      CONTACT_EMAIL: ${CONTACT_EMAIL}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
       RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
       AKS_NODE_COUNT: ${AKS_NODE_COUNT}
@@ -97,7 +97,6 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
       AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
       BINDERHUB_NAME: ${BINDERHUB_NAME}
       BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-      CONTACT_EMAIL: ${CONTACT_EMAIL}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
       RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
       AKS_NODE_COUNT: ${AKS_NODE_COUNT}
@@ -129,7 +128,6 @@ else
   AZURE_SUBSCRIPTION=`jq -r '.azure .subscription' ${configFile}`
   BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
   BINDERHUB_VERSION=`jq -r '.binderhub .version' ${configFile}`
-  CONTACT_EMAIL=`jq -r '.binderhub .contact_email' ${configFile}`
   RESOURCE_GROUP_LOCATION=`jq -r '.azure .location' ${configFile}`
   RESOURCE_GROUP_NAME=`jq -r '.azure .res_grp_name' ${configFile}`
   AKS_NODE_COUNT=`jq -r '.azure .node_count' ${configFile}`
@@ -149,30 +147,30 @@ else
           BINDERHUB_VERSION \
           AKS_NODE_COUNT \
           AKS_NODE_VM_SIZE \
-          CONTACT_EMAIL \
           DOCKER_IMAGE_PREFIX \
           CONTAINER_REGISTRY \
           "
 
   for required_var in $REQUIREDVARS ; do
-    if [ -z "${!required_var}" ] || [ x${required_var} == 'xnull' ] ; then
+    if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ] ; then
       echo "--> ${required_var} must be set for deployment" >&2
       exit 1
     fi
   done
 
+  # Check if any optional variables are set null; if so, reset them to a
+  # zero-length string for later checks. If they failed to read at all,
+  # possibly due to an invalid json file, they will be returned as a
+  # zero-length string -- this is attempting to make the 'not set'
+  # value the same in either case
+  if [ x${SP_APP_ID} == 'xnull' ] ; then SP_APP_ID='' ; fi
+  if [ x${SP_APP_KEY} == 'xnull' ] ; then SP_APP_KEY='' ; fi
+  if [ x${SP_TENANT_ID} == 'xnull' ] ; then SP_TENANT_ID='' ; fi
+
   # Test value of CONTAINER_REGISTRY. Must be either "dockerhub" or "azurecr"
   if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
     echo "--> Getting DockerHub requirements"
 
-    # Check if any optional variables are set null; if so, reset them to a
-    # zero-length string for later checks. If they failed to read at all,
-    # possibly due to an invalid json file, they will be returned as a
-    # zero-length string -- this is attempting to make the 'not set'
-    # value the same in either case
-    if [ x${SP_APP_ID} == 'xnull' ] ; then SP_APP_ID='' ; fi
-    if [ x${SP_APP_KEY} == 'xnull' ] ; then SP_APP_KEY='' ; fi
-    if [ x${SP_TENANT_ID} == 'xnull' ] ; then SP_TENANT_ID='' ; fi
 
     # Read Docker credentials from config file
     DOCKER_ORGANISATION=`jq -r '.docker .org' ${configFile}`
@@ -203,7 +201,6 @@ else
       AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
       BINDERHUB_NAME: ${BINDERHUB_NAME}
       BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-      CONTACT_EMAIL: ${CONTACT_EMAIL}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
       RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
       AKS_NODE_COUNT: ${AKS_NODE_COUNT}
@@ -235,7 +232,7 @@ else
         "
 
     for required_var in $REQUIREDVARS ; do
-      if [ -z "${!required_var}" ] || [ x${required_var} == 'xnull' ] ; then
+      if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ] ; then
         echo "--> ${required_var} must be set for deployment" >&2
         exit 1
       fi
@@ -248,7 +245,6 @@ else
       AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
       BINDERHUB_NAME: ${BINDERHUB_NAME}
       BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-      CONTACT_EMAIL: ${CONTACT_EMAIL}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
       RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
       AKS_NODE_COUNT: ${AKS_NODE_COUNT}

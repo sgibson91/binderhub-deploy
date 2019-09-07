@@ -53,13 +53,6 @@
         "description": "The default VM size to use for the AKS cluster."
       }
     },
-    "contactEmail": {
-      "type": "string",
-      "minLength": 1,
-      "metadata": {
-        "description": "An email address at which you can be reached. This will be used by Let's Encrypt to manage your TLS certificates."
-      }
-    },
     "dockerPrefix": {
       "type": "string",
       "minLength": 1,
@@ -124,11 +117,14 @@
     "setupDockerImage": {
       "type": "string",
       "minLength": 1,
-      "defaultValue": "sgibson91/binderhub-setup:1.0.3",
+      "defaultValue": "sgibson91/binderhub-setup:1.0.6",
       "metadata": {
         "description": "Docker image to use for the BinderHub deployment. Most recent version number is recommended, latest tag will be subject to fluctuating changes. This image must be publicly accessible."
       },
       "allowedValues": [
+        "sgibson91/binderhub-setup:1.0.6",
+        "sgibson91/binderhub-setup:1.0.5",
+        "sgibson91/binderhub-setup:1.0.4",
         "sgibson91/binderhub-setup:1.0.3",
         "sgibson91/binderhub-setup:1.0.2",
         "sgibson91/binderhub-setup:1.0.1",
@@ -196,10 +192,6 @@
                 {
                   "name": "AKS_NODE_VM_SIZE",
                   "value": "[parameters('aksNodeVmSize')]"
-                },
-                {
-                  "name": "CONTACT_EMAIL",
-                  "value": "[parameters('contactEmail')]"
                 },
                 {
                   "name": "DOCKER_USERNAME",

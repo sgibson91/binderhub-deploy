@@ -31,6 +31,7 @@ You should contact your IT Services for further information regarding permission
   - [Monitoring Deployment Progress](#monitoring-deployment-progress)
   - [Retrieving Deployment Output from Azure](#retrieving-deployment-output-from-azure)
   - [Accessing your BinderHub after Deployment](#accessing-your-binderhub-after-deployment)
+- [Running the Container Locally](#Running-the-Container-Locally)
 - [Customising your BinderHub Deployment](#customising-your-binderhub-deployment)
 - [Contributors](#contributors)
 
@@ -87,10 +88,9 @@ Fill the quotation marks with your desired namespaces, etc.
     "sp_tenant_id": null           // Azure tenant ID (optional)
   },
   "binderhub": {
-    "name": "",                    // Name of your BinderHub
-    "version": "",                 // Helm chart version to deploy, should be 0.2.0-<commit-hash>
-    "image_prefix": "",            // The prefix to preprend to Docker images (e.g. "binder-prod")
-    "contact_email": ""            // Email for letsencrypt https certificate. CANNOT be left blank.
+    "name": "",           // Name of your BinderHub
+    "version": "",        // Helm chart version to deploy, should be 0.2.0-<commit-hash>
+    "image_prefix": ""    // The prefix to preppend to Docker images (e.g. "binder-prod")
   },
   "docker": {
     "username": null,              // Docker username (can be supplied at runtime)
@@ -323,6 +323,46 @@ cat <OUTPUT_DIRECTORY>/binder-ip.log
 ```
 
 A good repository to test your BinderHub with is [binder-examples/requirements](https://github.com/binder-examples/requirements)
+
+## Running the Container Locally
+
+The third way to deploy BinderHub to Azure would be to pull the Docker image and run it directly, parsing the values you would have entered in `config.json` as environment variables.
+
+You will need the Docker CLI installed.
+Installation instructions can be found [here](https://docs.docker.com/v17.12/install/).
+
+First, pull the `binderhub-setup` image.
+```
+docker pull sgibson91/binderhub-setup:<TAG>
+```
+where `<TAG>` is your chosen image tag.
+
+A list of availabe tags can be found [here](https://cloud.docker.com/repository/docker/sgibson91/binderhub-setup/tags).
+It is recommended to use the most recent version number.
+The `latest` tag is the most recent build from `master` branch and may be subject fluctuations.
+
+Then, run the container with the following arguments, replacing the `<>` fields as necessary:
+```
+docker run \
+-e "BINDERHUB_CONTAINER_MODE=true" \
+-e "SP_APP_ID=<Service Principal ID>" \
+-e "SP_APP_KEY=<Service Principal Key>" \
+-e "SP_TENANT_ID=<Service Principal Tenant ID>" \
+-e "RESOURCE_GROUP_NAME=<Chosen Resource Group name>" \
+-e "RESOURCE_GROUP_LOCATION=westeurope" \
+-e "AZURE_SUBSCRIPTION=<Azure Subscription ID>" \
+-e "BINDERHUB_NAME=<Chosen BinderHub name>" \
+-e "BINDERHUB_VERSION=<Chosen BinderHub version>" \
+-e "AKS_NODE_COUNT=1" \
+-e "AKS_NODE_VM_SIZE=Standard_D2s_v3" \
+-e "DOCKER_IMAGE_PREFIX=binder-dev" \
+-e "DOCKER_USERNAME=<Docker ID>" \
+-e "DOCKER_PASSWORD=<Docker password>" \
+-it sgibson91/binderhub-setup:<TAG>
+```
+
+The output will be printed to your terminal and the files will be pushed to blob storage, as in the button deployment.
+See the [Retrieving Deployment Output from Azure](#Retrieving-Deployment-Output-from-Azure) section for how to return these files.
 
 ## Customising your BinderHub Deployment
 
