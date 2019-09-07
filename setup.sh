@@ -184,10 +184,11 @@ elif [[ ${OSTYPE} == 'darwin'* ]] ; then
       kubernetes-helm \
       jq \
       "
+    brew update
     for package in $BREWPACKAGES ; do
       if ! brew ls --versions $package > /dev/null ; then
         echo "--> Brew installing $package"
-        brew update && brew install $package || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
+        brew install $package || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
 	fi
     done
   else
