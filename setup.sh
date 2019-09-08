@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2046 disable=SC2143
 
 # Check sudo availability
-sudo_command=`command -v sudo`
+sudo_command=$(command -v sudo)
 
 ## Linux install cases
 if [[ ${OSTYPE} == 'linux'* ]] ; then
@@ -17,9 +18,9 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
       jq \
       "
     for package in $APTPACKAGES ; do
-      if ! dpkg -s $package > /dev/null ; then
+      if ! dpkg -s "$package" > /dev/null ; then
         echo "--> Apt installing $package"
-        ${sudo_command} apt update && ${sudo_command} apt install -y $package || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
+        (${sudo_command} apt update && ${sudo_command} apt install -y "$package") || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
 	fi
     done
     if ! command -v az >/dev/null 2>&1 ; then
@@ -31,12 +32,12 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
       ${sudo_command} apt-get update && ${sudo_command} apt-get install -y apt-transport-https
       curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | ${sudo_command} apt-key add -
       echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | ${sudo_command} tee -a /etc/apt/sources.list.d/kubernetes.list
-      ${sudo_command} apt-get update && ${sudo_command} apt-get install -y kubectl || { echo >&2 "--> kubectl install failed; please install manually and re-run this script."; exit 1; }
+      (${sudo_command} apt-get update && ${sudo_command} apt-get install -y kubectl) || { echo >&2 "--> kubectl install failed; please install manually and re-run this script."; exit 1; }
     fi
 
 ## yum-based systems
   elif command -v yum >/dev/null 2>&1 ; then
-    if [ "$(cat /etc/redhat-release | grep -i centos)" ] ; then
+    if [ $(grep -iq centos /etc/redhat-release) ] ; then
       echo "***************************************************************"
       echo "* You appear to be running CentOS. A required package, jq, is *"
       echo "* not available from core repositories but can be installed   *"
@@ -58,9 +59,9 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
       openssl \
       "
     for package in $YUMPACKAGES ; do
-      if ! rpm -q $package > /dev/null ; then
+      if ! rpm -q "$package" > /dev/null ; then
         echo "--> Yum installing $package"
-        ${sudo_command} yum install -y $package || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
+        ${sudo_command} yum install -y "$package" || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
       fi
     done
     if ! command -v az >/dev/null 2>&1 ; then
@@ -94,9 +95,9 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
       openssl \
       "
     for package in $ZYPPERPACKAGES ; do
-      if ! rpm -q $package > /dev/null ; then
+      if ! rpm -q "$package" > /dev/null ; then
         echo "--> Zypper installing $package"
-        ${sudo_command} zypper install -y $package || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
+        ${sudo_command} zypper install -y "$package" || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
 	fi
     done
     if ! command -v az >/dev/null 2>&1 ; then
@@ -129,9 +130,9 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
       kubectl \
       "
     for package in $PACMANPACKAGES ; do
-      if ! pacman -Q $package 2> /dev/null ; then
+      if ! pacman -Q "$package" 2> /dev/null ; then
         echo "--> pacman installing $package"
-        ${sudo_command} pacman -Sy --noconfirm $package || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
+        ${sudo_command} pacman -Sy --noconfirm "$package" || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
 	fi
     done
     if ! command -v az >/dev/null 2>&1 ; then
@@ -186,9 +187,9 @@ elif [[ ${OSTYPE} == 'darwin'* ]] ; then
       "
     brew update
     for package in $BREWPACKAGES ; do
-      if ! brew ls --versions $package > /dev/null ; then
+      if ! brew ls --versions "$package" > /dev/null ; then
         echo "--> Brew installing $package"
-        brew install $package || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
+        brew install "$package" || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
 	fi
     done
   else
