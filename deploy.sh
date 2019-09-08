@@ -17,7 +17,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # as a container-based install, checking that all required input is present
 # in the form of environment variables
 
-if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
+if [ -n "$BINDERHUB_CONTAINER_MODE" ] ; then
   echo "--> Deployment operating in container mode"
   echo "--> Checking required environment variables"
   # Set out a list of required variables for this script
