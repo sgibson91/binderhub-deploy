@@ -15,7 +15,7 @@ install:
   - if [ $TRAVIS_OS_NAME = windows ]; then choco install shellcheck; fi
 
 before_script:
-  - if [ $TRAVIS_OS_NAME = windows ]; then tr -d '\r' < *.sh; fi
+  - if [ $TRAVIS_OS_NAME = windows ]; for file in (deploy.sh logs.sh teardown.sh info.sh setup.sh upgrade.sh); do tr -d '\r' < file; done; fi
 
 script:
   # Fail if any of these files have warnings
