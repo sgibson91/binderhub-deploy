@@ -1,6 +1,6 @@
 # Automatically deploy a BinderHub to Microsoft Azure
 
-![mit_license_badge](https://img.shields.io/badge/License-MIT-yellow.svg)
+![mit_license_badge](https://img.shields.io/badge/License-MIT-yellow.svg) [![Build Status](https://travis-ci.org/alan-turing-institute/binderhub-deploy.svg?branch=master)](https://travis-ci.org/alan-turing-institute/binderhub-deploy)
 
 [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) is a cloud-based, multi-server technology used for hosting repoducible computing environments and interactive Jupyter Notebooks built from code repositories.
 
