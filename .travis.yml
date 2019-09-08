@@ -1,0 +1,20 @@
+language: bash
+
+os:
+  - linux
+  - osx
+  - windows
+
+before_install:
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get update; fi
+  - if [ $TRAVIS_OS_NAME = osx ]; then brew update; fi
+
+install:
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install shellcheck; fi
+  - if [ $TRAVIS_OS_NAME = osx ]; then brew install shellcheck; fi
+
+before_script:
+  - if [[ $TRAVIS_OS_NAME == linux || $TRAVIS_OS_NAME == osx ]]; then shellcheck ./*.sh; fi
+
+script:
+  - chmod 700 setup.sh && ./setup.sh
