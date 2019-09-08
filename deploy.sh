@@ -17,7 +17,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # as a container-based install, checking that all required input is present
 # in the form of environment variables
 
-if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
+if [ -n "$BINDERHUB_CONTAINER_MODE" ] ; then
   echo "--> Deployment operating in container mode"
   echo "--> Checking required environment variables"
   # Set out a list of required variables for this script
@@ -61,10 +61,10 @@ if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
     " | tee read-config.log
 
   # Check if DOCKER_ORGANISATION is set to null. Return empty string if true.
-  if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
+  if [ x"${DOCKER_ORGANISATION}" == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
 
   # Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
-  AZURE_SUBSCRIPTION=$(echo $AZURE_SUBSCRIPTION | sed -r "s/^\/subscriptions\///")
+  AZURE_SUBSCRIPTION=$(echo "$AZURE_SUBSCRIPTION" | sed -r "s/^\/subscriptions\///")
 
 else
 
@@ -73,20 +73,20 @@ else
 
   echo "--> Reading configuration from ${configFile}"
 
-  AZURE_SUBSCRIPTION=`jq -r '.azure .subscription' ${configFile}`
-  BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
-  BINDERHUB_VERSION=`jq -r '.binderhub .version' ${configFile}`
-  RESOURCE_GROUP_LOCATION=`jq -r '.azure .location' ${configFile}`
-  RESOURCE_GROUP_NAME=`jq -r '.azure .res_grp_name' ${configFile}`
-  AKS_NODE_COUNT=`jq -r '.azure .node_count' ${configFile}`
-  AKS_NODE_VM_SIZE=`jq -r '.azure .vm_size' ${configFile}`
-  SP_APP_ID=`jq -r '.azure .sp_app_id' ${configFile}`
-  SP_APP_KEY=`jq -r '.azure .sp_app_key' ${configFile}`
-  SP_TENANT_ID=`jq -r '.azure .sp_tenant_id' ${configFile}`
-  DOCKER_USERNAME=`jq -r '.docker .username' ${configFile}`
-  DOCKER_PASSWORD=`jq -r '.docker .password' ${configFile}`
-  DOCKER_IMAGE_PREFIX=`jq -r '.docker .image_prefix' ${configFile}`
-  DOCKER_ORGANISATION=`jq -r '.docker .org' ${configFile}`
+  AZURE_SUBSCRIPTION=$(jq -r '.azure .subscription' "${configFile}")
+  BINDERHUB_NAME=$(jq -r '.binderhub .name' "${configFile}")
+  BINDERHUB_VERSION=$(jq -r '.binderhub .version' "${configFile}")
+  RESOURCE_GROUP_LOCATION=$(jq -r '.azure .location' "${configFile}")
+  RESOURCE_GROUP_NAME=$(jq -r '.azure .res_grp_name' "${configFile}")
+  AKS_NODE_COUNT=$(jq -r '.azure .node_count' "${configFile}")
+  AKS_NODE_VM_SIZE=$(jq -r '.azure .vm_size' "${configFile}")
+  SP_APP_ID=$(jq -r '.azure .sp_app_id' "${configFile}")
+  SP_APP_KEY=$(jq -r '.azure .sp_app_key' "${configFile}")
+  SP_TENANT_ID=$(jq -r '.azure .sp_tenant_id' "${configFile}")
+  DOCKER_USERNAME=$(jq -r '.docker .username' "${configFile}")
+  DOCKER_PASSWORD=$(jq -r '.docker .password' "${configFile}")
+  DOCKER_IMAGE_PREFIX=$(jq -r '.docker .image_prefix' "${configFile}")
+  DOCKER_ORGANISATION=$(jq -r '.docker .org' "${configFile}")
 
   # Check that the variables are all set non-zero, non-null
   REQUIREDVARS=" \
@@ -100,7 +100,7 @@ else
           DOCKER_IMAGE_PREFIX \
           "
   for required_var in $REQUIREDVARS ; do
-    if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ] ; then
+    if [ -z "${!required_var}" ] || [ x"${!required_var}" == 'xnull' ] ; then
       echo "--> ${required_var} must be set for deployment" >&2
       exit 1
     fi
@@ -111,15 +111,15 @@ else
   # possibly due to an invalid json file, they will be returned as a
   # zero-length string -- this is attempting to make the 'not set'
   # value the same in either case.
-  if [ x${SP_APP_ID} == 'xnull' ] ; then SP_APP_ID='' ; fi
-  if [ x${SP_APP_KEY} == 'xnull' ] ; then SP_APP_KEY='' ; fi
-  if [ x${SP_TENANT_ID} == 'xnull' ] ; then SP_TENANT_ID='' ; fi
-  if [ x${DOCKER_USERNAME} == 'xnull' ] ; then DOCKER_USERNAME='' ; fi
-  if [ x${DOCKER_PASSWORD} == 'xnull' ] ; then DOCKER_PASSWORD='' ; fi
-  if [ x${DOCKER_ORGANISATION} == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
+  if [ x"${SP_APP_ID}" == 'xnull' ] ; then SP_APP_ID='' ; fi
+  if [ x"${SP_APP_KEY}" == 'xnull' ] ; then SP_APP_KEY='' ; fi
+  if [ x"${SP_TENANT_ID}" == 'xnull' ] ; then SP_TENANT_ID='' ; fi
+  if [ x"${DOCKER_USERNAME}" == 'xnull' ] ; then DOCKER_USERNAME='' ; fi
+  if [ x"${DOCKER_PASSWORD}" == 'xnull' ] ; then DOCKER_PASSWORD='' ; fi
+  if [ x"${DOCKER_ORGANISATION}" == 'xnull' ] ; then DOCKER_ORGANISATION='' ; fi
 
   # Normalise resource group location to remove spaces and have lowercase
-  RESOURCE_GROUP_LOCATION=`echo ${RESOURCE_GROUP_LOCATION//[[:blank:]]/} | tr '[:upper:]' '[:lower:]'`
+  RESOURCE_GROUP_LOCATION=$(echo "${RESOURCE_GROUP_LOCATION//[[:blank:]]/}" | tr '[:upper:]' '[:lower:]')
 
   echo "--> Configuration read in:
     AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
@@ -139,15 +139,15 @@ else
 
   # Check/get the user's Docker credentials
   if [ -z $DOCKER_USERNAME ] ; then
-    if [ ! -z "$DOCKER_ORGANISATION" ]; then
+    if [ -n "$DOCKER_ORGANISATION" ]; then
       echo "--> Your docker ID must be a member of the ${DOCKER_ORGANISATION} organisation"
     fi
-    read -p "DockerHub ID: " DOCKER_USERNAME
-    read -sp "DockerHub password: " DOCKER_PASSWORD
+    read -rp "DockerHub ID: " DOCKER_USERNAME
+    read -rsp "DockerHub password: " DOCKER_PASSWORD
     echo
   else
-    if [ -z $DOCKER_PASSWORD ] ; then
-      read -sp "DockerHub password for ${DOCKER_USERNAME}: " DOCKER_PASSWORD
+    if [ -z "$DOCKER_PASSWORD" ] ; then
+      read -rsp "DockerHub password for ${DOCKER_USERNAME}: " DOCKER_PASSWORD
       echo
     fi
   fi
@@ -156,7 +156,7 @@ fi
 set -eo pipefail
 
 # Generate a valid name for the AKS cluster
-AKS_NAME=`echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59`-AKS
+AKS_NAME=$(echo "${BINDERHUB_NAME}" | tr -cd '[:alnum:]-' | cut -c 1-59)-AKS
 
 # Azure login will be different depending on whether this script is running
 # with or without service principal details supplied.
@@ -190,9 +190,9 @@ az account set -s "$AZURE_SUBSCRIPTION"
 
 # Create a new resource group if necessary
 echo "--> Checking if resource group exists: ${RESOURCE_GROUP_NAME}"
-if [[ $(az group exists --name $RESOURCE_GROUP_NAME) == false ]] ; then
+if [[ $(az group exists --name "$RESOURCE_GROUP_NAME") == false ]] ; then
   echo "--> Creating new resource group: ${RESOURCE_GROUP_NAME}"
-  az group create -n $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION -o table | tee rg-create.log
+  az group create -n "$RESOURCE_GROUP_NAME" --location "$RESOURCE_GROUP_LOCATION" -o table | tee rg-create.log
 else
   echo "--> Resource group ${RESOURCE_GROUP_NAME} found."
 fi
@@ -203,15 +203,15 @@ Resource Group: ${RESOURCE_GROUP_NAME}
 Cluster name:   ${AKS_NAME}
 Node count:     ${AKS_NODE_COUNT}
 Node VM size:   ${AKS_NODE_VM_SIZE}"
-az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table ${AKS_SP} | tee aks-create.log
+az aks create -n "$AKS_NAME" -g "$RESOURCE_GROUP_NAME" --generate-ssh-keys --node-count "$AKS_NODE_COUNT" --node-vm-size "$AKS_NODE_VM_SIZE" -o table "$AKS_SP" | tee aks-create.log
 
 # Get kubectl credentials from Azure
 echo "--> Fetching kubectl credentials from Azure"
-az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table | tee get-credentials.log
+az aks get-credentials -n "$AKS_NAME" -g "$RESOURCE_GROUP_NAME" -o table | tee get-credentials.log
 
 # Check nodes are ready
-nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)"
-while [[ ${nodecount} -ne ${AKS_NODE_COUNT} ]] ; do echo -n $(date) ; echo " : ${nodecount} of ${AKS_NODE_COUNT} nodes ready" ; sleep 15 ; nodecount="$(kubectl get node | awk '{print $2}' | grep Ready | wc -l)" ; done
+nodecount="$(kubectl get node | awk '{print $2}' | grep -c Ready)"
+while [[ ${nodecount} -ne ${AKS_NODE_COUNT} ]] ; do echo -n "$(date)" ; echo " : ${nodecount} of ${AKS_NODE_COUNT} nodes ready" ; sleep 15 ; nodecount="$(kubectl get node | awk '{print $2}' | grep -c Ready)" ; done
 echo
 echo "--> Cluster node status:"
 kubectl get node | tee kubectl-status.log
@@ -235,7 +235,7 @@ kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --pat
 
 # Waiting until tiller pod is ready
 tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')"
-while [[ ! x${tillerStatus} == xRunning ]] ; do echo -n $(date) ; echo " : tiller pod status : ${tillerStatus} " ; sleep 30 ; tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')" ; done
+while [[ ! x${tillerStatus} == xRunning ]] ; do echo -n "$(date)" ; echo " : tiller pod status : ${tillerStatus} " ; sleep 30 ; tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')" ; done
 echo
 echo "--> AKS system pods status:"
 kubectl get pods --namespace kube-system | tee kubectl-get-pods.log
@@ -260,8 +260,8 @@ done
 set -eo pipefail
 
 # Create tokens for the secrets file:
-apiToken=`openssl rand -hex 32`
-secretToken=`openssl rand -hex 32`
+apiToken=$(openssl rand -hex 32)
+secretToken=$(openssl rand -hex 32)
 
 # Get the latest helm chart for BinderHub:
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
@@ -272,11 +272,11 @@ echo "--> Generating initial configuration file"
 if [ -z "${DOCKER_ORGANISATION}" ] ; then
   sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
-  ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  "${DIR}"/config-template.yaml > "${DIR}"/config.yaml
 else
   sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
-  ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  "${DIR}"/config-template.yaml > "${DIR}"/config.yaml
 fi
 
 echo "--> Generating initial secrets file"
@@ -285,28 +285,28 @@ sed -e "s/<apiToken>/$apiToken/" \
 -e "s/<secretToken>/$secretToken/" \
 -e "s/<docker-id>/$DOCKER_USERNAME/" \
 -e "s/<password>/$DOCKER_PASSWORD/" \
-${DIR}/secret-template.yaml > ${DIR}/secret.yaml
+"${DIR}"/secret-template.yaml > "${DIR}"/secret.yaml
 
 # Format name for kubernetes
-HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//' )
+HELM_BINDERHUB_NAME=$(echo "${BINDERHUB_NAME}" | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//' )
 
 echo "--> Installing Helm chart"
 helm install jupyterhub/binderhub \
---version=$BINDERHUB_VERSION \
---name=$HELM_BINDERHUB_NAME \
---namespace=$HELM_BINDERHUB_NAME \
--f ${DIR}/secret.yaml \
--f ${DIR}/config.yaml \
+--version="$BINDERHUB_VERSION" \
+--name="$HELM_BINDERHUB_NAME" \
+--namespace="$HELM_BINDERHUB_NAME" \
+-f "${DIR}"/secret.yaml \
+-f "${DIR}"/config.yaml \
 --timeout=3600 | tee helm-chart-install.log
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 echo "--> Retrieving JupyterHub IP"
-JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
+JUPYTERHUB_IP=$(kubectl --namespace="$HELM_BINDERHUB_NAME" get svc proxy-public | awk '{ print $4}' | tail -n 1)
 while [ "${JUPYTERHUB_IP}" = '<pending>' ] || [ "${JUPYTERHUB_IP}" = "" ]
 do
     echo "Sleeping 30s before checking again"
     sleep 30
-    JUPYTERHUB_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1`
+    JUPYTERHUB_IP=$(kubectl --namespace="$HELM_BINDERHUB_NAME" get svc proxy-public | awk '{ print $4}' | tail -n 1)
     echo "JupyterHub IP: ${JUPYTERHUB_IP}" | tee jupyterhub-ip.log
 done
 
@@ -315,59 +315,59 @@ if [ -z "$DOCKER_ORGANISATION" ] ; then
   sed -e "s/<docker-id>/$DOCKER_USERNAME/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
-  ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  "${DIR}"/config-template.yaml > "${DIR}"/config.yaml
 else
   sed -e "s/<docker-id>/$DOCKER_ORGANISATION/" \
   -e "s/<prefix>/$DOCKER_IMAGE_PREFIX/" \
   -e "s/<jupyterhub-ip>/$JUPYTERHUB_IP/" \
-  ${DIR}/config-template.yaml > ${DIR}/config.yaml
+  "${DIR}"/config-template.yaml > "${DIR}"/config.yaml
 fi
 
 echo "--> Updating Helm chart"
-helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
---version=$BINDERHUB_VERSION \
--f ${DIR}/secret.yaml \
--f ${DIR}/config.yaml | tee helm-upgrade.log
+helm upgrade "$HELM_BINDERHUB_NAME" jupyterhub/binderhub \
+--version="$BINDERHUB_VERSION" \
+-f "${DIR}"/secret.yaml \
+-f "${DIR}"/config.yaml | tee helm-upgrade.log
 
 # Print Binder IP address
 echo "--> Retrieving Binder IP"
-BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
+BINDER_IP=$(kubectl --namespace="$HELM_BINDERHUB_NAME" get svc binder | awk '{ print $4}' | tail -n 1)
 echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
 while [ "${BINDER_IP}" = '<pending>' ] || [ "${BINDER_IP}" = "" ]
 do
     echo "Sleeping 30s before checking again"
     sleep 30
-    BINDER_IP=`kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1`
+    BINDER_IP=$(kubectl --namespace="$HELM_BINDERHUB_NAME" get svc binder | awk '{ print $4}' | tail -n 1)
     echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
 done
 
-if [ ! -z $BINDERHUB_CONTAINER_MODE ] ; then
+if [ -n "$BINDERHUB_CONTAINER_MODE" ] ; then
   # Finally, save outputs to blob storage
   #
   # Create a storage account
   echo "--> Creating storage account"
   CONTAINER_NAME="${BINDERHUB_NAME}deploylogs"
-  STORAGE_ACCOUNT_NAME="$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -c -20)$(openssl rand -hex 2)"
+  STORAGE_ACCOUNT_NAME="$(echo "${BINDERHUB_NAME}" | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]' | cut -c -20)$(openssl rand -hex 2)"
   az storage account create \
-    --name ${STORAGE_ACCOUNT_NAME} --resource-group ${RESOURCE_GROUP_NAME} \
+    --name "${STORAGE_ACCOUNT_NAME}" --resource-group "${RESOURCE_GROUP_NAME}" \
     --sku Standard_LRS -o table | tee storage-create.log
   # Create a container
   echo "--> Creating storage container: ${CONTAINER_NAME}"
-  az storage container create --account-name ${STORAGE_ACCOUNT_NAME} \
-    --name ${CONTAINER_NAME} | tee container-create.log
+  az storage container create --account-name "${STORAGE_ACCOUNT_NAME}" \
+    --name "${CONTAINER_NAME}" | tee container-create.log
   # Push the files
   echo "--> Pushing log files"
-  az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
-    --destination ${CONTAINER_NAME} --source "." \
+  az storage blob upload-batch --account-name "${STORAGE_ACCOUNT_NAME}" \
+    --destination "${CONTAINER_NAME}" --source "." \
     --pattern "*.log"
   echo "--> Pushing yaml files"
-  az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
-    --destination ${CONTAINER_NAME} --source "." \
+  az storage blob upload-batch --account-name "${STORAGE_ACCOUNT_NAME}" \
+    --destination "${CONTAINER_NAME}" --source "." \
     --pattern "*.yaml"
   echo "--> Getting and pushing ssh keys"
-  cp ~/.ssh/id_rsa ${DIR}/id_rsa_${BINDERHUB_NAME}
-  cp ~/.ssh/id_rsa.pub ${DIR}/id_rsa_${BINDERHUB_NAME}.pub
-  az storage blob upload-batch --account-name ${STORAGE_ACCOUNT_NAME} \
-    --destination ${CONTAINER_NAME} --source "." \
+  cp ~/.ssh/id_rsa "${DIR}"/id_rsa_"${BINDERHUB_NAME}"
+  cp ~/.ssh/id_rsa.pub "${DIR}"/id_rsa_"${BINDERHUB_NAME}".pub
+  az storage blob upload-batch --account-name "${STORAGE_ACCOUNT_NAME}" \
+    --destination "${CONTAINER_NAME}" --source "." \
     --pattern "id*"
 fi
