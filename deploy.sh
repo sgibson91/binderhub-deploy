@@ -203,7 +203,8 @@ Resource Group: ${RESOURCE_GROUP_NAME}
 Cluster name:   ${AKS_NAME}
 Node count:     ${AKS_NODE_COUNT}
 Node VM size:   ${AKS_NODE_VM_SIZE}"
-az aks create -n "$AKS_NAME" -g "$RESOURCE_GROUP_NAME" --generate-ssh-keys --node-count "$AKS_NODE_COUNT" --node-vm-size "$AKS_NODE_VM_SIZE" -o table "$AKS_SP" | tee aks-create.log
+# shellcheck disable=SC2086
+az aks create -n ${AKS_NAME} -g ${RESOURCE_GROUP_NAME} --generate-ssh-keys -c ${AKS_NODE_COUNT} -s ${AKS_NODE_VM_SIZE} -o table ${AKS_SP} | tee aks-create.log
 
 # Get kubectl credentials from Azure
 echo "--> Fetching kubectl credentials from Azure"
