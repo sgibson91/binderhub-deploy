@@ -1,5 +1,4 @@
 #!/bin/bash
-# shellcheck disable=SC1017
 
 # Exit immediately if a pipeline returns a non-zero status
 set -eo pipefail
@@ -205,7 +204,7 @@ Cluster name:   ${AKS_NAME}
 Node count:     ${AKS_NODE_COUNT}
 Node VM size:   ${AKS_NODE_VM_SIZE}"
 # shellcheck disable=SC2086
-az aks create -n ${AKS_NAME} -g ${RESOURCE_GROUP_NAME} --generate-ssh-keys -c ${AKS_NODE_COUNT} -s ${AKS_NODE_VM_SIZE} -o table ${AKS_SP} | tee aks-create.log
+az aks create -n ${AKS_NAME} -g ${RESOURCE_GROUP_NAME} --generate-ssh-keys -c ${AKS_NODE_COUNT} -s ${AKS_NODE_VM_SIZE} -o table ${AKS_SP} | $(tee aks-create.log)
 
 # Get kubectl credentials from Azure
 echo "--> Fetching kubectl credentials from Azure"

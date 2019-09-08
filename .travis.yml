@@ -14,6 +14,9 @@ install:
   - if [ $TRAVIS_OS_NAME = osx ]; then brew install shellcheck; fi
   - if [ $TRAVIS_OS_NAME = windows ]; then choco install shellcheck; fi
 
+before_script:
+  - if [ $TRAVIS_OS_NAME = windows ]; then tr -d '\r' *.sh; fi
+
 script:
   # Fail if any of these files have warnings
   - shellcheck *.sh
