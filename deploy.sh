@@ -1,4 +1,6 @@
 #!/bin/bash
+# shellcheck disable=SC1017
+# Disable literal carriage return shellcheck error for windows os
 
 # Exit immediately if a pipeline returns a non-zero status
 set -eo pipefail
