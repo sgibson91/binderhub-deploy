@@ -226,7 +226,6 @@ else
         REGISTRY_SKU \
         SP_APP_ID \
         SP_APP_KEY \
-        SP_TENANT_ID \
         "
 
     for required_var in $REQUIREDVARS ; do
@@ -331,7 +330,7 @@ if [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
 
   # Assigning AcrPush role to Service Principal using AcrPush's specific object-ID
   echo "--> Assigning AcrPush role to Service Principal"
-  az role assignment create --assignee ${SP_APP_ID} --role 8311e382-0749-4cb8-b61a-304f252e45ec --scope $ACR_ID | tee role-assignment.log
+  az role assignment create --assignee ${SP_APP_ID} --role 8311e382-0749-4cb8-b61a-304f252e45ec --scope $ACR_ID -o table | tee role-assignment.log
 
   # Reassign IMAGE_PREFIX to conform with BinderHub's expectation:
   # <container-registry>/<project-id>/<prefix>-name:tag
