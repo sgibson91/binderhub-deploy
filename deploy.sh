@@ -150,7 +150,7 @@ else
           "
 
   for required_var in $REQUIREDVARS ; do
-    if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ] ; then
+    if [ -z "${!required_var}" ] || [ x"${!required_var}" == 'xnull' ] ; then
       echo "--> ${required_var} must be set for deployment" >&2
       exit 1
     fi
@@ -161,9 +161,9 @@ else
   # possibly due to an invalid json file, they will be returned as a
   # zero-length string -- this is attempting to make the 'not set'
   # value the same in either case
-  if [ x${SP_APP_ID} == 'xnull' ] ; then SP_APP_ID='' ; fi
-  if [ x${SP_APP_KEY} == 'xnull' ] ; then SP_APP_KEY='' ; fi
-  if [ x${SP_TENANT_ID} == 'xnull' ] ; then SP_TENANT_ID='' ; fi
+  if [ x"${SP_APP_ID}" == 'xnull' ] ; then SP_APP_ID='' ; fi
+  if [ x"${SP_APP_KEY}" == 'xnull' ] ; then SP_APP_KEY='' ; fi
+  if [ x"${SP_TENANT_ID}" == 'xnull' ] ; then SP_TENANT_ID='' ; fi
 
   # Test value of CONTAINER_REGISTRY. Must be either "dockerhub" or "azurecr"
   if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
