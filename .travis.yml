@@ -3,7 +3,7 @@ language: bash
 os:
   - linux
   - osx
-  - windows
+  # - windows
 
 before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get update; fi
@@ -12,10 +12,11 @@ before_install:
 install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install shellcheck; fi
   - if [ $TRAVIS_OS_NAME = osx ]; then brew install shellcheck; fi
-  - if [ $TRAVIS_OS_NAME = windows ]; then choco install shellcheck; fi
+  # - if [ $TRAVIS_OS_NAME = windows ]; then choco install shellcheck; fi
 
-before_script:
-  - if [ $TRAVIS_OS_NAME = windows ] ; then for file in $(find $(pwd) -name "*.sh") ; do tr -d '\r' < $file > $file ; done ; fi
+# Windows not currently tested since the following line deletes all content in the file instead of just the literal carriage returns
+# before_script:
+#   - if [ $TRAVIS_OS_NAME = windows ] ; then for file in $(find $(pwd) -name "*.sh") ; do tr -d '\r' < $file > $file ; done ; fi
 
 script:
   # Fail if any of these files have warnings
