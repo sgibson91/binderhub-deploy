@@ -75,7 +75,7 @@ if [ -n "$BINDERHUB_CONTAINER_MODE" ] ; then
       " | tee read-config.log
 
     # Check if DOCKERHUB_ORGANISATION is set to null. Return empty string if true.
-    if [ x${DOCKERHUB_ORGANISATION} == 'xnull' ] ; then DOCKERHUB_ORGANISATION='' ; fi
+    if [ x"${DOCKERHUB_ORGANISATION}" == 'xnull' ] ; then DOCKERHUB_ORGANISATION='' ; fi
 
   elif [ "$CONTAINER_REGISTRY" == 'azurecr' ] ; then
 
@@ -115,7 +115,7 @@ if [ -n "$BINDERHUB_CONTAINER_MODE" ] ; then
   fi
 
   # Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
-  AZURE_SUBSCRIPTION=$(echo $AZURE_SUBSCRIPTION | sed -r "s/^\/subscriptions\///")
+  AZURE_SUBSCRIPTION=$(echo "$AZURE_SUBSCRIPTION" | sed -r "s/^\/subscriptions\///")
 
 else
 
@@ -124,18 +124,17 @@ else
 
   echo "--> Reading configuration from ${configFile}"
 
-  AZURE_SUBSCRIPTION=`jq -r '.azure .subscription' ${configFile}`
-  BINDERHUB_NAME=`jq -r '.binderhub .name' ${configFile}`
-  BINDERHUB_VERSION=`jq -r '.binderhub .version' ${configFile}`
-  RESOURCE_GROUP_LOCATION=`jq -r '.azure .location' ${configFile}`
-  RESOURCE_GROUP_NAME=`jq -r '.azure .res_grp_name' ${configFile}`
-  AKS_NODE_COUNT=`jq -r '.azure .node_count' ${configFile}`
-  AKS_NODE_VM_SIZE=`jq -r '.azure .vm_size' ${configFile}`
-  SP_APP_ID=`jq -r '.azure .sp_app_id' ${configFile}`
-  SP_APP_KEY=`jq -r '.azure .sp_app_key' ${configFile}`
-  SP_TENANT_ID=`jq -r '.azure .sp_tenant_id' ${configFile}`
-  DOCKER_IMAGE_PREFIX=`jq -r '.binderhub .image_prefix' ${configFile}`
-  CONTAINER_REGISTRY=`jq -r '.container_registry' ${configFile}`
+  AZURE_SUBSCRIPTION=$(jq -r '.azure .subscription' "${configFile}")
+  BINDERHUB_NAME=$(jq -r '.binderhub .name' "${configFile}")
+  BINDERHUB_VERSION=$(jq -r '.binderhub .version' "${configFile}")
+  RESOURCE_GROUP_NAME=$(jq -r '.azure .res_grp_name' "${configFile}")
+  AKS_NODE_COUNT=$(jq -r '.azure .node_count' "${configFile}")
+  AKS_NODE_VM_SIZE=$(jq -r '.azure .vm_size' "${configFile}")
+  SP_APP_ID=$(jq -r '.azure .sp_app_id' "${configFile}")
+  SP_APP_KEY=$(jq -r '.azure .sp_app_key' "${configFile}")
+  SP_TENANT_ID=$(jq -r '.azure .sp_tenant_id' "${configFile}")
+  DOCKER_IMAGE_PREFIX=$(jq -r '.binderhub .image_prefix' "${configFile}")
+  CONTAINER_REGISTRY=$(jq -r '.container_registry' "${configFile}")
 
   # Check that the variables are all set non-zero, non-null
   REQUIREDVARS=" \
