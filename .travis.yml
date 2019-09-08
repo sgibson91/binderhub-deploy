@@ -12,7 +12,7 @@ before_install:
 install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install shellcheck; fi
   - if [ $TRAVIS_OS_NAME = osx ]; then brew install shellcheck; fi
-  - if [ $TRAVIS_OS_NAME = windows ]; then C:\> choco install shellcheck; fi
+  - if [ $TRAVIS_OS_NAME = windows ]; then choco install shellcheck; fi
 
 script:
   # Fail if any of these files have warnings
