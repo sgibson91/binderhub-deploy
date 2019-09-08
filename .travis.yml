@@ -15,7 +15,7 @@ install:
   - if [ $TRAVIS_OS_NAME = windows ]; then choco install shellcheck; fi
 
 before_script:
-  - if [ $TRAVIS_OS_NAME = windows ]; for file in $(find $(pwd) -name "*.sh"); do tr -d '\r' < $file; done; fi
+  - if [ $TRAVIS_OS_NAME = windows ] ; then for file in $(find $(pwd) -name "*.sh") ; do tr -d '\r' < $file > $file ; done ; fi
 
 script:
   # Fail if any of these files have warnings
