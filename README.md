@@ -88,9 +88,9 @@ Fill the quotation marks with your desired namespaces, etc.
     "sp_tenant_id": null           // Azure tenant ID (optional)
   },
   "binderhub": {
-    "name": "",           // Name of your BinderHub
-    "version": "",        // Helm chart version to deploy, should be 0.2.0-<commit-hash>
-    "image_prefix": ""    // The prefix to preppend to Docker images (e.g. "binder-prod")
+    "name": "",                    // Name of your BinderHub
+    "version": "",                 // Helm chart version to deploy, should be 0.2.0-<commit-hash>
+    "image_prefix": ""             // The prefix to preppend to Docker images (e.g. "binder-prod")
   },
   "docker": {
     "username": null,              // Docker username (can be supplied at runtime)
