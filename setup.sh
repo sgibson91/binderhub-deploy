@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # shellcheck disable=SC2046 disable=SC2143
 
 # Check sudo availability
