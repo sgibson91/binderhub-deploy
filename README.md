@@ -33,6 +33,8 @@ You should contact your IT Services for further information regarding permission
   - [Accessing your BinderHub after Deployment](#accessing-your-binderhub-after-deployment)
 - [Running the Container Locally](#Running-the-Container-Locally)
 - [Customising your BinderHub Deployment](#customising-your-binderhub-deployment)
+- [Developers Guide](#developers-guide)
+  - [Building the Docker image for testing](#building-the-docker-image-for-testing)
 - [Contributors](#contributors)
 
 ---
@@ -397,6 +399,22 @@ The Helm Chart can be upgraded by running [`upgrade.sh`](./upgrade.sh) (make sur
 The Jupyter guide to customising the underlying JupyterHub can be found [here](https://zero-to-jupyterhub.readthedocs.io/en/latest/extending-jupyterhub.html).
 
 The BinderHub guide for changing the landing page logo can be found [here](https://binderhub.readthedocs.io/en/latest/customizing.html#template-customization).
+
+## Developers Guide
+
+### Building the Docker image for testing
+
+The Docker image will automatically be built by Docker Hub when new pushes are made to `master`.
+However, a developer may wish to build the image to test deployments before merging code.
+
+Firstly, make sure `config.json` has been removed from the repository.
+Otherwise, secrets within the file may be built into the image.
+
+The command to build a Docker image from the root of the repo is as follows.
+
+```bash
+docker build -t <DOCKER_USERNAME>/binderhub-setup:<TAG> .
+```
 
 ## Contributors
 
