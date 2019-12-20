@@ -43,14 +43,14 @@ This repo can either be run locally or as "Platform as a Service" through the "D
 
 To use these scripts locally, clone this repo and change into the directory.
 
-```
+```bash
 git clone https://github.com/alan-turing-institute/binderhub-deploy.git
 cd binderhub-deploy
 ```
 
 To make the scripts executable and then run them, do the following:
 
-```
+```bash
 chmod 700 <script-name>.sh
 ./<script-name>.sh
 ```
@@ -65,16 +65,16 @@ You need to create a file called `config.json` which has the format described in
 Fill the quotation marks with your desired namespaces, etc.
 `config.json` is git-ignored so sensitive information, such as passwords and Service Principals, cannot not be pushed to GitHub.
 
-* For a list of available data centre regions, [see here](https://azure.microsoft.com/en-gb/global-infrastructure/locations/).
+- For a list of available data centre regions, [see here](https://azure.microsoft.com/en-gb/global-infrastructure/locations/).
   This should be a _region_ and **not** a _location_, for example "West Europe" or "Central US".
   These can be equivalently written as `westeurope` and `centralus`, respectively.
-* For a list of available Linux Virtual Machines, [see here](https://docs.microsoft.com/en-gb/azure/virtual-machines/linux/sizes-general).
+- For a list of available Linux Virtual Machines, [see here](https://docs.microsoft.com/en-gb/azure/virtual-machines/linux/sizes-general).
   This should be something like, for example `Standard_D2s_v3`.
-* The versions of the BinderHub Helm Chart can be found [here](https://jupyterhub.github.io/helm-chart/#development-releases-binderhub) and are of the form `0.2.0-<commit-hash>`.
+- The versions of the BinderHub Helm Chart can be found [here](https://jupyterhub.github.io/helm-chart/#development-releases-binderhub) and are of the form `0.2.0-<commit-hash>`.
   It is advised to select the most recent version unless you specifically require an older one.
-* If you are deploying an Azure Container Registry, find out more about the SKU tiers [here](https://docs.microsoft.com/en-gb/azure/container-registry/container-registry-skus).
+- If you are deploying an Azure Container Registry, find out more about the SKU tiers [here](https://docs.microsoft.com/en-gb/azure/container-registry/container-registry-skus).
 
-```
+```json
 {
   "container_registry": "",        // Choose Docker Hub or ACR with 'dockerhub' or 'azurecr' values, respectively.
   "azure": {
@@ -140,9 +140,9 @@ This script checks whether the required command line tools are already installed
 If any are missing, the script uses the system package manager or [`curl`](https://curl.haxx.se/docs/) to install the command line interfaces (CLIs).
 The CLIs to be installed are:
 
-* [Microsoft Azure (`azure-cli`)](https://docs.microsoft.com/en-gb/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update)
-* [Kubernetes (`kubectl`)](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-using-curl)
-* [Helm (`helm`)](https://helm.sh/docs/using_helm/#from-script)
+- [Microsoft Azure (`azure-cli`)](https://docs.microsoft.com/en-gb/cli/azure/install-azure-cli-linux?view=azure-cli-latest#install-or-update)
+- [Kubernetes (`kubectl`)](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-using-curl)
+- [Helm (`helm`)](https://helm.sh/docs/using_helm/#from-script)
 
 Any dependencies that are not automatically installed by these packages will also be installed.
 
@@ -213,8 +213,8 @@ Make sure the shell is set to Bash, not PowerShell.
 
 Set the subscription you'd like to deploy your BinderHub on.
 
-```
-az account set -s <subscription>
+```bash
+az account set --subscription <subscription>
 ```
 
 This image shows the command being executed for an "Azure Pass - Sponsorship" subscription.
@@ -223,7 +223,7 @@ This image shows the command being executed for an "Azure Pass - Sponsorship" su
 
 You will need the subscription ID, which you can retrieve by running:
 
-```
+```bash
 az account list --refresh --output table
 ```
 
@@ -232,13 +232,19 @@ az account list --refresh --output table
 Next, create the Service Principal with the following command.
 Make sure to give it a sensible name!
 
-```
-az ad sp create-for-rbac --name binderhub-sp --role Contributor --scopes /subscriptions/<subscription ID from above>
+```bash
+az ad sp create-for-rbac \
+    --name binderhub-sp \
+    --role Contributor \
+    --scope /subscriptions/<subscription ID from above>
 ```
 
 **NOTE:** If you are deploying an ACR rather than connecting to Docker Hub, then this command should be:
-```
-az ad sp create-for-rbac --name binderhub-sp --role Owner --scopes /subscriptions/<subscription ID from above>
+
+```bash
+az ad sp create-for-rbac \
+    --name binder\
+    --scope /subscriptions/<subscription ID from above>
 ```
 
 ![Create Service Principal](images/create-for-rbac.png)
@@ -297,18 +303,33 @@ Files are fetched into a local directory, **which must already exist**, referred
 You can run [`setup.sh`](./setup.sh) to install the Azure CLI or use the cloud shell on the [Azure Portal](https://portal.azure.com).
 
 To fetch all files:
-```
-  az storage blob download-batch --account-name <ACCOUNT_NAME> --source <BLOB_NAME> --pattern "*" -d "<OUTPUT_DIRECTORY>"
+
+```bash
+az storage blob download-batch \
+    --account-name <ACCOUNT_NAME> \
+    --source <BLOB_NAME> \
+    --pattern "*" \
+    --destination "<OUTPUT_DIRECTORY>"
 ```
 
 The `--pattern` argument can be used to fetch particular files, for example all log files:
-```
-  az storage blob download-batch --account-name <ACCOUNT_NAME> --source <BLOB_NAME> --pattern "*.log" -d "<OUTPUT_DIRECTORY>"
+
+```bash
+az storage blob download-batch \
+    --account-name <ACCOUNT_NAME> \
+    --source <BLOB_NAME> \
+    --pattern "*.log" \
+    --destination "<OUTPUT_DIRECTORY>"
 ```
 
 To fetch a single file, specify `REMOTE_FILENAME` for the name of the file in blob storage, and `LOCAL_FILENAME` for the filename it will be fetched into:
-```
-  az storage blob download --account-name <ACCOUNT_NAME> --container-name <BLOB_NAME> --name <REMOTE_FILENAME> --file <LOCAL_FILENAME>
+
+```bash
+az storage blob download \
+    --account-name <ACCOUNT_NAME> \
+    --container-name <BLOB_NAME> \
+    --name <REMOTE_FILENAME> \
+    --file <LOCAL_FILENAME>
 ```
 
 For full documentation, see the [`az storage blob` documentation](https://docs.microsoft.com/en-gb/cli/azure/storage/blob?view=azure-cli-latest).
@@ -318,7 +339,8 @@ For full documentation, see the [`az storage blob` documentation](https://docs.m
 Once the deployment has succeeded and you've downloaded the log files, visit the IP address of your Binder page to test it's working.
 
 The Binder IP address can be found by running the following:
-```
+
+```bash
 cat <OUTPUT_DIRECTORY>/binder-ip.log
 ```
 
@@ -332,9 +354,11 @@ You will need the Docker CLI installed.
 Installation instructions can be found [here](https://docs.docker.com/v17.12/install/).
 
 First, pull the `binderhub-setup` image.
-```
+
+```bash
 docker pull sgibson91/binderhub-setup:<TAG>
 ```
+
 where `<TAG>` is your chosen image tag.
 
 A list of availabe tags can be found [here](https://cloud.docker.com/repository/docker/sgibson91/binderhub-setup/tags).
@@ -342,7 +366,8 @@ It is recommended to use the most recent version number.
 The `latest` tag is the most recent build from `master` branch and may be subject fluctuations.
 
 Then, run the container with the following arguments, replacing the `<>` fields as necessary:
-```
+
+```bash
 docker run \
 -e "BINDERHUB_CONTAINER_MODE=true" \
 -e "SP_APP_ID=<Service Principal ID>" \
@@ -377,7 +402,7 @@ The BinderHub guide for changing the landing page logo can be found [here](https
 
 We would like to acknowledge and thank the following people for their contributions to this project:
 
-* Tim Greaves ([@tmbgreaves](https://github.com/tmbgreaves))
-* Gerard Gorman ([@ggorman](https://github.com/ggorman))
-* Tania Allard ([@trallard](https://github.com/trallard))
-* Diego Alonso Alvarez ([@dalonsoa](https://github.com/dalonsoa))
+- Tim Greaves ([@tmbgreaves](https://github.com/tmbgreaves))
+- Gerard Gorman ([@ggorman](https://github.com/ggorman))
+- Tania Allard ([@trallard](https://github.com/trallard))
+- Diego Alonso Alvarez ([@dalonsoa](https://github.com/dalonsoa))
