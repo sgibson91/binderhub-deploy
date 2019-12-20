@@ -308,6 +308,14 @@ else
   echo "--> Resource group ${RESOURCE_GROUP_NAME} found"
 fi
 
+# Create a Virtual Network to deploy the k8s cluster into
+echo "--> Creating a Virtual Network and subnet"
+az network vnet create -g ${RESOURCE_GROUP_NAME} -n ${AKS_NAME}-vnet --address-prefixes 10.0.0.0/8 --subnet-name ${AKS_NAME}-subnet --subnet-prefix 10.240.0.0/16
+echo "--> Retrieving the Virtual Network application ID"
+VNET_ID=$(az network vnet show -g ${RESOURCE_GROUP_NAME} -n ${AKS_NAME}-vnet --query id -o tsv)
+echo "--> Retrieving the subnet application ID"
+SUBNET_ID=$(az network subnet show -g ${RESOURCE_GROUP_NAME} --vnet-name ${AKS_NAME}-vnet -n ${AKS_NAME}-subnet --query id -o tsv)
+
 # If Azure container registry is required, create an ACR and give Service Principal AcrPush role.
 if [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
   echo "--> Checking ACR name availability"
