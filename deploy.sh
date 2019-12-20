@@ -316,6 +316,20 @@ VNET_ID=$(az network vnet show -g ${RESOURCE_GROUP_NAME} -n ${AKS_NAME}-vnet --q
 echo "--> Retrieving the subnet application ID"
 SUBNET_ID=$(az network subnet show -g ${RESOURCE_GROUP_NAME} --vnet-name ${AKS_NAME}-vnet -n ${AKS_NAME}-subnet --query id -o tsv)
 
+# If no Service Principal is provided, create one
+if [ -z "${SP_APP_ID}" ] && [ -z "${SP_APP_KEY}" ] ; then
+    SP_NAME='binderhub-sp'
+    echo "--> Creating Service Principal ${SP_NAME}"
+    SP_APP_KEY=$(az ad sp create-for-rbac -n http://${SP_NAME} --skip-assignment --query password -o tsv)
+    SP_APP_ID=$(az ad sp show --id http://${SP_NAME} --query appId -o tsv)
+    echo "Waiting for Service Principal to propagate"
+    sleep 15
+    AKS_SP="--service-principal ${SP_APP_ID} --client-secret ${SP_APP_KEY}"
+fi
+
+# Assign Contributor role to Service Principal
+az role assignment create --assignee ${SP_APP_ID} --scopes ${VNET_ID} --role Contributor
+
 # If Azure container registry is required, create an ACR and give Service Principal AcrPush role.
 if [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
   echo "--> Checking ACR name availability"
