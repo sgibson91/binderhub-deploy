@@ -23,18 +23,18 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
   echo "--> Checking required environment variables"
   # Set out a list of required variables for this script
   REQUIREDVARS=" \
-          SP_APP_ID \
-          SP_APP_KEY \
-          SP_TENANT_ID \
-          RESOURCE_GROUP_NAME \
-          RESOURCE_GROUP_LOCATION \
+          AKS_NODE_COUNT \
+          AKS_NODE_VM_SIZE \
           AZURE_SUBSCRIPTION \
           BINDERHUB_NAME \
           BINDERHUB_VERSION \
-          AKS_NODE_COUNT \
-          AKS_NODE_VM_SIZE \
-          DOCKER_IMAGE_PREFIX \
           CONTAINER_REGISTRY \
+          DOCKER_IMAGE_PREFIX \
+          RESOURCE_GROUP_LOCATION \
+          RESOURCE_GROUP_NAME \
+          SP_APP_ID \
+          SP_APP_KEY \
+          SP_TENANT_ID \
           "
   for required_var in $REQUIREDVARS ; do
     if [ -z "${!required_var}" ] ; then
@@ -58,20 +58,20 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
     done
 
     echo "--> Configuration parsed from blue button:
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
       AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
       BINDERHUB_NAME: ${BINDERHUB_NAME}
       BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
+      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
       RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
-      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
-      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
       SP_APP_ID: ${SP_APP_ID}
       SP_APP_KEY: ${SP_APP_KEY}
       SP_TENANT_ID: ${SP_TENANT_ID}
-      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
-      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
-      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
       " | tee read-config.log
 
     # Check if DOCKERHUB_ORGANISATION is set to null. Return empty string if true.
@@ -92,20 +92,20 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
     done
 
     echo "--> Configuration parsed from blue button:
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
       AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
       BINDERHUB_NAME: ${BINDERHUB_NAME}
       BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      REGISTRY_NAME: ${REGISTRY_NAME}
+      REGISTRY_SKU: ${REGISTRY_SKU}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
       RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
-      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
-      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
       SP_APP_ID: ${SP_APP_ID}
       SP_APP_KEY: ${SP_APP_KEY}
       SP_TENANT_ID: ${SP_TENANT_ID}
-      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
-      REGISTRY_NAME: ${REGISTRY_NAME}
-      REGISTRY_SKU: ${REGISTRY_SKU}
       " | tee read-config.log
 
   else
@@ -124,30 +124,30 @@ else
 
   echo "--> Reading configuration from ${configFile}"
 
+  AKS_NODE_COUNT=$(jq -r '.azure .node_count' ${configFile})
+  AKS_NODE_VM_SIZE=$(jq -r '.azure .vm_size' ${configFile})
   AZURE_SUBSCRIPTION=$(jq -r '.azure .subscription' ${configFile})
   BINDERHUB_NAME=$(jq -r '.binderhub .name' ${configFile})
   BINDERHUB_VERSION=$(jq -r '.binderhub .version' ${configFile})
+  CONTAINER_REGISTRY=$(jq -r '.container_registry' ${configFile})
+  DOCKER_IMAGE_PREFIX=$(jq -r '.binderhub .image_prefix' ${configFile})
   RESOURCE_GROUP_LOCATION=$(jq -r '.azure .location' ${configFile})
   RESOURCE_GROUP_NAME=$(jq -r '.azure .res_grp_name' ${configFile})
-  AKS_NODE_COUNT=$(jq -r '.azure .node_count' ${configFile})
-  AKS_NODE_VM_SIZE=$(jq -r '.azure .vm_size' ${configFile})
   SP_APP_ID=$(jq -r '.azure .sp_app_id' ${configFile})
   SP_APP_KEY=$(jq -r '.azure .sp_app_key' ${configFile})
   SP_TENANT_ID=$(jq -r '.azure .sp_tenant_id' ${configFile})
-  DOCKER_IMAGE_PREFIX=$(jq -r '.binderhub .image_prefix' ${configFile})
-  CONTAINER_REGISTRY=$(jq -r '.container_registry' ${configFile})
 
   # Check that the variables are all set non-zero, non-null
   REQUIREDVARS=" \
-          RESOURCE_GROUP_NAME \
-          RESOURCE_GROUP_LOCATION \
+          AKS_NODE_COUNT \
+          AKS_NODE_VM_SIZE \
           AZURE_SUBSCRIPTION \
           BINDERHUB_NAME \
           BINDERHUB_VERSION \
-          AKS_NODE_COUNT \
-          AKS_NODE_VM_SIZE \
-          DOCKER_IMAGE_PREFIX \
           CONTAINER_REGISTRY \
+          DOCKER_IMAGE_PREFIX \
+          RESOURCE_GROUP_LOCATION \
+          RESOURCE_GROUP_NAME \
           "
 
   for required_var in $REQUIREDVARS ; do
@@ -197,20 +197,20 @@ else
     fi
 
     echo "--> Configuration read in:
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
       AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
       BINDERHUB_NAME: ${BINDERHUB_NAME}
       BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
+      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
       RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
-      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
-      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
       SP_APP_ID: ${SP_APP_ID}
       SP_APP_KEY: ${SP_APP_KEY}
       SP_TENANT_ID: ${SP_TENANT_ID}
-      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
-      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
-      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
       " | tee read-config.log
 
   elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
@@ -239,20 +239,20 @@ else
     REGISTRY_NAME=$(echo ${REGISTRY_NAME} | tr -cd '[:alnum:]' | cut -c -50)
 
     echo "--> Configuration read in:
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
       AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
       BINDERHUB_NAME: ${BINDERHUB_NAME}
       BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      REGISTRY_NAME: ${REGISTRY_NAME}
+      REGISTRY_SKU: ${REGISTRY_SKU}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
       RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
-      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
-      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
       SP_APP_ID: ${SP_APP_ID}
       SP_APP_KEY: ${SP_APP_KEY}
       SP_TENANT_ID: ${SP_TENANT_ID}
-      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
-      REGISTRY_NAME: ${REGISTRY_NAME}
-      REGISTRY_SKU: ${REGISTRY_SKU}
       " | tee read-config.log
 
   else
