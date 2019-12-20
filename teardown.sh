@@ -8,7 +8,7 @@ AKS_NAME=$(echo "${BINDERHUB_NAME}" | tr -cd '[:alnum:]-' | cut -c 1-59)-AKS
 AKS_USERNAME="users.clusterUser_${RESOURCE_GROUP}_${AKS_NAME}"
 
 # Purge the Helm release and delete the Kubernetes namespace
-echo "--> Purging the helm chart"
+echo "--> Purging the helm chart: ${BINDERHUB_NAME}"
 helm delete "${BINDERHUB_NAME}" --purge
 
 echo "--> Deleting the namespace: ${BINDERHUB_NAME}"
