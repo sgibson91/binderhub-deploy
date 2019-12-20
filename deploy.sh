@@ -365,7 +365,20 @@ Resource Group: ${RESOURCE_GROUP_NAME}
 Cluster name:   ${AKS_NAME}
 Node count:     ${AKS_NODE_COUNT}
 Node VM size:   ${AKS_NODE_VM_SIZE}"
-az aks create -n $AKS_NAME -g $RESOURCE_GROUP_NAME --generate-ssh-keys --node-count $AKS_NODE_COUNT --node-vm-size $AKS_NODE_VM_SIZE -o table ${AKS_SP} | tee aks-create.log
+az aks create \
+    -n $AKS_NAME \
+    -g $RESOURCE_GROUP_NAME \
+    --generate-ssh-keys \
+    --node-count $AKS_NODE_COUNT \
+    --node-vm-size $AKS_NODE_VM_SIZE \
+    --dns-service-ip 10.0.0.10 \
+    --docker-bridge-address 172.17.0.1/16 \
+    --network-plugin azure \
+    --network-policy azure \
+    --service-cidr 10.0.0.0/16 \
+    --vnet-subnet-id $SUBNET_ID \
+    -o table ${AKS_SP} \
+    | tee aks-create.log
 
 # Get kubectl credentials from Azure
 echo "--> Fetching kubectl credentials from Azure"
