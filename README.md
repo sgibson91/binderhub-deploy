@@ -420,6 +420,13 @@ The command to build a Docker image from the root of the repo is as follows.
 docker build -t <DOCKER_USERNAME>/binderhub-setup:<TAG> .
 ```
 
+It is not necessary to push this image to a container registry.
+But if you choose to do so, the command is as follows.
+
+```bash
+docker push <REGISTRY-HOST>/<DOCKER-USERNAME>/binderhub-setup:<TAG>
+```
+
 ## Contributors
 
 We would like to acknowledge and thank the following people for their contributions to this project:
