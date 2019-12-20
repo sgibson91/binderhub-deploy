@@ -371,20 +371,24 @@ Then, run the container with the following arguments, replacing the `<>` fields 
 
 ```bash
 docker run \
--e "BINDERHUB_CONTAINER_MODE=true" \
--e "SP_APP_ID=<Service Principal ID>" \
--e "SP_APP_KEY=<Service Principal Key>" \
--e "SP_TENANT_ID=<Service Principal Tenant ID>" \
--e "RESOURCE_GROUP_NAME=<Chosen Resource Group name>" \
--e "RESOURCE_GROUP_LOCATION=westeurope" \
--e "AZURE_SUBSCRIPTION=<Azure Subscription ID>" \
--e "BINDERHUB_NAME=<Chosen BinderHub name>" \
--e "BINDERHUB_VERSION=<Chosen BinderHub version>" \
--e "AKS_NODE_COUNT=1" \
--e "AKS_NODE_VM_SIZE=Standard_D2s_v3" \
--e "DOCKER_IMAGE_PREFIX=binder-dev" \
--e "DOCKER_USERNAME=<Docker ID>" \
--e "DOCKER_PASSWORD=<Docker password>" \
+-e "AKS_NODE_COUNT=1" \  # Required
+-e "AKS_NODE_VM_SIZE=Standard_D2s_v3" \  # Required
+-e "AZURE_SUBSCRIPTION=<Azure Subscription ID>" \  # Required
+-e "BINDERHUB_CONTAINER_MODE=true" \  # Required
+-e "BINDERHUB_NAME=<Chosen BinderHub name>" \  # Required
+-e "BINDERHUB_VERSION=<Chosen BinderHub version>" \  # Required
+-e "CONTAINER_REGISTRY=<dockerhub or azurecr>" \  # Required
+-e "DOCKER_IMAGE_PREFIX=binder-dev" \  # Required
+-e "DOCKERHUB_ORGANISATION=<Docker organisation>" \
+-e "DOCKERHUB_PASSWORD=<Docker password>" \
+-e "DOCKERHUB_USERNAME=<Docker ID>" \
+-e "REGISTRY_NAME=<Registry Name>" \
+-e "REGISTRY_SKU=Basic" \
+-e "RESOURCE_GROUP_LOCATION=westeurope" \  # Required
+-e "RESOURCE_GROUP_NAME=<Chosen Resource Group name>" \  # Required
+-e "SP_APP_ID=<Service Principal ID>" \  # Required
+-e "SP_APP_KEY=<Service Principal Key>" \  # Required
+-e "SP_TENANT_ID=<Service Principal Tenant ID>" \  # Required
 -it sgibson91/binderhub-setup:<TAG>
 ```
 
