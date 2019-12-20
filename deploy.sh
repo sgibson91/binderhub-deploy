@@ -310,11 +310,11 @@ fi
 
 # Create a Virtual Network to deploy the k8s cluster into
 echo "--> Creating a Virtual Network and subnet"
-az network vnet create -g ${RESOURCE_GROUP_NAME} -n ${AKS_NAME}-vnet --address-prefixes 10.0.0.0/8 --subnet-name ${AKS_NAME}-subnet --subnet-prefix 10.240.0.0/16
+az network vnet create -g ${RESOURCE_GROUP_NAME} -n ${BINDERHUB_NAME}-vnet --address-prefixes 10.0.0.0/8 --subnet-name ${BINDERHUB_NAME}-subnet --subnet-prefix 10.240.0.0/16
 echo "--> Retrieving the Virtual Network application ID"
-VNET_ID=$(az network vnet show -g ${RESOURCE_GROUP_NAME} -n ${AKS_NAME}-vnet --query id -o tsv)
+VNET_ID=$(az network vnet show -g ${RESOURCE_GROUP_NAME} -n ${BINDERHUB_NAME}-vnet --query id -o tsv)
 echo "--> Retrieving the subnet application ID"
-SUBNET_ID=$(az network subnet show -g ${RESOURCE_GROUP_NAME} --vnet-name ${AKS_NAME}-vnet -n ${AKS_NAME}-subnet --query id -o tsv)
+SUBNET_ID=$(az network vnet subnet show -g ${RESOURCE_GROUP_NAME} --vnet-name ${BINDERHUB_NAME}-vnet -n ${BINDERHUB_NAME}-subnet --query id -o tsv)
 
 # If no Service Principal is provided, create one
 if [ -z "${SP_APP_ID}" ] && [ -z "${SP_APP_KEY}" ] ; then
@@ -328,7 +328,7 @@ if [ -z "${SP_APP_ID}" ] && [ -z "${SP_APP_KEY}" ] ; then
 fi
 
 # Assign Contributor role to Service Principal
-az role assignment create --assignee ${SP_APP_ID} --scopes ${VNET_ID} --role Contributor
+az role assignment create --assignee ${SP_APP_ID} --scope ${VNET_ID} --role Contributor
 
 # If Azure container registry is required, create an ACR and give Service Principal AcrPush role.
 if [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
@@ -489,7 +489,8 @@ helm install jupyterhub/binderhub \
 --namespace=$HELM_BINDERHUB_NAME \
 -f ${DIR}/secret.yaml \
 -f ${DIR}/config.yaml \
---timeout=3600 | tee helm-chart-install.log
+--timeout=3600 \
+--wait | tee helm-chart-install.log
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 echo "--> Retrieving JupyterHub IP"
