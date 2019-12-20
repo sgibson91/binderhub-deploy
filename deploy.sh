@@ -382,7 +382,7 @@ az aks create \
 
 # Get kubectl credentials from Azure
 echo "--> Fetching kubectl credentials from Azure"
-az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME -o table | tee get-credentials.log
+az aks get-credentials -n $AKS_NAME -g $RESOURCE_GROUP_NAME --overwrite-existing | tee get-credentials.log
 
 # Check nodes are ready
 nodecount="$(kubectl get node | awk '{print $2}' | grep -c Ready)"
@@ -534,7 +534,8 @@ echo "--> Updating Helm chart"
 helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
 --version=$BINDERHUB_VERSION \
 -f ${DIR}/secret.yaml \
--f ${DIR}/config.yaml | tee helm-upgrade.log
+-f ${DIR}/config.yaml \
+--wait | tee helm-upgrade.log
 
 # Print Binder IP address
 echo "--> Retrieving Binder IP"
