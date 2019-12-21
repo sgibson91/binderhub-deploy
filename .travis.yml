@@ -15,6 +15,7 @@ install:
 
 before_script:
   - if [[ $TRAVIS_OS_NAME == linux || $TRAVIS_OS_NAME == osx ]]; then shellcheck ./*.sh; fi
+  - chmod +x *.sh
 
 script:
-  - chmod 700 setup.sh && ./setup.sh
+  - ./setup.sh
