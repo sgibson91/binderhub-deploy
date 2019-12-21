@@ -6,16 +6,21 @@ os:
   - windows
 
 before_install:
+  # Update package managers
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get update; fi
   - if [ $TRAVIS_OS_NAME = osx ]; then brew update; fi
 
 install:
+  # Install shellcheck. NOTE: For Linux and OSX only.
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install shellcheck; fi
   - if [ $TRAVIS_OS_NAME = osx ]; then brew install shellcheck; fi
 
 before_script:
-  - if [[ $TRAVIS_OS_NAME == linux || $TRAVIS_OS_NAME == osx ]]; then shellcheck ./*.sh; fi
   - chmod +x *.sh
 
 script:
+  # STEP 1: Check shell/bash syntax using shellcheck
+  #         NOTE: Only runs on Linux and OSX
+  - if [[ $TRAVIS_OS_NAME == linux || $TRAVIS_OS_NAME == osx ]]; then shellcheck ./*.sh; fi
+  # STEP 2: Run setup script to install
   - ./setup.sh
