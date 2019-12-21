@@ -35,6 +35,7 @@ You should contact your IT Services for further information regarding permission
 - [Customising your BinderHub Deployment](#customising-your-binderhub-deployment)
 - [Developers Guide](#developers-guide)
   - [Building the Docker image for testing](#building-the-docker-image-for-testing)
+  - [Tagging a Release](#tagging-a-release)
 - [Contributors](#contributors)
 
 ---
@@ -426,6 +427,31 @@ But if you choose to do so, the command is as follows.
 ```bash
 docker push <REGISTRY-HOST>/<DOCKER-USERNAME>/binderhub-setup:<TAG>
 ```
+
+### Tagging a Release
+
+Docker Hub will automatically build the image from the repo with every push to `master` and tag this as `latest`.
+
+To release a specific version, update the [Azure ARM template](https://github.com/alan-turing-institute/binderhub-deploy/blob/master/azure/paas/arm/azure.deploy.json) with the new/desired version on line [123](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure/paas/arm/azure.deploy.json#L123) and block [L127-L137](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure/paas/arm/azure.deploy.json#L127-L137).
+We follow [SemVer](https://semver.org/) versioning format.
+
+Once the Pull Request containing the new code/version/release has been merged, run the following commands, where `vX.Y.Z` is the new/desired version release.
+
+```bash
+git checkout master
+git pull
+git tag -a vX.Y.Z  # For an annotated tag
+git tag -m vX.Y.Z  # For a lightweight tag
+git tag vX.Y.Z     # For a tag with no extra data
+git push --tags
+```
+
+This will trigger Docker Hub to build an image with the SemVer version as a tag.
+
+See the following documentation for information on tagging:
+
+- <https://git-scm.com/book/en/v2/Git-Basics-Tagging>
+- <https://dev.to/neshaz/a-tutorial-for-tagging-releases-in-git-147e>
 
 ## Contributors
 
