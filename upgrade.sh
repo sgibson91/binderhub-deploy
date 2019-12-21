@@ -29,7 +29,8 @@ echo "--> Upgrading ${BINDERHUB_NAME}'s helm chart with version ${BINDERHUB_VERS
 helm upgrade "${BINDERHUB_NAME}" jupyterhub/binderhub \
 --version="${BINDERHUB_VERSION}" \
 -f "${DIR}/secret.yaml" \
--f "${DIR}/config.yaml"
+-f "${DIR}/config.yaml" \
+--wait
 
 # Print Kubernetes pods
 echo "--> Getting pods"
