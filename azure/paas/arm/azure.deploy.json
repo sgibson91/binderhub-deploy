@@ -97,7 +97,7 @@
     },
     "containerRegistryName": {
       "type": "string",
-      "minLength": 5,
+      "minLength": 4,
       "maxLength": 50,
       "defaultValue": "null",
       "metadata": {
