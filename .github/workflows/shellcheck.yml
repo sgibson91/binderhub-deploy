@@ -17,16 +17,13 @@ jobs:
       matrix:
         name: [
           linux,
-          macos,
-          windows
+          macos
         ]
         include:
           - name: linux
             os: ubuntu-latest
           - name: macos
             os: macos-latest
-          - name: windows
-            os: windows-latest
 
     steps:
       - name: Checkout repo
@@ -44,12 +41,6 @@ jobs:
           brew update
           brew install shellcheck
 
-      - name: Install Shellcheck (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          choco install shellcheck
-
       - name: Run Shellcheck on all sh files in repo
         run: |
-          shellcheck -e SC1017 *.sh
-        shell: bash
+          shellcheck *.sh
