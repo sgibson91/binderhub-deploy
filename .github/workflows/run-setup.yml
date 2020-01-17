@@ -10,8 +10,20 @@ on:
 
 jobs:
   test:
-    name: Linux - Run setup.sh
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os }} - Run setup.sh
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [
+          linux,
+          macos
+        ]
+        include:
+          - name: linux
+            os: ubuntu-latest
+          - name: macos
+            os: macos-latest
 
     steps:
       - name: Checkout repo
