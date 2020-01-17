@@ -11,7 +11,7 @@ on:
       - master
 
 jobs:
-  shellcheck:
+  test:
     name: Run Shellcheck on all sh files in repo on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
