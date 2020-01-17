@@ -45,7 +45,7 @@ jobs:
           brew install shellcheck
 
       - name: Install Shellcheck (Windows)
-        if: ${{ runner.os }} == 'Windows'
+        if: runner.os == 'Windows'
         run: |
           choco install shellcheck
 
