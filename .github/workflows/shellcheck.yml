@@ -52,3 +52,4 @@ jobs:
       - name: Run Shellcheck on all sh files in repo
         run: |
           shellcheck *.sh
+        shell: bash
