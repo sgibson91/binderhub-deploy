@@ -10,15 +10,37 @@ on:
 
 jobs:
   test:
-    name: Test sh scripts with Shellcheck on Linux
-    runs-on: ubuntu-latest
+    name: Test sh scripts with Shellcheck on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [
+          linux,
+          macos
+        ]
+        include:
+          - name: linux
+            os: ubuntu-latest
+          - name: macos
+            os: macos-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-      - name: Install Shellcheck
+
+      - name: Install Shellcheck (Linux)
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install shellcheck
+
+      - name: Install Shellcheck (MacOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install shellcheck
+
       - name: Run Shellcheck on all sh files in repo
         run: |
           shellcheck *.sh
