@@ -6,6 +6,7 @@ sudo_command=$(command -v sudo)
 
 ## Linux install cases
 if [[ ${OSTYPE} == 'linux'* ]] ; then
+  echo "--> This is a Linux build"
 
 ## apt-based systems
   if command -v apt >/dev/null 2>&1 ; then
@@ -203,6 +204,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 
 ## Installing on OS X
 elif [[ ${OSTYPE} == 'darwin'* ]] ; then
+  echo "--> This is a MacOS build"
   if command -v brew >/dev/null 2>&1 ; then
     echo "--> Checking brew packages and installing any missing packages"
     BREWPACKAGES=" \
@@ -251,6 +253,7 @@ elif [[ ${OSTYPE} == 'darwin'* ]] ; then
     fi
   fi
 else
+  echo "--> This is a Windows build"
 ## chocolatey-based systems
   if command -v choco >/dev/null 2>&1 ; then
     echo "--> Checking chocolatey packages and installing any missing packages"
