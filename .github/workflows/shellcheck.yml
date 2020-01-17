@@ -18,5 +18,10 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-      - name: Run shellcheck on all .sh files in repo
-        uses: ludeeus/actions/shellcheck@master
+      - name: Install Shellcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install shellcheck
+      - name: Run Shellcheck on all sh files in repo
+        run: |
+          shellcheck *.sh
