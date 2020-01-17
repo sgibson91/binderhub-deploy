@@ -51,5 +51,5 @@ jobs:
 
       - name: Run Shellcheck on all sh files in repo
         run: |
-          shellcheck *.sh
+          shellcheck -e SC1017 *.sh
         shell: bash
