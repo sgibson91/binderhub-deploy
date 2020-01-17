@@ -80,6 +80,11 @@ Fill the quotation marks with your desired namespaces, etc.
 ```json
 {
   "container_registry": "",        // Choose Docker Hub or ACR with 'dockerhub' or 'azurecr' values, respectively.
+  "enable_https": "false",         // Choose whether to enable HTTPS with cert-manager. Boolean.
+  "acr": {
+    "registry_name": null,         // Name to give the ACR. This must be alpha-numerical and unique to Azure.
+    "sku": "Basic"                 // The SKU capacity and pricing tier for the ACR
+  },
   "azure": {
     "subscription": "",            // Azure subscription name or ID (a hex-string)
     "res_grp_name": "",            // Azure Resource Group name
@@ -95,14 +100,15 @@ Fill the quotation marks with your desired namespaces, etc.
     "version": "",                 // Helm chart version to deploy, should be 0.2.0-<commit-hash>
     "image_prefix": ""             // The prefix to preppend to Docker images (e.g. "binder-prod")
   },
+  "cert_manager": {
+    "contact_email": null,        // Contact email for Let's Encrypt
+    "domain_name": null,          // Domain name to issue certificates for
+    "version": null               // Version of cert-manager to install
+  },
   "docker": {
     "username": null,              // Docker username (can be supplied at runtime)
     "password": null,              // Docker password (can be supplied at runtime)
     "org": null                    // A Docker Hub organisation to push images to (optional)
-  },
-  "acr": {
-    "registry_name": null,         // Name to give the ACR. This must be alpha-numerical and unique to Azure.
-    "sku": "Basic"                 // The SKU capacity and pricing tier for the ACR
   }
 }
 ```

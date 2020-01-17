@@ -1,5 +1,10 @@
 {
   "container_registry": "",
+  "enable_https": "false",
+  "acr": {
+    "registry_name": null,
+    "sku": "Basic"
+  },
   "azure": {
     "subscription": "",
     "res_grp_name": "",
@@ -15,13 +20,14 @@
     "version": "",
     "image_prefix": ""
   },
+  "cert_manager": {
+    "contact_email": null,
+    "domain_name": null,
+    "version": null
+  },
   "docker": {
     "username": null,
     "password": null,
     "org": null
-  },
-  "acr": {
-    "registry_name": null,
-    "sku": "Basic"
   }
 }
