@@ -16,11 +16,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-      
-      - name: Make shell scripts executable
-        run: |
-          chmod -x *.sh
-      
+
       - name: Execute setup.sh
         run: |
+          chmod 700 setup.sh
           ./setup.sh
