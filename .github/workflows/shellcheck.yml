@@ -28,18 +28,21 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install Shellcheck (Linux)
-        if: runner.os == "Linux"
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install shellcheck
 
       - name: Install Shellcheck (MacOS)
+        if: runner.os == 'macOS'
         run: echo ${{ runner.os }}
 
       - name: Install Shellcheck (Windows)
-        run: echo ${{ runner.os }}
+        run: |
+          brew update
+          brew install shellcheck
 
       - name: Run Shellcheck on all sh files in repo
-        if: runner.os == "Linux"
+        if: runner.os == 'Linux'
         run: |
           shellcheck *.sh
