@@ -45,7 +45,9 @@ jobs:
           brew install shellcheck
 
       - name: Install Shellcheck (Windows)
-        run: echo ${{ runner.os }}
+        if: ${{ runner.os }} == 'Windows'
+        run: |
+          choco install shellcheck
 
       - name: Run Shellcheck on all sh files in repo
         run: |
