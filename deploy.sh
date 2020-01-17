@@ -30,6 +30,7 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
           BINDERHUB_VERSION \
           CONTAINER_REGISTRY \
           DOCKER_IMAGE_PREFIX \
+          ENABLE_HTTPS \
           RESOURCE_GROUP_LOCATION \
           RESOURCE_GROUP_NAME \
           SP_APP_ID \
@@ -57,23 +58,6 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
       fi
     done
 
-    echo "--> Configuration parsed from blue button:
-      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
-      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
-      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
-      BINDERHUB_NAME: ${BINDERHUB_NAME}
-      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
-      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
-      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
-      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
-      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
-      SP_APP_ID: ${SP_APP_ID}
-      SP_APP_KEY: ${SP_APP_KEY}
-      SP_TENANT_ID: ${SP_TENANT_ID}
-      " | tee read-config.log
-
     # Check if DOCKERHUB_ORGANISATION is set to null. Return empty string if true.
     if [ x${DOCKERHUB_ORGANISATION} == 'xnull' ] ; then DOCKERHUB_ORGANISATION='' ; fi
 
@@ -91,31 +75,57 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
       fi
     done
 
-    echo "--> Configuration parsed from blue button:
-      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
-      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
-      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
-      BINDERHUB_NAME: ${BINDERHUB_NAME}
-      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
-      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-      REGISTRY_NAME: ${REGISTRY_NAME}
-      REGISTRY_SKU: ${REGISTRY_SKU}
-      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
-      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
-      SP_APP_ID: ${SP_APP_ID}
-      SP_APP_KEY: ${SP_APP_KEY}
-      SP_TENANT_ID: ${SP_TENANT_ID}
-      " | tee read-config.log
-
   else
     echo "--> Please provide a valid option for CONTAINER_REGISTRY."
     echo "    Options are 'dockerhub' or 'azurecr'."
     exit 1
   fi
 
+  if [ "$ENABLE_HTTPS" == 'true' ] ; then
+
+    REQUIREDVARS="\
+      CERTMANAGER_VERSION \
+      CONTACT_EMAIL \
+      DOMAIN_NAME \
+      "
+
+    for required_var in $REQUIREDVARS ; do
+      if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ] ; then
+        echo "--> ${required_var} must be set for container-based setup" >&2
+        exit 1
+      fi
+    done
+
+  else
+    if [ x${CONTACT_EMAIL} == 'xnull' ] ; then CONTACT_EMAIL='' ; fi
+    if [ x${DOMAIN_NAME} == 'xnull' ] ; then DOMAIN_NAME='' ; fi
+    if [ x${CERTMANAGER_VERSION} == 'xnull' ] ; then CERTMANAGER_VERSION='' ; fi
+  fi
+
   # Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
   AZURE_SUBSCRIPTION=$(echo $AZURE_SUBSCRIPTION | sed -r "s/^\/subscriptions\///")
+
+  echo "--> Configuration parsed from blue button:
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+      BINDERHUB_NAME: ${BINDERHUB_NAME}
+      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      CERTMANAGER_VERSION: ${CERTMANAGER_VERSION}
+      CONTACT_EMAIL: ${CONTACT_EMAIL}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
+      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      ENABLE_HTTPS: ${ENABLE_HTTPS}
+      REGISTRY_NAME: ${REGISTRY_NAME}
+      REGISTRY_SKU: ${REGISTRY_SKU}
+      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+      SP_APP_ID: ${SP_APP_ID}
+      SP_TENANT_ID: ${SP_TENANT_ID}
+      " | tee read-config.log
 
 else
 
@@ -131,6 +141,7 @@ else
   BINDERHUB_VERSION=$(jq -r '.binderhub .version' ${configFile})
   CONTAINER_REGISTRY=$(jq -r '.container_registry' ${configFile})
   DOCKER_IMAGE_PREFIX=$(jq -r '.binderhub .image_prefix' ${configFile})
+  ENABLE_HTTPS=$(jq -r '.enable_https' ${configFile})
   RESOURCE_GROUP_LOCATION=$(jq -r '.azure .location' ${configFile})
   RESOURCE_GROUP_NAME=$(jq -r '.azure .res_grp_name' ${configFile})
   SP_APP_ID=$(jq -r '.azure .sp_app_id' ${configFile})
@@ -146,6 +157,7 @@ else
           BINDERHUB_VERSION \
           CONTAINER_REGISTRY \
           DOCKER_IMAGE_PREFIX \
+          ENABLE_HTTPS \
           RESOURCE_GROUP_LOCATION \
           RESOURCE_GROUP_NAME \
           "
@@ -169,7 +181,6 @@ else
   # Test value of CONTAINER_REGISTRY. Must be either "dockerhub" or "azurecr"
   if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
     echo "--> Getting DockerHub requirements"
-
 
     # Read Docker credentials from config file
     DOCKERHUB_ORGANISATION=$(jq -r '.docker .org' ${configFile})
@@ -196,23 +207,6 @@ else
       fi
     fi
 
-    echo "--> Configuration read in:
-      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
-      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
-      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
-      BINDERHUB_NAME: ${BINDERHUB_NAME}
-      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
-      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
-      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
-      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
-      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
-      SP_APP_ID: ${SP_APP_ID}
-      SP_APP_KEY: ${SP_APP_KEY}
-      SP_TENANT_ID: ${SP_TENANT_ID}
-      " | tee read-config.log
-
   elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
     echo "--> Getting configuration for Azure Container Registry"
 
@@ -238,27 +232,54 @@ else
     # ACR name must be alphanumeric only and 50 characters or less
     REGISTRY_NAME=$(echo ${REGISTRY_NAME} | tr -cd '[:alnum:]' | cut -c -50)
 
-    echo "--> Configuration read in:
+  else
+    echo "--> Please provide a valid option for CONTAINER_REGISTRY."
+    echo "    Options are: 'dockerhub' or 'azurecr'."
+  fi
+
+  if [ "$ENABLE_HTTPS" == 'true' ] ; then
+
+    REQUIREDVARS="\
+      CERTMANAGER_VERSION \
+      CONTACT_EMAIL \
+      DOMAIN_NAME \
+      "
+
+    for required_var in $REQUIREDVARS ; do
+      if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ] ; then
+        echo "--> ${required_var} must be set for deployment" >&2
+        exit 1
+      fi
+    done
+
+  else
+    if [ x${CONTACT_EMAIL} == 'xnull' ] ; then CONTACT_EMAIL='' ; fi
+    if [ x${DOMAIN_NAME} == 'xnull' ] ; then DOMAIN_NAME='' ; fi
+    if [ x${CERTMANAGER_VERSION} == 'xnull' ] ; then CERTMANAGER_VERSION='' ; fi
+  fi
+
+  echo "--> Configuration read in:
       AKS_NODE_COUNT: ${AKS_NODE_COUNT}
       AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
       AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
       BINDERHUB_NAME: ${BINDERHUB_NAME}
       BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      CERTMANAGER_VERSION: ${CERTMANAGER_VERSION}
+      CONTACT_EMAIL: ${CONTACT_EMAIL}
       CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
       DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
+      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      ENABLE_HTTPS: ${ENABLE_HTTPS}
       REGISTRY_NAME: ${REGISTRY_NAME}
       REGISTRY_SKU: ${REGISTRY_SKU}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
       RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
       SP_APP_ID: ${SP_APP_ID}
-      SP_APP_KEY: ${SP_APP_KEY}
       SP_TENANT_ID: ${SP_TENANT_ID}
       " | tee read-config.log
 
-  else
-    echo "--> Please provide a valid option for CONTAINER_REGISTRY."
-    echo "    Options are: 'dockerhub' or 'azurecr'."
-  fi
 fi
 
 set -eo pipefail
