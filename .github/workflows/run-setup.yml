@@ -17,13 +17,16 @@ jobs:
       matrix:
         name: [
           linux,
-          macos
+          macos,
+          windows
         ]
         include:
           - name: linux
             os: ubuntu-latest
           - name: macos
             os: macos-latest
+          - name: windows
+            os: windows-latest
 
     steps:
       - name: Checkout repo
@@ -33,3 +36,4 @@ jobs:
         run: |
           chmod 700 setup.sh
           ./setup.sh
+        shell: bash
