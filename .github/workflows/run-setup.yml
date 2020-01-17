@@ -32,6 +32,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
+      - name: Test Windows
+        if: runner.os == 'Windows'
+        run: |
+          echo $OSTYPE
+        shell: bash
+
       - name: Execute setup.sh
         run: |
           chmod 700 setup.sh
