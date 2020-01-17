@@ -18,10 +18,11 @@ jobs:
       # Prevent all builds stopping if a single one fails
       fail-fast: false
       matrix:
-        name:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
+        name: [
+          ubuntu-latest,
+          macos-latest,
+          windows-latest
+        ]
 
     steps:
       - name: Checkout repo
