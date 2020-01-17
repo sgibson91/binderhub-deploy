@@ -1,8 +1,6 @@
 name: Shellcheck
 
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the master branch
   push:
     branches:
       - master
@@ -11,10 +9,9 @@ on:
       - master
 
 jobs:
-  shellcheck:
-
+  test:
+    name: Test sh scripts with Shellcheck on Linux
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
