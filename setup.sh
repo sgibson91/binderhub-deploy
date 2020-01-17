@@ -21,11 +21,15 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
       if ! dpkg -s "$package" > /dev/null ; then
         echo "--> Apt installing $package"
         (${sudo_command} apt update && ${sudo_command} apt install -y "$package") || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
-	fi
+      else
+        echo "--> $package already installed"
+      fi
     done
     if ! command -v az >/dev/null 2>&1 ; then
       echo "--> Attempting to install Azure-CLI with deb packages"
       curl -sL https://aka.ms/InstallAzureCLIDeb | ${sudo_command} bash || { echo >&2 "--> Azure-CLI install failed; please install manually and re-run this script."; exit 1; }
+    else
+      echo "--> Azure-CLI already installed"
     fi
     if ! command -v kubectl >/dev/null 2>&1 ; then
       echo "--> Attempting to install kubectl with deb packages"
@@ -33,6 +37,8 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
       curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | ${sudo_command} apt-key add -
       echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | ${sudo_command} tee -a /etc/apt/sources.list.d/kubernetes.list
       (${sudo_command} apt-get update && ${sudo_command} apt-get install -y kubectl) || { echo >&2 "--> kubectl install failed; please install manually and re-run this script."; exit 1; }
+    else
+      echo "--> kubectl already installed"
     fi
 
 ## yum-based systems
@@ -62,6 +68,8 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
       if ! rpm -q "$package" > /dev/null ; then
         echo "--> Yum installing $package"
         ${sudo_command} yum install -y "$package" || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
+      else
+        echo "--> $package already installed"
       fi
     done
     if ! command -v az >/dev/null 2>&1 ; then
@@ -69,6 +77,8 @@ if [[ ${OSTYPE} == 'linux'* ]] ; then
       ${sudo_command} rpm --import https://packages.microsoft.com/keys/microsoft.asc
       ${sudo_command} sh -c 'echo -e "[azure-cli]\nname=Azure CLI\nbaseurl=https://packages.microsoft.com/yumrepos/azure-cli\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/azure-cli.repo'
       ${sudo_command} yum install -y azure-cli || { echo >&2 "--> Azure-CLI install failed; please install manually and re-run this script."; exit 1; }
+    else
+      echo "--> Azure-CLI already installed"
     fi
     if ! command -v kubectl >/dev/null 2>&1 ; then
       echo "--> Attempting to install kubectl with yum packages"
@@ -81,6 +91,8 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 " | ${sudo_command} tee /etc/yum.repos.d/kubernetes.repo
       ${sudo_command} yum install -y kubectl || { echo >&2 "--> kubectl install failed; please install manually and re-run this script."; exit 1; }
+    else
+      echo "--> kubectl already installed"
     fi
 
 ## zypper-based systems
@@ -98,7 +110,9 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
       if ! rpm -q "$package" > /dev/null ; then
         echo "--> Zypper installing $package"
         ${sudo_command} zypper install -y "$package" || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
-	fi
+      else
+        echo "--> $package already installed"
+      fi
     done
     if ! command -v az >/dev/null 2>&1 ; then
       echo "--> Attempting to install Azure-CLI with zypper packages"
@@ -107,11 +121,15 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
       ${sudo_command} zypper install --from azure-cli -y azure-cli || { echo >&2 "--> azure-cli install failed; please install manually and re-run this script."; exit 1; }
       # The az-cli installer misses python-xml dependency on suse
       ${sudo_command} zypper install -y python-xml || { echo >&2 "--> python-xml install failed; please install manually and re-run this script."; exit 1; }
+    else
+      echo "--> Azure-CLI already installed"
     fi
     if ! command -v kubectl >/dev/null 2>&1 ; then
       echo "--> Attempting to install kubectl with zypper packages"
       zypper ar -f https://download.opensuse.org/tumbleweed/repo/oss/ factory
       zypper install -y kubectl || { echo >&2 "--> kubectl install failed; please install manually and re-run this script."; exit 1; }
+    else
+      echo "--> kubectl already installed"
     fi
 
 ## pacman-based systems
@@ -133,11 +151,15 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
       if ! pacman -Q "$package" 2> /dev/null ; then
         echo "--> pacman installing $package"
         ${sudo_command} pacman -Sy --noconfirm "$package" || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
-	fi
+      else
+        echo "--> $package already installed"
+      fi
     done
     if ! command -v az >/dev/null 2>&1 ; then
       echo "--> Attempting to install Azure-CLI with curl"
       curl -L https://aka.ms/InstallAzureCli | sh || { echo >&2 "--> Azure-CLI install failed; please install manually and re-run this script."; exit 1; }
+    else
+      echo "--> Azure-CLI already installed"
     fi
 
 ## Mystery linux system without any of our recognised package managers
@@ -150,12 +172,16 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
     echo "--> Attempting to install Azure-CLI with curl"
     if ! command -v az >/dev/null 2>&1 ; then
       curl -L https://aka.ms/InstallAzureCli | sh || { echo >&2 "--> Azure-CLI install failed; please install manually and re-run this script."; exit 1; }
+    else
+      echo "--> Azure-CLI already installed"
     fi
     echo "--> Attempting to install kubectl with curl"
     if ! command -v kubectl >/dev/null 2>&1 ; then
       curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl || { echo >&2 "--> kubectl download failed; please install manually and re-run this script."; exit 1; }
       chmod +x ./kubectl
       ${sudo_command} mv ./kubectl /usr/local/bin/kubectl
+    else
+      echo "--> kubectl already installed"
     fi
   fi
 
@@ -171,6 +197,8 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
     curl https://raw.githubusercontent.com/helm/helm/master/scripts/get > get_helm.sh
     chmod 700 get_helm.sh
     ./get_helm.sh || { echo >&2 "--> helm install failed; please install manually and re-run this script."; exit 1; }
+  else
+    echo "--> helm already installed"
   fi
 
 ## Installing on OS X
@@ -190,7 +218,9 @@ elif [[ ${OSTYPE} == 'darwin'* ]] ; then
       if ! brew ls --versions "$package" > /dev/null ; then
         echo "--> Brew installing $package"
         brew install "$package" || { echo >&2 "--> $package install failed; please install manually and re-run this script."; exit 1; }
-	fi
+      else
+        echo "--> $package is already installed"
+      fi
     done
   else
     command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found; please install and re-run this script."; exit 1; }
@@ -200,18 +230,24 @@ elif [[ ${OSTYPE} == 'darwin'* ]] ; then
     echo "--> Attempting to install Azure-CLI with curl"
     if ! command -v az >/dev/null 2>&1  ; then
       curl -L https://aka.ms/InstallAzureCli | sh || { echo >&2 "--> Azure-CLI install failed; please install manually and re-run this script."; exit 1; }
+    else
+      echo "--> Azure-CLI already installed"
     fi
     echo "--> Attempting to install kubectl with curl"
     if ! command -v kubectl >/dev/null 2>&1 ; then
       curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl || { echo >&2 "--> kubectl download failed; please install manually and re-run this script."; exit 1; }
       chmod +x ./kubectl
       ${sudo_command} mv ./kubectl /usr/local/bin/kubectl
+    else
+      echo "--> kubectl already installed"
     fi
     echo "--> Attempting to install helm with curl"
     if ! command -v helm >/dev/null 2>&1 ; then
       curl https://raw.githubusercontent.com/helm/helm/master/scripts/get > get_helm.sh
       chmod 700 get_helm.sh
       ./get_helm.sh || { echo >&2 "--> helm install failed; please install manually and re-run this script."; exit 1; }
+    else
+      echo "--> helm already installed"
     fi
   fi
 fi
