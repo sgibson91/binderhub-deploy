@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    name: Test sh scripts with Shellcheck on ${{ matrix.os }}
+    name: ${{ matrix.os }}: Shellcheck scripts
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
