@@ -520,6 +520,45 @@ if [ "$ENABLE_HTTPS" == 'true' ] ; then
   sed -e "s/<namespace>/${HELM_BINDERHUB_NAME}/g" \
       -e "s/<contact_email>/${CONTACT_EMAIL}/g" \
       ${DIR}/templates/cluster-issuer-template.yaml > ${DIR}/cluster-issuer.yaml
+
+  BINDER_HOST="binder.${DOMAIN_NAME}"
+  HUB_HOST="hub.${DOMAIN_NAME}"
+  BINDER_SECRET="${HELM_BINDERHUB_NAME}-binder-secret"
+  HUB_SECRET="${HELM_BINDERHUB_NAME}-hub-secret"
+
+  # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
+  if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
+
+    echo "--> Generating initial configuration file"
+    if [ -z "${DOCKERHUB_ORGANISATION}" ] ; then
+      sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+      -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+      -e "s/<jupyterhub-ip>/${HUB_HOST}/" \
+      -e "s/<cluster-issuer>/letsencrypt-staging/g" \
+      -e "s/<binder-host>/${BINDER_HOST}/g" \
+      -e "s/<binder-secret-name>/${BINDER_SECRET}/" \
+      -e "s/<hub-host>/${HUB_HOST}/g" \
+      -e "s/<hub-secret-name>/${HUB_SECRET}/" \
+      ${DIR}/templates/https-config-template.yaml > ${DIR}/config.yaml
+    else
+      sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
+      -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+      -e "s/<jupyterhub-ip>/${HUB_HOST}/" \
+      -e "s/<cluster-issuer>/letsencrypt-staging/g" \
+      -e "s/<binder-host>/${BINDER_HOST}/g" \
+      -e "s/<binder-secret-name>/${BINDER_SECRET}/" \
+      -e "s/<hub-host>/${HUB_HOST}/g" \
+      -e "s/<hub-secret-name>/${HUB_SECRET}/" \
+      ${DIR}/templates/https-config-template.yaml > ${DIR}/config.yaml
+    fi
+
+    echo "--> Generating initial secrets file"
+    sed -e "s/<apiToken>/${apiToken}/" \
+    -e "s/<secretToken>/${secretToken}/" \
+    -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+    -e "s/<password>/${DOCKERHUB_PASSWORD}/" \
+    ${DIR}/templates/secret-template.yaml > ${DIR}/secret.yaml
+  fi
 fi
 
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
