@@ -479,6 +479,26 @@ secretToken=$(openssl rand -hex 32)
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 helm repo update
 
+# If HTTPS is enabled, get cert-manager helm chart and install it into the
+# cert-manager namespace
+if [ "${HTTPS_ENABLED}" == 'true' ] ; then
+  echo "--> Add cert-manager helm repo"
+  helm repo add jetstack https://charts.jetstack.io
+  helm repo update
+  kubectl apply --validate=false -f ${CERTMANAGER_CRDS}
+
+  echo "--> Install cert-manager helm repo"
+  helm install jetstack/cert-manager \
+  --name cert-manager \
+  --namespace cert-manager \
+  --version ${CERTMANAGER_VERSION} \
+  --timeout=3600 \
+  --wait | tee cert-manager-chart-install.log
+
+  echo "--> cert-manager pods status"
+  kubectl get pods --namespace cert-manager | tee cert-manager-get-pods.log
+fi
+
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
 if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
 
@@ -527,7 +547,7 @@ helm install jupyterhub/binderhub \
 -f ${DIR}/secret.yaml \
 -f ${DIR}/config.yaml \
 --timeout=3600 \
---wait | tee helm-chart-install.log
+--wait | tee binderhub-chart-install.log
 
 # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 echo "--> Retrieving JupyterHub IP"
