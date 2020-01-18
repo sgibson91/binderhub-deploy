@@ -239,6 +239,12 @@ else
 
   if [ "$ENABLE_HTTPS" == 'true' ] ; then
 
+    # Read in cert-manager config
+    CERTMANAGER_VERSION=$(jq -r '.cert_manager .version' ${configFile})
+    CONTACT_EMAIL=$(jq -r '.cert_manager .contact_email' ${configFile})
+    DOMAIN_NAME=$(jq -r '.cert_manager .domain_name' ${configFile})
+
+    # Checking required variables
     REQUIREDVARS="\
       CERTMANAGER_VERSION \
       CONTACT_EMAIL \
