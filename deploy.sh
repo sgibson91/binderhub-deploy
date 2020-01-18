@@ -96,6 +96,11 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
       fi
     done
 
+    # Configure URL for Custom Resource Definitions
+    STRIPPED_VERSION=$(echo "${CERTMANAGER_VERSION}" | tr -d 'v')
+    SHORT_VERSION=${STRIPPED_VERSION%.*}
+    CERTMANAGER_CRDS="https://raw.githubusercontent.com/jetstack/cert-manager/release-${SHORT_VERSION}/deploy/manifests/00-crds.yaml"
+
   else
     if [ x${CONTACT_EMAIL} == 'xnull' ] ; then CONTACT_EMAIL='' ; fi
     if [ x${DOMAIN_NAME} == 'xnull' ] ; then DOMAIN_NAME='' ; fi
@@ -257,6 +262,11 @@ else
         exit 1
       fi
     done
+
+    # Configure URL for Custom Resource Definitions
+    STRIPPED_VERSION=$(echo "${CERTMANAGER_VERSION}" | tr -d 'v')
+    SHORT_VERSION=${STRIPPED_VERSION%.*}
+    CERTMANAGER_CRDS="https://raw.githubusercontent.com/jetstack/cert-manager/release-${SHORT_VERSION}/deploy/manifests/00-crds.yaml"
 
   else
     if [ x${CONTACT_EMAIL} == 'xnull' ] ; then CONTACT_EMAIL='' ; fi
