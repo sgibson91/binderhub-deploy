@@ -3,7 +3,7 @@ config:
   BinderHub:
     use_registry: true
     image_prefix: <docker-id>/<prefix>-
-    hub_url: http://<jupyterhub-ip>
+    hub_url: https://<jupyterhub-ip>
 
 service:
   type: ClusterIP
@@ -13,16 +13,16 @@ ingress:
   annotations:
     kubernetes.io/tls-acme: "true"
     kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: {cluster_issuer}
+    cert-manager.io/cluster-issuer: "<cluster-issuer>"
     https:
       enabled: true
       type: nginx
   host:
-    - {binder_host}
+    - <binder-host>
   tls:
-    - secretName: {binder_secret_name}
+    - secretName: <binder-secret-name>
       hosts:
-        - {binder_host}
+        - <binder-host>
 
 jupyterhub:
   proxy:
@@ -34,13 +34,13 @@ jupyterhub:
     annotations:
       kubernetes.io/tls-acme: "true"
       kubernetes.io/ingress.class: nginx
-      cert-manager.io/cluster-issuer: {cluster_issuer}
+      cert-manager.io/cluster-issuer: "<cluster-issuer>"
       https:
         enabled: true
         type: nginx
     hosts:
-      - {hub_host}
+      - <hub-host>
     tls:
-      - secretName: {hub_secret_name}
+      - secretName: <hub-secret-name>
         hosts:
-          - {hub_host}
+          - <hub-host>
