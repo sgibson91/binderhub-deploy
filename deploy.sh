@@ -498,7 +498,7 @@ if [ "$ENABLE_HTTPS" == 'true' ] ; then
   echo "--> Install cert-manager helm repo"
   helm install jetstack/cert-manager \
   --name cert-manager \
-  --namespace cert-manager \
+  --namespace ${HELM_BINDERHUB_NAME} \
   --version ${CERTMANAGER_VERSION} \
   --timeout=3600 \
   --wait | tee cert-manager-chart-install.log
@@ -580,43 +580,45 @@ if [ "$ENABLE_HTTPS" == 'true' ] ; then
     -e "s/<password>/${SP_APP_KEY}/" \
     ${DIR}/templates/acr-secret-template.yaml > ${DIR}/secret.yaml
   fi
-fi
 
-# Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
-if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
+else
 
-  echo "--> Generating initial configuration file"
-  if [ -z "${DOCKERHUB_ORGANISATION}" ] ; then
-    sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
-    -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-    ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
-  else
-    sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
-    -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-    ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
+  # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
+  if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
+
+    echo "--> Generating initial configuration file"
+    if [ -z "${DOCKERHUB_ORGANISATION}" ] ; then
+      sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+      -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+      ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
+    else
+      sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
+      -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+      ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
+    fi
+
+    echo "--> Generating initial secrets file"
+    sed -e "s/<apiToken>/${apiToken}/" \
+    -e "s/<secretToken>/${secretToken}/" \
+    -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+    -e "s/<password>/${DOCKERHUB_PASSWORD}/" \
+    ${DIR}/templates/secret-template.yaml > ${DIR}/secret.yaml
+
+  elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
+
+    echo "--> Generating initial configuration file"
+    sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
+    -e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
+    ${DIR}/templates/acr-config-template.yaml > ${DIR}/config.yaml
+
+    echo "--> Generating initial secrets file"
+    sed -e "s/<apiToken>/${apiToken}/" \
+    -e "s/<secretToken>/${secretToken}/" \
+    -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@" \
+    -e "s/<username>/${SP_APP_ID}/" \
+    -e "s/<password>/${SP_APP_KEY}/" \
+    ${DIR}/templates/acr-secret-template.yaml > ${DIR}/secret.yaml
   fi
-
-  echo "--> Generating initial secrets file"
-  sed -e "s/<apiToken>/${apiToken}/" \
-  -e "s/<secretToken>/${secretToken}/" \
-  -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
-  -e "s/<password>/${DOCKERHUB_PASSWORD}/" \
-  ${DIR}/templates/secret-template.yaml > ${DIR}/secret.yaml
-
-elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
-
-  echo "--> Generating initial configuration file"
-  sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
-  -e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
-  ${DIR}/templates/acr-config-template.yaml > ${DIR}/config.yaml
-
-  echo "--> Generating initial secrets file"
-  sed -e "s/<apiToken>/${apiToken}/" \
-  -e "s/<secretToken>/${secretToken}/" \
-  -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@" \
-  -e "s/<username>/${SP_APP_ID}/" \
-  -e "s/<password>/${SP_APP_KEY}/" \
-  ${DIR}/templates/acr-secret-template.yaml > ${DIR}/secret.yaml
 fi
 
 echo "--> Installing Helm chart"
