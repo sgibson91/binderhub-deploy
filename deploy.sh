@@ -558,6 +558,27 @@ if [ "$ENABLE_HTTPS" == 'true' ] ; then
     -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
     -e "s/<password>/${DOCKERHUB_PASSWORD}/" \
     ${DIR}/templates/secret-template.yaml > ${DIR}/secret.yaml
+
+  elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
+
+    echo "--> Generating initial configuration file"
+    sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
+    -e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
+    -e "s/<jupyterhub-ip>/${HUB_HOST}/" \
+    -e "s/<cluster-issuer>/letsencrypt-staging/g" \
+    -e "s/<binder-host>/${BINDER_HOST}/g" \
+    -e "s/<binder-secret-name>/${BINDER_SECRET}/" \
+    -e "s/<hub-host>/${HUB_HOST}/g" \
+    -e "s/<hub-secret-name>/${HUB_SECRET}/" \
+    ${DIR}/templates/https-acr-config-template.yaml > ${DIR}/config.yaml
+
+    echo "--> Generating initial secrets file"
+    sed -e "s/<apiToken>/${apiToken}/" \
+    -e "s/<secretToken>/${secretToken}/" \
+    -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@" \
+    -e "s/<username>/${SP_APP_ID}/" \
+    -e "s/<password>/${SP_APP_KEY}/" \
+    ${DIR}/templates/acr-secret-template.yaml > ${DIR}/secret.yaml
   fi
 fi
 
@@ -595,7 +616,7 @@ elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
   -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@" \
   -e "s/<username>/${SP_APP_ID}/" \
   -e "s/<password>/${SP_APP_KEY}/" \
-${DIR}/templates/acr-secret-template.yaml > ${DIR}/secret.yaml
+  ${DIR}/templates/acr-secret-template.yaml > ${DIR}/secret.yaml
 fi
 
 echo "--> Installing Helm chart"
