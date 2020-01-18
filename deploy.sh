@@ -347,7 +347,13 @@ fi
 
 # Create a Virtual Network to deploy the k8s cluster into
 echo "--> Creating a Virtual Network and subnet"
-az network vnet create -g ${RESOURCE_GROUP_NAME} -n ${BINDERHUB_NAME}-vnet --address-prefixes 10.0.0.0/8 --subnet-name ${BINDERHUB_NAME}-subnet --subnet-prefix 10.240.0.0/16
+az network vnet create \
+    -g ${RESOURCE_GROUP_NAME} \
+    -n ${BINDERHUB_NAME}-vnet \
+    --address-prefixes 10.0.0.0/8 \
+    --subnet-name ${BINDERHUB_NAME}-subnet \
+    --subnet-prefix 10.240.0.0/16 \
+    -o table | tee create-vnet.log
 echo "--> Retrieving the Virtual Network application ID"
 VNET_ID=$(az network vnet show -g ${RESOURCE_GROUP_NAME} -n ${BINDERHUB_NAME}-vnet --query id -o tsv)
 echo "--> Retrieving the subnet application ID"
