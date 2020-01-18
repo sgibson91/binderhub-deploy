@@ -1,0 +1,47 @@
+config:
+  BinderHub:
+    use_registry: true
+    image_prefix: <acr-login-server>/<prefix>-
+    hub_url: http://<jupyterhub-ip>
+  DockerRegistry:
+    token_url: "https://<acr-login-server>/oauth2/token?service=<acr-login-server>"
+
+service:
+  type: ClusterIP
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: {cluster_issuer}
+    https:
+      enabled: true
+      type: nginx
+  hosts:
+    - {binder_host}
+  tls:
+    - secretName: {binder_secret_name}
+      hosts:
+        - {binder_host}
+
+jupyterhub:
+  proxy:
+    service:
+      type: ClusterIP
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/tls-acme: "true"
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: {cluster_issuer}
+      https:
+        enabled: true
+        type: nginx
+    hosts:
+      - {hub_host}
+    tls:
+      - secretName: {hub_secret_name}
+        hosts:
+          - {hub_host}
