@@ -501,8 +501,17 @@ if [ "${HTTPS_ENABLED}" == 'true' ] ; then
   --timeout=3600 \
   --wait | tee cert-manager-chart-install.log
 
-  echo "--> cert-manager pods status"
+  echo "--> cert-manager pods status:"
   kubectl get pods --namespace cert-manager | tee cert-manager-get-pods.log
+
+  # Create a ClusterIssuer to test deployment
+  echo "--> Testing cert-manager webhooks"
+  kubectl apply -f ${DIR}/templates/test-resources.yaml
+  sleep 30
+  kubectl describe certificate -n cert-manager-test | tee cert-manager-test.log
+
+  # Clean up resources
+  kubectl delete -f test-resources.yaml
 fi
 
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
