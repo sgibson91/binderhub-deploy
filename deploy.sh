@@ -306,6 +306,9 @@ RESOURCE_GROUP_LOCATION=$(echo ${RESOURCE_GROUP_LOCATION//[[:blank::]]/} | tr '[
 # Generate a valid name for the AKS cluster
 AKS_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59)-AKS
 
+# Format BinderHub name for Kubernetes
+HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//' )
+
 # Azure login will be different depending on whether this script is running
 # with or without service principal details supplied.
 #
@@ -555,9 +558,6 @@ elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
   -e "s/<password>/${SP_APP_KEY}/" \
 ${DIR}/templates/acr-secret-template.yaml > ${DIR}/secret.yaml
 fi
-
-# Format BinderHub name for Kubernetes
-HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//' )
 
 echo "--> Installing Helm chart"
 helm install jupyterhub/binderhub \
