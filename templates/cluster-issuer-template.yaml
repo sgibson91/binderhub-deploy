@@ -3,11 +3,11 @@ apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-staging
-  namespace: {namespace}
+  namespace: <namespace>
 spec:
   acme:
     server: https://acme-staging-v02.api.letsencrypt.org/directory
-    email: {contact_email}
+    email: <contact_email>
     privateKeySecretRef:
       name: letsencrypt-staging
     solvers:
@@ -19,11 +19,11 @@ apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-prod
-  namespace: {namespace}
+  namespace: <namespace>
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: {contact_email}
+    email: <contact_email>
     privateKeySecretRef:
       name: letsencrypt-prod
     solvers:

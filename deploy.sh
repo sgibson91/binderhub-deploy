@@ -511,6 +511,12 @@ if [ "$ENABLE_HTTPS" == 'true' ] ; then
 
   # Clean up resources
   kubectl delete -f ${DIR}/templates/test-resources.yaml
+
+  # Parse info to cluster issuer
+  echo "--> Writing ClusterIssuer config"
+  sed -e "s/<namespace>/${HELM_BINDERHUB_NAME}/g" \
+      -e "s/<contact_email>/${CONTACT_EMAIL}/g" \
+      ${DIR}/templates/cluster-issuer-template.yaml > ${DIR}/cluster-issuer.yaml
 fi
 
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.

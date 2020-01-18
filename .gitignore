@@ -1,9 +1,10 @@
 # Ignore config JSON file
 config.json
 
-# Ignore config and secret yaml files
+# Ignore specific yaml files
 config.yaml
 secret.yaml
+cluster-issuer.yaml
 
 # Ignore generated log files
 *.log
