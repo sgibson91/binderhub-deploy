@@ -5,4 +5,5 @@ config:
     image_prefix: <acr-login-server>/<prefix>-
     hub_url: http://<jupyterhub-ip>
   DockerRegistry:
-    token_url: "https://<acr-login-server>/oauth2/token?service=<acr-login-server>"
+    token_url:
+      "https://<acr-login-server>/oauth2/token?service=<acr-login-server>"
