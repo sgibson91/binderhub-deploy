@@ -352,8 +352,7 @@ az network vnet create \
     -n ${BINDERHUB_NAME}-vnet \
     --address-prefixes 10.0.0.0/8 \
     --subnet-name ${BINDERHUB_NAME}-subnet \
-    --subnet-prefix 10.240.0.0/16 \
-    -o table | tee create-vnet.log
+    --subnet-prefix 10.240.0.0/16 | tee create-vnet.log
 echo "--> Retrieving the Virtual Network application ID"
 VNET_ID=$(az network vnet show -g ${RESOURCE_GROUP_NAME} -n ${BINDERHUB_NAME}-vnet --query id -o tsv)
 echo "--> Retrieving the subnet application ID"
@@ -487,7 +486,7 @@ helm repo update
 
 # If HTTPS is enabled, get cert-manager helm chart and install it into the
 # cert-manager namespace
-if [ "${HTTPS_ENABLED}" == 'true' ] ; then
+if [ "$ENABLE_HTTPS" == 'true' ] ; then
   echo "--> Add cert-manager helm repo"
   helm repo add jetstack https://charts.jetstack.io
   helm repo update
@@ -511,7 +510,7 @@ if [ "${HTTPS_ENABLED}" == 'true' ] ; then
   kubectl describe certificate -n cert-manager-test | tee cert-manager-test.log
 
   # Clean up resources
-  kubectl delete -f test-resources.yaml
+  kubectl delete -f ${DIR}/templates/test-resources.yaml
 fi
 
 # Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
