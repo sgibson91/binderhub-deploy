@@ -1,3 +1,4 @@
+---
 config:
   BinderHub:
     use_registry: true
