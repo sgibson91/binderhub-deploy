@@ -20,14 +20,15 @@
     "version": "",
     "image_prefix": ""
   },
-  "cert_manager": {
-    "contact_email": null,
-    "domain_name": null,
-    "version": null
-  },
   "docker": {
     "username": null,
     "password": null,
     "org": null
+  },
+  "https": {
+    "certmanager_version": null,
+    "contact_email": null,
+    "domain_name": null,
+    "nginx_version": null
   }
 }

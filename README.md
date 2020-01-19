@@ -100,15 +100,16 @@ Fill the quotation marks with your desired namespaces, etc.
     "version": "",                 // Helm chart version to deploy, should be 0.2.0-<commit-hash>
     "image_prefix": ""             // The prefix to preppend to Docker images (e.g. "binder-prod")
   },
-  "cert_manager": {
-    "contact_email": null,        // Contact email for Let's Encrypt
-    "domain_name": null,          // Domain name to issue certificates for
-    "version": null               // Version of cert-manager to install
-  },
   "docker": {
     "username": null,              // Docker username (can be supplied at runtime)
     "password": null,              // Docker password (can be supplied at runtime)
     "org": null                    // A Docker Hub organisation to push images to (optional)
+  },
+  "https:": {
+    "certmanager_version": null,   // Version of cert-manager to install
+    "contact_email": null,        // Contact email for Let's Encrypt
+    "domain_name": null,          // Domain name to issue certificates for
+    "nginx_version": null         // Version on nginx-ingress to install
   }
 }
 ```
