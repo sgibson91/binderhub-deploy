@@ -1,4 +1,4 @@
-name: Shellcheck
+name: shellcheck
 
 on:
   push:
@@ -9,38 +9,14 @@ on:
       - master
 
 jobs:
-  test:
-    name: ${{ matrix.os }} - Shellcheck scripts
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        name: [
-          linux,
-          macos
-        ]
-        include:
-          - name: linux
-            os: ubuntu-latest
-          - name: macos
-            os: macos-latest
-
+  shellcheck:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Install Shellcheck (Linux)
-        if: runner.os == 'Linux'
+      - uses: actions/checkout@v2
+      - name: Install Shellcheck
         run: |
           sudo apt-get update
           sudo apt-get install shellcheck
-
-      - name: Install Shellcheck (MacOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew update
-          brew install shellcheck
-
-      - name: Run Shellcheck on all sh files in repo
+      - name: Run Shellcheck on all shell files in repo
         run: |
           shellcheck *.sh
