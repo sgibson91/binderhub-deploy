@@ -511,8 +511,6 @@ if [ "$ENABLE_HTTPS" == 'true' ] ; then
   --timeout=3600 \
   --wait | tee nginx-chart-install.log
 
-  kubectl get svc --namespace ${HELM_BINDERHUB_NAME}
-
   echo "--> Install cert-manager helm chart"
   helm install jetstack/cert-manager \
   --name cert-manager \
@@ -520,6 +518,8 @@ if [ "$ENABLE_HTTPS" == 'true' ] ; then
   --version ${CERTMANAGER_VERSION} \
   --timeout=3600 \
   --wait | tee cert-manager-chart-install.log
+
+  LOAD_BALANCER_IP=$(kubectl get svc nginx-ingress-controller -n ${HELM_BINDERHUB_NAME} | awk '{ print $4}' | tail -n 1)
 
   echo "--> cert-manager pods status:"
   kubectl get pods --namespace cert-manager | tee cert-manager-get-pods.log
