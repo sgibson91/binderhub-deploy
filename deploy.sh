@@ -494,15 +494,26 @@ secretToken=$(openssl rand -hex 32)
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 helm repo update
 
-# If HTTPS is enabled, get cert-manager helm chart and install it into the
-# cert-manager namespace
+# If HTTPS is enabled, get nginx-ingress and cert-manager helm charts and
+# install them into the hub namespace
 if [ "$ENABLE_HTTPS" == 'true' ] ; then
-  echo "--> Add cert-manager helm repo"
+  echo "--> Add nginx-ingress and cert-manager helm repos"
+  helm repo add stable https://kubernetes-charts.storage.googleapis.com
   helm repo add jetstack https://charts.jetstack.io
   helm repo update
   kubectl apply --validate=false -f ${CERTMANAGER_CRDS}
 
-  echo "--> Install cert-manager helm repo"
+  echo "--> Install nginx-ingress helm chart"
+  helm install stable/nginx-ingress \
+  --name nginx-ingress \
+  --namespace ${HELM_BINDERHUB_NAME} \
+  --version ${NGINX_VERSION} \
+  --timeout=3600 \
+  --wait | tee nginx-chart-install.log
+
+  kubectl get svc --namespace ${HELM_BINDERHUB_NAME}
+
+  echo "--> Install cert-manager helm chart"
   helm install jetstack/cert-manager \
   --name cert-manager \
   --namespace ${HELM_BINDERHUB_NAME} \
