@@ -649,62 +649,64 @@ helm install jupyterhub/binderhub \
 --timeout=3600 \
 --wait | tee binderhub-chart-install.log
 
-# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
-echo "--> Retrieving JupyterHub IP"
-# shellcheck disable=SC2030 disable=SC2036
-JUPYTERHUB_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1) | tee jupyterhub-ip.log
-# shellcheck disable=SC2031
-while [ "${JUPYTERHUB_IP}" = '<pending>' ] || [ "${JUPYTERHUB_IP}" = "" ]
-do
-    echo "Sleeping 30s before checking again"
-    sleep 30
-    JUPYTERHUB_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1)
-    echo "JupyterHub IP: ${JUPYTERHUB_IP}" | tee jupyterhub-ip.log
-done
+if [ "$ENABLE_HTTPS" == "false" ] ; then
+  # Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
+  echo "--> Retrieving JupyterHub IP"
+  # shellcheck disable=SC2030 disable=SC2036
+  JUPYTERHUB_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1) | tee jupyterhub-ip.log
+  # shellcheck disable=SC2031
+  while [ "${JUPYTERHUB_IP}" = '<pending>' ] || [ "${JUPYTERHUB_IP}" = "" ]
+  do
+      echo "Sleeping 30s before checking again"
+      sleep 30
+      JUPYTERHUB_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1)
+      echo "JupyterHub IP: ${JUPYTERHUB_IP}" | tee jupyterhub-ip.log
+  done
 
-if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
+  if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
 
-  echo "--> Finalising configurations"
-  if [ -z "$DOCKERHUB_ORGANISATION" ] ; then
-    sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
-    -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+    echo "--> Finalising configurations"
+    if [ -z "$DOCKERHUB_ORGANISATION" ] ; then
+      sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+      -e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+      -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
+      ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
+    else
+      sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
+      -e "s/<prefix>/${DOCKERHUB_IMAGE_PREFIX}/" \
+      -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
+      ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
+    fi
+
+  elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
+
+    echo "--> Finalising configurations"
+    sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
+    -e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
     -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
-    ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
-  else
-    sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
-    -e "s/<prefix>/${DOCKERHUB_IMAGE_PREFIX}/" \
-    -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
-    ${DIR}/templates/config-template.yaml > ${DIR}/config.yaml
+    ${DIR}/templates/acr-config-template.yaml > ${DIR}/config.yaml
+
   fi
 
-elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ] ; then
+  echo "--> Updating Helm chart"
+  helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
+  --version=$BINDERHUB_VERSION \
+  -f ${DIR}/secret.yaml \
+  -f ${DIR}/config.yaml \
+  --wait | tee helm-upgrade.log
 
-  echo "--> Finalising configurations"
-  sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
-  -e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
-  -e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
-  ${DIR}/templates/acr-config-template.yaml > ${DIR}/config.yaml
-
+  # Print Binder IP address
+  echo "--> Retrieving Binder IP"
+  BINDER_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1)
+  echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
+  while [ "${BINDER_IP}" = '<pending>' ] || [ "${BINDER_IP}" = "" ]
+  do
+      echo "Sleeping 30s before checking again"
+      sleep 30
+      BINDER_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1)
+      echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
+  done
 fi
-
-echo "--> Updating Helm chart"
-helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
---version=$BINDERHUB_VERSION \
--f ${DIR}/secret.yaml \
--f ${DIR}/config.yaml \
---wait | tee helm-upgrade.log
-
-# Print Binder IP address
-echo "--> Retrieving Binder IP"
-BINDER_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1)
-echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
-while [ "${BINDER_IP}" = '<pending>' ] || [ "${BINDER_IP}" = "" ]
-do
-    echo "Sleeping 30s before checking again"
-    sleep 30
-    BINDER_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1)
-    echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
-done
 
 if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
   # Finally, save outputs to blob storage
