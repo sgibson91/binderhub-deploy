@@ -87,6 +87,7 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
       CERTMANAGER_VERSION \
       CONTACT_EMAIL \
       DOMAIN_NAME \
+      NGINX_VERSION \
       "
 
     for required_var in $REQUIREDVARS ; do
@@ -105,6 +106,7 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
     if [ x${CONTACT_EMAIL} == 'xnull' ] ; then CONTACT_EMAIL='' ; fi
     if [ x${DOMAIN_NAME} == 'xnull' ] ; then DOMAIN_NAME='' ; fi
     if [ x${CERTMANAGER_VERSION} == 'xnull' ] ; then CERTMANAGER_VERSION='' ; fi
+    if [ x${NGINX_VERSION} == 'xnull' ] ; then NGINX_VERSION='' ; fi
   fi
 
   # Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
@@ -124,6 +126,7 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
       DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
       DOMAIN_NAME: ${DOMAIN_NAME}
       ENABLE_HTTPS: ${ENABLE_HTTPS}
+      NGINX_VERSION: ${NGINX_VERSION}
       REGISTRY_NAME: ${REGISTRY_NAME}
       REGISTRY_SKU: ${REGISTRY_SKU}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
@@ -245,15 +248,17 @@ else
   if [ "$ENABLE_HTTPS" == 'true' ] ; then
 
     # Read in cert-manager config
-    CERTMANAGER_VERSION=$(jq -r '.cert_manager .version' ${configFile})
-    CONTACT_EMAIL=$(jq -r '.cert_manager .contact_email' ${configFile})
-    DOMAIN_NAME=$(jq -r '.cert_manager .domain_name' ${configFile})
+    CERTMANAGER_VERSION=$(jq -r '.https .certmanager_version' ${configFile})
+    CONTACT_EMAIL=$(jq -r '.https .contact_email' ${configFile})
+    DOMAIN_NAME=$(jq -r '.https .domain_name' ${configFile})
+    NGINX_VERSION=$(jq -r '.https .nginx_version' ${configFile})
 
     # Checking required variables
     REQUIREDVARS="\
       CERTMANAGER_VERSION \
       CONTACT_EMAIL \
       DOMAIN_NAME \
+      NGINX_VERSION \
       "
 
     for required_var in $REQUIREDVARS ; do
@@ -272,6 +277,7 @@ else
     if [ x${CONTACT_EMAIL} == 'xnull' ] ; then CONTACT_EMAIL='' ; fi
     if [ x${DOMAIN_NAME} == 'xnull' ] ; then DOMAIN_NAME='' ; fi
     if [ x${CERTMANAGER_VERSION} == 'xnull' ] ; then CERTMANAGER_VERSION='' ; fi
+    if [ x${NGINX_VERSION} == 'xnull' ] ; then NGINX_VERSION='' ; fi
   fi
 
   echo "--> Configuration read in:
@@ -288,6 +294,7 @@ else
       DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
       DOMAIN_NAME: ${DOMAIN_NAME}
       ENABLE_HTTPS: ${ENABLE_HTTPS}
+      NGINX_VERSION: ${NGINX_VERSION}
       REGISTRY_NAME: ${REGISTRY_NAME}
       REGISTRY_SKU: ${REGISTRY_SKU}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
