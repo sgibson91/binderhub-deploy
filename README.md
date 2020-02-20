@@ -89,7 +89,7 @@ Fill the quotation marks with your desired namespaces, etc.
     "sp_app_id": null,             // Azure service principal ID (optional)
     "sp_app_key": null,            // Azure service principal password (optional)
     "sp_tenant_id": null,          // Azure tenant ID (optional)
-    "log_to_blob_storage": false   // Store logs in blobl storage when not running from a container
+    "log_to_blob_storage": false   // Store logs in blob storage when not running from a container
   },
   "binderhub": {
     "name": "",                    // Name of your BinderHub
