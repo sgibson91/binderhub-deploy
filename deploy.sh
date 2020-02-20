@@ -43,6 +43,13 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
     fi
   done
 
+  # Logs will automatically be saved for containerized
+  # deployments.  This will ensure that an environment
+  # variable exists as if it was run from the command-line
+  # which in turn allows the check at the end to
+  # complete successfully. 
+  LOG_TO_BLOB_STORAGE='true'
+
   if [ "$CONTAINER_REGISTRY" == 'dockerhub' ] ; then
 
     REQUIREDVARS=" \
@@ -67,6 +74,7 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
       DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
       DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
       DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+      LOG_TO_BLOB_STORAGE: ${LOG_TO_BLOB_STORAGE}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
       RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
       SP_APP_ID: ${SP_APP_ID}
@@ -99,6 +107,7 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
       BINDERHUB_VERSION: ${BINDERHUB_VERSION}
       CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
       DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      LOG_TO_BLOB_STORAGE: ${LOG_TO_BLOB_STORAGE}
       REGISTRY_NAME: ${REGISTRY_NAME}
       REGISTRY_SKU: ${REGISTRY_SKU}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
@@ -131,6 +140,7 @@ else
   BINDERHUB_VERSION=$(jq -r '.binderhub .version' ${configFile})
   CONTAINER_REGISTRY=$(jq -r '.container_registry' ${configFile})
   DOCKER_IMAGE_PREFIX=$(jq -r '.binderhub .image_prefix' ${configFile})
+  LOG_TO_BLOB_STORAGE=$(jq -r '.azure .log_to_blob_storage' ${configFile})
   RESOURCE_GROUP_LOCATION=$(jq -r '.azure .location' ${configFile})
   RESOURCE_GROUP_NAME=$(jq -r '.azure .res_grp_name' ${configFile})
   SP_APP_ID=$(jq -r '.azure .sp_app_id' ${configFile})
@@ -165,6 +175,7 @@ else
   if [ x${SP_APP_ID} == 'xnull' ] ; then SP_APP_ID='' ; fi
   if [ x${SP_APP_KEY} == 'xnull' ] ; then SP_APP_KEY='' ; fi
   if [ x${SP_TENANT_ID} == 'xnull' ] ; then SP_TENANT_ID='' ; fi
+  if [ x${LOG_TO_BLOB_STORAGE} == 'xnull' ] ; then LOG_TO_BLOB_STORAGE='' ; fi
 
   # Test value of CONTAINER_REGISTRY. Must be either "dockerhub" or "azurecr"
   if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ] ; then
@@ -206,6 +217,7 @@ else
       DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
       DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
       DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+      LOG_TO_BLOB_STORAGE: ${LOG_TO_BLOB_STORAGE}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
       RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
       SP_APP_ID: ${SP_APP_ID}
@@ -246,6 +258,7 @@ else
       BINDERHUB_VERSION: ${BINDERHUB_VERSION}
       CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
       DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      LOG_TO_BLOB_STORAGE: ${LOG_TO_BLOB_STORAGE}
       REGISTRY_NAME: ${REGISTRY_NAME}
       REGISTRY_SKU: ${REGISTRY_SKU}
       RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
@@ -549,7 +562,7 @@ do
     echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
 done
 
-if [[ -n $BINDERHUB_CONTAINER_MODE ]] ; then
+if [[ -n $BINDERHUB_CONTAINER_MODE ]] || [[ "${LOG_TO_BLOB_STORAGE,,}" = 'true' ]] ; then
   # Finally, save outputs to blob storage
   #
   # Create a storage account
