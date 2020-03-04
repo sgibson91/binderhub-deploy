@@ -562,7 +562,7 @@ do
     echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
 done
 
-if [[ -n $BINDERHUB_CONTAINER_MODE ]] || [[ "${LOG_TO_BLOB_STORAGE,,}" = 'true' ]] ; then
+if [[ -n $BINDERHUB_CONTAINER_MODE ]] || [[ "$LOG_TO_BLOB_STORAGE" == 'true' ]] ; then
   # Finally, save outputs to blob storage
   #
   # Create a storage account
