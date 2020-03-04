@@ -88,7 +88,8 @@ Fill the quotation marks with your desired namespaces, etc.
     "vm_size": "Standard_D2s_v3",  // Azure virtual machine type to deploy
     "sp_app_id": null,             // Azure service principal ID (optional)
     "sp_app_key": null,            // Azure service principal password (optional)
-    "sp_tenant_id": null           // Azure tenant ID (optional)
+    "sp_tenant_id": null,          // Azure tenant ID (optional)
+    "log_to_blob_storage": false   // Store logs in blob storage when not running from a container
   },
   "binderhub": {
     "name": "",                    // Name of your BinderHub
@@ -167,6 +168,8 @@ Both a JupyterHub and BinderHub are installed via a Helm Chart onto the deployed
 
 The script also outputs log files (`<file-name>.log`) for each stage of the deployment.
 These files are also git-ignored.
+
+If the `azure.log_to_blob_storage` value in `config.json` is set to `true` the script is running from the command line, then the log files will be stored in blob storage.
 
 ### `logs.sh`
 
