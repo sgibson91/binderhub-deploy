@@ -4,9 +4,9 @@
 
 [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) is a cloud-based, multi-server technology used for hosting repoducible computing environments and interactive Jupyter Notebooks built from code repositories.
 
-This repo contains a set of scripts to automatically deploy a BinderHub onto [Microsoft Azure](https://azure.microsoft.com/en-gb/), and connect either a [Docker Hub](https://hub.docker.com/) account/organisation or an [Azure Container Registry](https://azure.microsoft.com/en-gb/services/container-registry/), so that you can host your own [Binder](https://mybinder.readthedocs.io/en/latest/) service.
+This repository contains a set of scripts to automatically deploy a BinderHub onto [Microsoft Azure](https://azure.microsoft.com/en-gb/), and connect either a [Docker Hub](https://hub.docker.com/) account/organisation or an [Azure Container Registry](https://azure.microsoft.com/en-gb/services/container-registry/), so that you can host your own [Binder](https://mybinder.readthedocs.io/en/latest/) service.
 
-This repo is based on the following set of deployment scripts for Google Cloud: [nicain/binder-deploy](https://github.com/nicain/binder-deploy)
+This repository is based on the following set of deployment scripts for Google Cloud: [nicain/binder-deploy](https://github.com/nicain/binder-deploy)
 
 You will require a Microsoft Azure account and subscription.
 A Free Trial subscription can be obtained [here](https://azure.microsoft.com/en-gb/free/).
@@ -16,31 +16,31 @@ Your resources will be frozen once your subscription expires, then deleted if yo
 If you are building a BinderHub as a service for an organisation, your institution may already have an Azure account.
 You should contact your IT Services for further information regarding permissions and access (see the [Service Principal Creation](#service-principal-creation) section below).
 
-## Table of Contents
+**Table of Contents:**
 
-- [Usage](#usage)
-  - [Choosing between Docker Hub and Azure Container Registry](#Choosing-between-Docker-Hub-and-Azure-Container-Registry)
-  - [`setup.sh`](#setupsh)
-  - [`deploy.sh`](#deploysh)
-  - [`logs.sh`](#logssh)
-  - [`info.sh`](#infosh)
-  - [`upgrade.sh`](#upgradesh)
-  - [`teardown.sh`](#teardownsh)
-- ["Deploy to Azure" Button](#deploy-to-azure-button)
-  - [Service Principal Creation](#service-principal-creation)
-  - [Monitoring Deployment Progress](#monitoring-deployment-progress)
-  - [Retrieving Deployment Output from Azure](#retrieving-deployment-output-from-azure)
-  - [Accessing your BinderHub after Deployment](#accessing-your-binderhub-after-deployment)
-- [Running the Container Locally](#Running-the-Container-Locally)
-- [Customising your BinderHub Deployment](#customising-your-binderhub-deployment)
-- [Developers Guide](#developers-guide)
-  - [Building the Docker image for testing](#building-the-docker-image-for-testing)
-  - [Tagging a Release](#tagging-a-release)
-- [Contributors](#contributors)
+- [:children_crossing: Usage](#children_crossing-usage)
+  - [:package: Choosing between Docker Hub and Azure Container Registry](#package-choosing-between-docker-hub-and-azure-container-registry)
+  - [:vertical_traffic_light: `setup.sh`](#vertical_traffic_light-setupsh)
+  - [:rocket: `deploy.sh`](#rocket-deploysh)
+  - [:bar_chart: `logs.sh`](#bar_chart-logssh)
+  - [:information_source: `info.sh`](#information_source-infosh)
+  - [:arrow_up: `upgrade.sh`](#arrow_up-upgradesh)
+  - [:boom: `teardown.sh`](#boom-teardownsh)
+- [:rocket: "Deploy to Azure" Button](#rocket-deploy-to-azure-button)
+  - [:sparkles: Service Principal Creation](#sparkles-service-principal-creation)
+  - [:chart_with_upwards_trend: Monitoring Deployment Progress](#chart_with_upwards_trend-monitoring-deployment-progress)
+  - [:package: Retrieving Deployment Output from Azure](#package-retrieving-deployment-output-from-azure)
+  - [:unlock: Accessing your BinderHub after Deployment](#unlock-accessing-your-binderhub-after-deployment)
+- [:house_with_garden: Running the Container Locally](#house_with_garden-running-the-container-locally)
+- [:art: Customising your BinderHub Deployment](#art-customising-your-binderhub-deployment)
+- [:computer: Developers Guide](#computer-developers-guide)
+  - [:wrench: Building the Docker image for testing](#wrench-building-the-docker-image-for-testing)
+  - [:label: Tagging a Release](#label-tagging-a-release)
+- [:purple_heart: Contributors](#purple_heart-contributors)
 
 ---
 
-## Usage
+## :children_crossing: Usage
 
 This repo can either be run locally or as "Platform as a Service" through the "Deploy to Azure" button in the ["Deploy to Azure" Button](#deploy-to-azure-button) section.
 
@@ -120,7 +120,7 @@ How many cores you deploy depends on your choice of `node_count` and `vm_size`.
 For example, a `Standard_D2s_v3` machine has 2 cores.
 Therefore, setting `node_count` to 2 will deploy 4 cores and you will have reached your quota for cores on your Free Trial subscription.
 
-### Choosing between Docker Hub and Azure Container Registry
+### :package: Choosing between Docker Hub and Azure Container Registry
 
 To select either a Docker Hub account/organisation or an Azure Container Registry (ACR), you must set the top-level `container_registry` key in `config.json` to either `dockerhub` or `azurecr` respectively.
 This will tell `deploy.sh` which variables and YAML templates to use.
@@ -138,7 +138,7 @@ In the [Service Principal Creation](#Service-Principal-Creation) section, we cov
 When following these steps, the `--role` argument of `Contributor` should be replaced with `Owner`.
 This is because the Service Principal will need the [`AcrPush`](https://docs.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles#acrpush) role in order to push images to the ACR and the `Contributor` role does not have permission to create new role assignments.
 
-### `setup.sh`
+### :vertical_traffic_light: `setup.sh`
 
 This script checks whether the required command line tools are already installed.
 If any are missing, the script uses the system package manager or [`curl`](https://curl.haxx.se/docs/) to install the command line interfaces (CLIs).
@@ -150,7 +150,7 @@ The CLIs to be installed are:
 
 Any dependencies that are not automatically installed by these packages will also be installed.
 
-### `deploy.sh`
+### :rocket: `deploy.sh`
 
 This script reads in values from `config.json` and deploys a Kubernetes cluster.
 It then creates `config.yaml` and `secret.yaml` files which are used to install the BinderHub using the templates in the [`templates` folder](./templates/).
@@ -171,35 +171,35 @@ These files are also git-ignored.
 
 If the `azure.log_to_blob_storage` value in `config.json` is set to `true` the script is running from the command line, then the log files will be stored in blob storage.
 
-### `logs.sh`
+### :bar_chart: `logs.sh`
 
 This script will print the JupyterHub logs to the terminal to assist with debugging issues with the BinderHub.
 It reads from `config.json` in order to get the BinderHub name.
 
-### `info.sh`
+### :information_source: `info.sh`
 
 This script will print the pod status of the Kubernetes cluster and the IP addresses of both the JupyterHub and BinderHub to the terminal.
 It reads the BinderHub name from `config.json`.
 
-### `upgrade.sh`
+### :arrow_up: `upgrade.sh`
 
 This script will automatically upgrade the Helm Chart deployment configuring the BinderHub and then prints the Kubernetes pods.
 It reads the BinderHub name and Helm Chart version from `config.json`.
 
-### `teardown.sh`
+### :boom: `teardown.sh`
 
 This script will purge the Helm Chart release, delete the Kubernetes namespace and then delete the Azure Resource Group containing the computational resources.
 It will read the namespaces from `config.json`.
 The user should check the [Azure Portal](https://portal.azure.com/) to verify the resources have been deleted.
 It will also purge the cluster information from your `kubectl` configuration file.
 
-## "Deploy to Azure" Button
+## :rocket: "Deploy to Azure" Button
 
 To deploy [BinderHub](https://binderhub.readthedocs.io/) to Azure in a single click (and some form-filling), use the deploy button below.
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Falan-turing-institute%2Fbinderhub-deploy%2Fmaster%2Fazure%2Fpaas%2Farm%2Fazure.deploy.json)
 
-### Service Principal Creation
+### :sparkles: Service Principal Creation
 
 You will be asked to provide a [Service Principal](https://docs.microsoft.com/en-gb/azure/active-directory/develop/app-objects-and-service-principals) in the form launched when you click the "Deploy to Azure" button above.
 
@@ -260,7 +260,7 @@ These should be copied into the "Service Principal App ID", "Service Principal A
 
 **Keep this information safe as the password cannot be recovered after this step!**
 
-### Monitoring Deployment Progress
+### :chart_with_upwards_trend: Monitoring Deployment Progress
 
 To monitor the progress of the blue-button deployment, go to the [Azure portal](https://portal.azure.com/) and select "Resource Groups" from the left hand pane.
 Then in the central pane select the resource group you chose to deploy into.
@@ -283,7 +283,7 @@ The logs are also not auto-updating, so keep refreshing them to see progress.
 
 ![Container Logs](images/container_logs.png)
 
-### Retrieving Deployment Output from Azure
+### :package: Retrieving Deployment Output from Azure
 
 When BinderHub is deployed using the "Deploy to Azure" button (or with a local container), output logs, YAML files, and ssh keys are pushed to an Azure storage account to preserve them once the container exits.
 The storage account is created in the same resource group as the Kubernetes cluster, and files are pushed into a storage blob within the account.
@@ -340,7 +340,7 @@ az storage blob download \
 
 For full documentation, see the [`az storage blob` documentation](https://docs.microsoft.com/en-gb/cli/azure/storage/blob?view=azure-cli-latest).
 
-### Accessing your BinderHub after Deployment
+### :unlock: Accessing your BinderHub after Deployment
 
 Once the deployment has succeeded and you've downloaded the log files, visit the IP address of your Binder page to test it's working.
 
@@ -352,7 +352,7 @@ cat <OUTPUT_DIRECTORY>/binder-ip.log
 
 A good repository to test your BinderHub with is [binder-examples/requirements](https://github.com/binder-examples/requirements)
 
-## Running the Container Locally
+## :house_with_garden: Running the Container Locally
 
 The third way to deploy BinderHub to Azure would be to pull the Docker image and run it directly, parsing the values you would have entered in `config.json` as environment variables.
 
@@ -399,7 +399,7 @@ docker run \
 The output will be printed to your terminal and the files will be pushed to blob storage, as in the button deployment.
 See the [Retrieving Deployment Output from Azure](#Retrieving-Deployment-Output-from-Azure) section for how to return these files.
 
-## Customising your BinderHub Deployment
+## :art: Customising your BinderHub Deployment
 
 Customising your BinderHub deployment is as simple as editing `config.yaml` and/or `secret.yaml` and then upgrading the BinderHub Helm Chart.
 The Helm Chart can be upgraded by running [`upgrade.sh`](./upgrade.sh) (make sure you have the CLIs installed by running [`setup.sh`](./setup.sh) first).
@@ -408,9 +408,9 @@ The Jupyter guide to customising the underlying JupyterHub can be found [here](h
 
 The BinderHub guide for changing the landing page logo can be found [here](https://binderhub.readthedocs.io/en/latest/customizing.html#template-customization).
 
-## Developers Guide
+## :computer: Developers Guide
 
-### Building the Docker image for testing
+### :wrench: Building the Docker image for testing
 
 The Docker image will automatically be built by Docker Hub when new pushes are made to `master`.
 However, a developer may wish to build the image to test deployments before merging code.
@@ -431,7 +431,7 @@ But if you choose to do so, the command is as follows.
 docker push <REGISTRY-HOST>/<DOCKER-USERNAME>/binderhub-setup:<TAG>
 ```
 
-### Tagging a Release
+### :label: Tagging a Release
 
 Docker Hub will automatically build the image from the repo with every push to `master` and tag this as `latest`.
 
@@ -456,7 +456,7 @@ See the following documentation for information on tagging:
 - <https://git-scm.com/book/en/v2/Git-Basics-Tagging>
 - <https://dev.to/neshaz/a-tutorial-for-tagging-releases-in-git-147e>
 
-## Contributors
+## :purple_heart: Contributors
 
 We would like to acknowledge and thank the following people for their contributions to this project:
 
