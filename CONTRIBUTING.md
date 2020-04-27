@@ -87,3 +87,28 @@ When writing Markdown, it is recommended to start a new sentence on a new line a
 (Check out the raw version of this file for an example!)
 While the sentences will render as a single paragraph; when suggestions are made on Pull Requests, the GitHub User Interface will only highlight the affected sentence - not the whole paragraph.
 This makes reviews much easier to read!
+
+## :notebook: Additional Notes
+
+### :label: Issue and Pull Request Labels
+
+Issues and Pull Requests can have labels assigned to them which indicate at a glance what aspects of the project they describe.
+It is also possible to [sort issues by label](https://help.github.com/en/github/managing-your-work-on-github/filtering-issues-and-pull-requests-by-labels) making it easier to track down specific issues.
+Below is a table with the currently used labels in the repo.
+
+| Label | Description |
+| :--- | :--- |
+| `azure` | Relating to the Azure deployment |
+| `bug` | Something isn't working |
+| `ci` | Relating to Continuous Integration workflows |
+| `docker` | Relating to the Dockerfile or image |
+| `documentation` | Edits or improvements to the documentation |
+| `enhancement` | New feature or request |
+| `good first issue` | Good for newcomers |
+| `helm` | Relating to deploying Helm charts |
+| `help wanted` | Extra attention is needed |
+| `kubernetes` | Related to deploying Kubernetes |
+| `linux` | Related to running on Linux |
+| `management` | Related to managing the project |
+| `osx` | Related to running on MacOS |
+| `windows` | Related to running on Windows |
