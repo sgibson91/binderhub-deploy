@@ -94,21 +94,21 @@ This makes reviews much easier to read!
 
 Issues and Pull Requests can have labels assigned to them which indicate at a glance what aspects of the project they describe.
 It is also possible to [sort issues by label](https://help.github.com/en/github/managing-your-work-on-github/filtering-issues-and-pull-requests-by-labels) making it easier to track down specific issues.
-Below is a table with the currently used labels in the repo.
+Below is a table with the currently used labels in the repository.
 
 | Label | Description |
 | :--- | :--- |
-| `azure` | Relating to the Azure deployment |
-| `bug` | Something isn't working |
-| `ci` | Relating to Continuous Integration workflows |
-| `docker` | Relating to the Dockerfile or image |
-| `documentation` | Edits or improvements to the documentation |
-| `enhancement` | New feature or request |
-| `good first issue` | Good for newcomers |
-| `helm` | Relating to deploying Helm charts |
-| `help wanted` | Extra attention is needed |
-| `kubernetes` | Related to deploying Kubernetes |
-| `linux` | Related to running on Linux |
-| `management` | Related to managing the project |
-| `osx` | Related to running on MacOS |
-| `windows` | Related to running on Windows |
+| [![azure-label](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/azure)](https://github.com/alan-turing-institute/binderhub-deploy/labels/azure) | Relating to the Azure deployment |
+| [![bug-label](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/bug)](https://github.com/alan-turing-institute/binderhub-deploy/labels/bug) | Something isn't working |
+| [![ci-label](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/ci)](https://github.com/alan-turing-institute/binderhub-deploy/labels/ci) | Relating to Continuous Integration workflows |
+| [![docker-label](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/docker)](https://github.com/alan-turing-institute/binderhub-deploy/labels/docker) | Relating to the Dockerfile or image |
+| [![docs-label](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/documentation)](https://github.com/alan-turing-institute/binderhub-deploy/labels/documentation) | Edits or improvements to the documentation |
+| [![enhancement-label](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/enhancement)](https://github.com/alan-turing-institute/binderhub-deploy/labels/enhancement) | New feature or request |
+| [![good-first-issue](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/good%20first%20issue)](https://github.com/alan-turing-institute/binderhub-deploy/labels/good%20first%20issue) | Good for newcomers |
+| [![helm-label](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/helm)](https://github.com/alan-turing-institute/binderhub-deploy/labels/helm) | Relating to deploying Helm charts |
+| [![help wanted](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/help%20wanted)](https://github.com/alan-turing-institute/binderhub-deploy/labels/help%20wanted) | Extra attention is needed |
+| [![k8s-label](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/kubernetes)](https://github.com/alan-turing-institute/binderhub-deploy/labels/kubernetes) | Related to deploying Kubernetes |
+| [![linux-label](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/linux)](https://github.com/alan-turing-institute/binderhub-deploy/labels/linux) | Related to running on Linux |
+| [![management](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/management)](https://github.com/alan-turing-institute/binderhub-deploy/labels/management) | Related to managing the project |
+| [![osx-label](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/osx)](https://github.com/alan-turing-institute/binderhub-deploy/labels/osx) | Related to running on MacOS |
+| [![windows-label](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/windows)](https://github.com/alan-turing-institute/binderhub-deploy/labels/windows) | Related to running on Windows |
