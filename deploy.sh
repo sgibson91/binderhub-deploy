@@ -280,7 +280,7 @@ else
 			SP_APP_KEY: ${SP_APP_KEY}
 			SP_TENANT_ID: ${SP_TENANT_ID}
 			" | tee read-config.log
-  
+
 	elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
 		echo "--> Getting configuration for Azure Container Registry"
 
