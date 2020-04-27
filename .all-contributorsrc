@@ -57,6 +57,26 @@
         "ideas",
         "review"
       ]
+    },
+    {
+      "login": "sgibson91",
+      "name": "Sarah Gibson",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/44771837?v=4",
+      "profile": "https://sgibson91.github.io/",
+      "contributions": [
+        "bug",
+        "code",
+        "doc",
+        "ideas",
+        "infra",
+        "maintenance",
+        "platform",
+        "projectManagement",
+        "question",
+        "review",
+        "tool",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
