@@ -10,11 +10,16 @@ Use your best judgement and feel free to propose changes to this document in a P
 
 - [:purple_heart: Code of Conduct](#purple_heart-code-of-conduct)
 - [:question: What should I know before I get started?](#question-what-should-i-know-before-i-get-started)
+  - [:package: `binderhub-deploy`](#package-binderhub-deploy)
+  - [:open_file_folder: Scripts](#open_file_folder-scripts)
+  - [:whale: Dockerfile](#whale-dockerfile)
+  - [:rocket: Deploy to Azure button](#rocket-deploy-to-azure-button)
 - [:gift: How can I contribute?](#gift-how-can-i-contribute)
   - [:bug: Reporting Bugs](#bug-reporting-bugs)
   - [:sparkles: Requesting Features](#sparkles-requesting-features)
   - [:hatching_chick: Your First Contribution](#hatching_chick-your-first-contribution)
   - [:arrow_right: Pull Requests](#arrow_right-pull-requests)
+  - [:busts_in_silhouette: Acknowledging Contributors](#busts_in_silhouette-acknowledging-contributors)
 - [:art: Styleguides](#art-styleguides)
   - [:heavy_dollar_sign: Bash Styleguide](#heavy_dollar_sign-bash-styleguide)
   - [:pencil: Markdown Styleguide](#pencil-markdown-styleguide)
@@ -29,6 +34,33 @@ This project and everyone participating in it is expected to abide by and uphold
 Please report any unacceptable behaviour to [drsarahlgibson@gmail.com](mailto:drsarahlgibson@gmail.com).
 
 ## :question: What should I know before I get started?
+
+### :package: `binderhub-deploy`
+
+`binderhub-deploy` is a package designed to automatically deploy a [BinderHub](https://binderhub.readthedocs.io) to [Azure](https://azure.microsoft.com/en-gb/).
+
+BinderHub is a cloud-based, multi-server platform for sharing reproducible computational environments using a [Jupyter](https://jupyter.org) interface.
+[@sgibson91](https://github.com/sgibson91) has given [many talks](https://sgibson91.github.io/speaking) one what Binder/BinderHub/[mybinder.org](https://mybinder.org) is and how it works.
+This repository is recommended for those who wish to automate the deployment of their own, private BinderHubs.
+
+### :open_file_folder: Scripts
+
+This tool is based on bash scripts, information about which can be found in the [Usage](README.md#children_crossing-usage) section of the [README](README.md).
+
+### :whale: Dockerfile
+
+This repository contains a [Dockerfile](Dockerfile) that can be built to run the tool.
+It also serves as a back-end to the "Deploy to Azure" button.
+
+The built image of this file is hosted at: [hub.docker.com/repository/docker/sgibson91/binderhub-setup](https://hub.docker.com/repository/docker/sgibson91/binderhub-setup).
+The `master` branch is automatically built and tagged as `latest` whereas [GitHub releases and tags](https://github.com/alan-turing-institute/binderhub-deploy/releases) are given the matching image tag.
+
+When running the image, the parameters defined in [`template-config.json`](template-config.json) would be passed as [environment variables](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file).
+
+### :rocket: Deploy to Azure button
+
+The Deploy to Azure button serves as a graphical user interface to the Docker image that passes information as environment variables at runtime.
+The configuration of the button parameters and variables is stored in the [`azure.deploy.json`](azure.deploy.json) file.
 
 ## :gift: How can I contribute?
 
@@ -55,7 +87,8 @@ This repository has a [feature request template](.github/ISSUE_TEMPLATE/feature_
 ### :hatching_chick: Your First Contribution
 
 Unsure where to start contributing?
-Check out the [good first issue](https://github.com/alan-turing-institute/binderhub-deploy/labels/good%20first%20issue) and [help wanted](https://github.com/alan-turing-institute/binderhub-deploy/labels/help%20wanted) issues to see where the project is looking for input.
+Check out the [good first issue](https://github.com/alan-turing-institute/binderhub-deploy/labels/good%20first%20issue) and [help wanted](https://github.com/alan-turing-institute/binderhub-deploy/labels/help%20wanted) labels to see where the project is looking for input.
+Spelling corrections and clarifications to documentation are also always welcome!
 
 ### :arrow_right: Pull Requests
 
@@ -77,6 +110,11 @@ You are now a `binderhub-deploy` developer! :space_invader:
 
 The project maintainers will then review your Pull Request and may ask for some changes.
 Once you and the maintainers are happy, your contribution will be merged!
+
+### :busts_in_silhouette: Acknowledging Contributors
+
+This repository uses [all-contributors](https://allcontributors.org/) to acknowledge the time and expertise of the people who have made this tool into what it is today.
+Specifically, all-contributors has an [emoji key](https://allcontributors.org/docs/en/emoji-key) to show the breadth of expertise required for a project like this.
 
 ## :art: Styleguides
 
