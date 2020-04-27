@@ -23,6 +23,16 @@
         "platform",
         "tool"
       ]
+    },
+    {
+      "login": "ggorman",
+      "name": "Gerard Gorman",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/5394691?v=4",
+      "profile": "https://uk.linkedin.com/in/gerardgorman",
+      "contributions": [
+        "ideas",
+        "review"
+      ]
     }
   ],
   "contributorsPerLine": 7,
