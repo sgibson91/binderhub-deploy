@@ -76,3 +76,14 @@ You are now a `binderhub-deploy` developer! :space_invader:
 
 The project maintainers will then review your Pull Request and may ask for some changes.
 Once you and the maintainers are happy, your contribution will be merged!
+
+## :art: Styleguides
+
+### :pencil: Markdown Styleguide
+
+Documentation files are written in [Markdown](https://guides.github.com/features/mastering-markdown/).
+
+When writing Markdown, it is recommended to start a new sentence on a new line and define a new paragraph by leaving a single blank line.
+(Check out the raw version of this file for an example!)
+While the sentences will render as a single paragraph; when suggestions are made on Pull Requests, the GitHub User Interface will only highlight the affected sentence - not the whole paragraph.
+This makes reviews much easier to read!
