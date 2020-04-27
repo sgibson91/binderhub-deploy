@@ -1,0 +1,103 @@
+{
+  "projectName": "binderhub-deploy",
+  "projectOwner": "alan-turing-institute",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "gitmoji",
+  "contributorsSortAlphabetically": true,
+  "contributors": [
+    {
+      "login": "tmbgreaves",
+      "name": "Tim Greaves",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/7603619?v=4",
+      "profile": "http://www.imperial.ac.uk/people/tim.greaves",
+      "contributions": [
+        "bug",
+        "code",
+        "ideas",
+        "infra",
+        "platform",
+        "tool"
+      ]
+    },
+    {
+      "login": "ggorman",
+      "name": "Gerard Gorman",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/5394691?v=4",
+      "profile": "https://uk.linkedin.com/in/gerardgorman",
+      "contributions": [
+        "ideas",
+        "review"
+      ]
+    },
+    {
+      "login": "trallard",
+      "name": "Tania Allard",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/23552331?v=4",
+      "profile": "https://trallard.dev",
+      "contributions": [
+        "bug",
+        "code",
+        "ideas",
+        "tutorial",
+        "question"
+      ]
+    },
+    {
+      "login": "dalonsoa",
+      "name": "Diego",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/6095790?v=4",
+      "profile": "https://www.imperial.ac.uk/admin-services/ict/self-service/research-support/rcs/research-software-engineering/",
+      "contributions": [
+        "bug",
+        "ideas",
+        "review"
+      ]
+    },
+    {
+      "login": "sgibson91",
+      "name": "Sarah Gibson",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/44771837?v=4",
+      "profile": "https://sgibson91.github.io/",
+      "contributions": [
+        "bug",
+        "code",
+        "doc",
+        "ideas",
+        "infra",
+        "maintenance",
+        "platform",
+        "projectManagement",
+        "question",
+        "review",
+        "tool",
+        "test"
+      ]
+    },
+    {
+      "login": "casperOne",
+      "name": "Nicholas Paldino",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/561862?v=4",
+      "profile": "http://oneframelink.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "jemrobinson",
+      "name": "James Robinson",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/3502751?v=4",
+      "profile": "https://github.com/jemrobinson",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": false
+}
