@@ -210,14 +210,14 @@ They will require the Azure command line to be installed, so make sure to run [`
 
 To create a Service Principal, go to the [Azure Portal](https://portal.azure.com/) (and login!) and open the Cloud Shell:
 
-![Open Shell in Azure](images/open_shell_in_azure.png)
+![Open Shell in Azure](assets/open_shell_in_azure.png)
 
 You may be asked to create storage when you open the shell.
 This is expected, click "Create".
 
 Make sure the shell is set to Bash, not PowerShell.
 
-![Bash Shell](images/bash_shell.png)
+![Bash Shell](assets/bash_shell.png)
 
 Set the subscription you'd like to deploy your BinderHub on.
 
@@ -227,7 +227,7 @@ az account set --subscription <subscription>
 
 This image shows the command being executed for an "Azure Pass - Sponsorship" subscription.
 
-![Set Subscription](images/set_subscription.png)
+![Set Subscription](assets/set_subscription.png)
 
 You will need the subscription ID, which you can retrieve by running:
 
@@ -235,7 +235,7 @@ You will need the subscription ID, which you can retrieve by running:
 az account list --refresh --output table
 ```
 
-![List Subscriptions](images/az_account_list.png)
+![List Subscriptions](assets/az_account_list.png)
 
 Next, create the Service Principal with the following command.
 Make sure to give it a sensible name!
@@ -255,7 +255,7 @@ az ad sp create-for-rbac \
     --scope /subscriptions/<subscription ID from above>
 ```
 
-![Create Service Principal](images/create-for-rbac.png)
+![Create Service Principal](assets/create-for-rbac.png)
 
 The fields `appId`, `password` and `tenant` are the required pieces of information.
 These should be copied into the "Service Principal App ID", "Service Principal App Key" and "Service Principal Tenant ID" fields in the form, respectively.
@@ -267,23 +267,23 @@ These should be copied into the "Service Principal App ID", "Service Principal A
 To monitor the progress of the blue-button deployment, go to the [Azure portal](https://portal.azure.com/) and select "Resource Groups" from the left hand pane.
 Then in the central pane select the resource group you chose to deploy into.
 
-![Select Resource Group](images/select_resource_group.png)
+![Select Resource Group](assets/select_resource_group.png)
 
 This will give you a right hand pane containing the resources within the group.
 You may need to "refresh" until you see a new container instance.
 
-![Select Container Instance](images/select_container_instance.png)
+![Select Container Instance](assets/select_container_instance.png)
 
 When it appears, select it and then in the new pane go to "Settings->Containers".
 You should see your new container listed.
 
-![Container Events](images/container_events.png)
+![Container Events](assets/container_events.png)
 
 Select it, then in the lower right hand pane select "Logs".
 You may need to "refresh" this to display the logs until the container starts up.
 The logs are also not auto-updating, so keep refreshing them to see progress.
 
-![Container Logs](images/container_logs.png)
+![Container Logs](assets/container_logs.png)
 
 ### :package: Retrieving Deployment Output from Azure
 
@@ -295,15 +295,15 @@ To find the storage account name, navigate to your resource group by selecting "
 Along with any pre-existing resources (for example, if you re-used an existing resource group), you should see three new resources: a container instance, a Kubernetes service, and a storage account.
 Make a note of the name of the storage account (referred to in the following commands as `ACCOUNT_NAME`) then select this storage account.
 
-![Storage Account](images/storage_account.png)
+![Storage Account](assets/storage_account.png)
 
 In the new pane that opens, select "Blobs" from the "Services" section.
 You should see a single blob listed.
 Make a note of the name of this blob, which will be `BLOB_NAME` in the following commands.
 
-![Blob Storage](images/blob_storage.png)
+![Blob Storage](assets/blob_storage.png)
 
-![Select Blob Storage](images/select_blob_storage.png)
+![Select Blob Storage](assets/select_blob_storage.png)
 
 The Azure CLI can be used to fetch files from the blob (either in the cloud shell in the [Azure Portal](https://portal.azure.com), or in a local terminal session if you've run [`setup.sh`](.setup.sh) first).
 Files are fetched into a local directory, **which must already exist**, referred to as `OUTPUT_DIRECTORY` in the following commands.
