@@ -2,7 +2,7 @@
 
 ![mit_license_badge](https://img.shields.io/badge/License-MIT-yellow.svg) [![Build Status](https://travis-ci.org/alan-turing-institute/binderhub-deploy.svg?branch=master)](https://travis-ci.org/alan-turing-institute/binderhub-deploy) ![GitHub Action Status - Shellcheck](https://github.com/alan-turing-institute/binderhub-deploy/workflows/shellcheck/badge.svg) ![GitHub Action Status - Yamllint](https://github.com/alan-turing-institute/binderhub-deploy/workflows/yamllint/badge.svg)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-0-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) is a cloud-based, multi-server technology used for hosting repoducible computing environments and interactive Jupyter Notebooks built from code repositories.
@@ -464,6 +464,12 @@ See the following documentation for information on tagging:
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="http://www.imperial.ac.uk/people/tim.greaves"><img src="https://avatars2.githubusercontent.com/u/7603619?v=4" width="100px;" alt=""/><br /><sub><b>Tim Greaves</b></sub></a><br /><a href="https://github.com/alan-turing-institute/binderhub-deploy/issues?q=author%3Atmbgreaves" title="Bug reports">🐛</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=tmbgreaves" title="Code">💻</a> <a href="#ideas-tmbgreaves" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-tmbgreaves" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#platform-tmbgreaves" title="Packaging/porting to new platform">📦</a> <a href="#tool-tmbgreaves" title="Tools">🔧</a></td>
+  </tr>
+</table>
+
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
 <!-- ALL-CONTRIBUTORS-LIST:END -->
