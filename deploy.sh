@@ -44,6 +44,13 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
 		fi
 	done
 
+	# Logs will automatically be saved for containerized
+	# deployments.  This will ensure that an environment
+	# variable exists as if it was run from the command-line
+	# which in turn allows the check at the end to
+	# complete successfully.
+	LOG_TO_BLOB_STORAGE='true'
+
 	if [ "$CONTAINER_REGISTRY" == 'dockerhub' ]; then
 
 		REQUIREDVARS=" \
@@ -57,6 +64,24 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
 				exit 1
 			fi
 		done
+
+		echo "--> Configuration parsed from blue button:
+			AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+			AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+			AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+			BINDERHUB_NAME: ${BINDERHUB_NAME}
+			BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+			CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+			DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+			DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
+			DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+			LOG_TO_BLOB_STORAGE: ${LOG_TO_BLOB_STORAGE}
+			RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+			RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+			SP_APP_ID: ${SP_APP_ID}
+			SP_APP_KEY: ${SP_APP_KEY}
+			SP_TENANT_ID: ${SP_TENANT_ID}
+			" | tee read-config.log
 
 		# Check if DOCKERHUB_ORGANISATION is set to null. Return empty string if true.
 		if [ x${DOCKERHUB_ORGANISATION} == 'xnull' ]; then DOCKERHUB_ORGANISATION=''; fi
@@ -74,6 +99,24 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
 				exit 1
 			fi
 		done
+
+		echo "--> Configuration parsed from blue button:
+			AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+			AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+			AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+			BINDERHUB_NAME: ${BINDERHUB_NAME}
+			BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+			CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+			DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+			LOG_TO_BLOB_STORAGE: ${LOG_TO_BLOB_STORAGE}
+			REGISTRY_NAME: ${REGISTRY_NAME}
+			REGISTRY_SKU: ${REGISTRY_SKU}
+			RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+			RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+			SP_APP_ID: ${SP_APP_ID}
+			SP_APP_KEY: ${SP_APP_KEY}
+			SP_TENANT_ID: ${SP_TENANT_ID}
+			" | tee read-config.log
 
 	else
 		echo "--> Please provide a valid option for CONTAINER_REGISTRY."
@@ -135,6 +178,9 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
       SP_TENANT_ID: ${SP_TENANT_ID}
       " | tee read-config.log
 
+	# Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
+	AZURE_SUBSCRIPTION=$(echo $AZURE_SUBSCRIPTION | sed -r "s/^\/subscriptions\///")
+
 else
 
 	# Read in config file and assign variables for the non-container case
@@ -150,6 +196,7 @@ else
 	CONTAINER_REGISTRY=$(jq -r '.container_registry' ${configFile})
 	DOCKER_IMAGE_PREFIX=$(jq -r '.binderhub .image_prefix' ${configFile})
 	ENABLE_HTTPS=$(jq -r '.enable_https' ${configFile})
+	LOG_TO_BLOB_STORAGE=$(jq -r '.azure .log_to_blob_storage' ${configFile})
 	RESOURCE_GROUP_LOCATION=$(jq -r '.azure .location' ${configFile})
 	RESOURCE_GROUP_NAME=$(jq -r '.azure .res_grp_name' ${configFile})
 	SP_APP_ID=$(jq -r '.azure .sp_app_id' ${configFile})
@@ -185,6 +232,7 @@ else
 	if [ x${SP_APP_ID} == 'xnull' ]; then SP_APP_ID=''; fi
 	if [ x${SP_APP_KEY} == 'xnull' ]; then SP_APP_KEY=''; fi
 	if [ x${SP_TENANT_ID} == 'xnull' ]; then SP_TENANT_ID=''; fi
+	if [ x${LOG_TO_BLOB_STORAGE} == 'xnull' ]; then LOG_TO_BLOB_STORAGE=''; fi
 
 	# Test value of CONTAINER_REGISTRY. Must be either "dockerhub" or "azurecr"
 	if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ]; then
@@ -215,6 +263,24 @@ else
 			fi
 		fi
 
+		echo "--> Configuration read in:
+			AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+			AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+			AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+			BINDERHUB_NAME: ${BINDERHUB_NAME}
+			BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+			CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+			DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+			DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
+			DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+			LOG_TO_BLOB_STORAGE: ${LOG_TO_BLOB_STORAGE}
+			RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+			RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+			SP_APP_ID: ${SP_APP_ID}
+			SP_APP_KEY: ${SP_APP_KEY}
+			SP_TENANT_ID: ${SP_TENANT_ID}
+			" | tee read-config.log
+  
 	elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
 		echo "--> Getting configuration for Azure Container Registry"
 
@@ -239,6 +305,24 @@ else
 
 		# ACR name must be alphanumeric only and 50 characters or less
 		REGISTRY_NAME=$(echo ${REGISTRY_NAME} | tr -cd '[:alnum:]' | cut -c -50)
+
+		echo "--> Configuration read in:
+			AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+			AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+			AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+			BINDERHUB_NAME: ${BINDERHUB_NAME}
+			BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+			CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+			DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+			LOG_TO_BLOB_STORAGE: ${LOG_TO_BLOB_STORAGE}
+			REGISTRY_NAME: ${REGISTRY_NAME}
+			REGISTRY_SKU: ${REGISTRY_SKU}
+			RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+			RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+			SP_APP_ID: ${SP_APP_ID}
+			SP_APP_KEY: ${SP_APP_KEY}
+			SP_TENANT_ID: ${SP_TENANT_ID}
+			" | tee read-config.log
 
 	else
 		echo "--> Please provide a valid option for CONTAINER_REGISTRY."
@@ -648,6 +732,9 @@ else
 	fi
 fi
 
+# Format BinderHub name for Kubernetes
+HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//')
+
 echo "--> Installing Helm chart"
 helm install jupyterhub/binderhub \
 	--version=$BINDERHUB_VERSION \
@@ -715,7 +802,7 @@ if [ "$ENABLE_HTTPS" == "false" ]; then
 	done
 fi
 
-if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
+if [[ -n $BINDERHUB_CONTAINER_MODE ]] || [[ "$LOG_TO_BLOB_STORAGE" == 'true' ]]; then
 	# Finally, save outputs to blob storage
 	#
 	# Create a storage account

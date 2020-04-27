@@ -1,12 +1,14 @@
 # Automatically deploy a BinderHub to Microsoft Azure
 
-![mit_license_badge](https://img.shields.io/badge/License-MIT-yellow.svg) [![Build Status](https://travis-ci.org/alan-turing-institute/binderhub-deploy.svg?branch=master)](https://travis-ci.org/alan-turing-institute/binderhub-deploy) ![GitHub Action Status - Shellcheck](https://github.com/alan-turing-institute/binderhub-deploy/workflows/Shellcheck/badge.svg)
+![mit_license_badge](https://img.shields.io/badge/License-MIT-yellow.svg) [![Build Status](https://travis-ci.org/alan-turing-institute/binderhub-deploy.svg?branch=master)](https://travis-ci.org/alan-turing-institute/binderhub-deploy) ![Run shellcheck and shfmt](https://github.com/alan-turing-institute/binderhub-deploy/workflows/Run%20shellcheck%20and%20shfmt/badge.svg) ![GitHub Action Status - Yamllint](https://github.com/alan-turing-institute/binderhub-deploy/workflows/yamllint/badge.svg) [![Code of Conduct](https://img.shields.io/static/v1?label=Code%20of&message=Conduct&color=blueviolet)](CODE_OF_CONDUCT.md) [![Contributing Guidelines](https://img.shields.io/static/v1?label=Contributing&message=Guidelines&color=blueviolet)](CONTRIBUTING.md) [![good first issue](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/good%20first%20issue)](https://github.com/alan-turing-institute/binderhub-deploy/labels/good%20first%20issue) [![GitHub labels](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/help%20wanted)](https://github.com/alan-turing-institute/binderhub-deploy/labels/help%20wanted)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) is a cloud-based, multi-server technology used for hosting repoducible computing environments and interactive Jupyter Notebooks built from code repositories.
 
-This repo contains a set of scripts to automatically deploy a BinderHub onto [Microsoft Azure](https://azure.microsoft.com/en-gb/), and connect either a [Docker Hub](https://hub.docker.com/) account/organisation or an [Azure Container Registry](https://azure.microsoft.com/en-gb/services/container-registry/), so that you can host your own [Binder](https://mybinder.readthedocs.io/en/latest/) service.
+This repository contains a set of scripts to automatically deploy a BinderHub onto [Microsoft Azure](https://azure.microsoft.com/en-gb/), and connect either a [Docker Hub](https://hub.docker.com/) account/organisation or an [Azure Container Registry](https://azure.microsoft.com/en-gb/services/container-registry/), so that you can host your own [Binder](https://mybinder.readthedocs.io/en/latest/) service.
 
-This repo is based on the following set of deployment scripts for Google Cloud: [nicain/binder-deploy](https://github.com/nicain/binder-deploy)
+This repository is based on the following set of deployment scripts for Google Cloud: [nicain/binder-deploy](https://github.com/nicain/binder-deploy)
 
 You will require a Microsoft Azure account and subscription.
 A Free Trial subscription can be obtained [here](https://azure.microsoft.com/en-gb/free/).
@@ -16,31 +18,33 @@ Your resources will be frozen once your subscription expires, then deleted if yo
 If you are building a BinderHub as a service for an organisation, your institution may already have an Azure account.
 You should contact your IT Services for further information regarding permissions and access (see the [Service Principal Creation](#service-principal-creation) section below).
 
-## Table of Contents
+Please read our :purple_heart: [Code of Conduct](CODE_OF_CONDUCT.md) :purple_heart: and :space_invader: [Contributing Guidelines](CONTRIBUTING.md) :space_invader:
 
-- [Usage](#usage)
-  - [Choosing between Docker Hub and Azure Container Registry](#Choosing-between-Docker-Hub-and-Azure-Container-Registry)
-  - [`setup.sh`](#setupsh)
-  - [`deploy.sh`](#deploysh)
-  - [`logs.sh`](#logssh)
-  - [`info.sh`](#infosh)
-  - [`upgrade.sh`](#upgradesh)
-  - [`teardown.sh`](#teardownsh)
-- ["Deploy to Azure" Button](#deploy-to-azure-button)
-  - [Service Principal Creation](#service-principal-creation)
-  - [Monitoring Deployment Progress](#monitoring-deployment-progress)
-  - [Retrieving Deployment Output from Azure](#retrieving-deployment-output-from-azure)
-  - [Accessing your BinderHub after Deployment](#accessing-your-binderhub-after-deployment)
-- [Running the Container Locally](#Running-the-Container-Locally)
-- [Customising your BinderHub Deployment](#customising-your-binderhub-deployment)
-- [Developers Guide](#developers-guide)
-  - [Building the Docker image for testing](#building-the-docker-image-for-testing)
-  - [Tagging a Release](#tagging-a-release)
-- [Contributors](#contributors)
+**Table of Contents:**
+
+- [:children_crossing: Usage](#children_crossing-usage)
+  - [:package: Choosing between Docker Hub and Azure Container Registry](#package-choosing-between-docker-hub-and-azure-container-registry)
+  - [:vertical_traffic_light: `setup.sh`](#vertical_traffic_light-setupsh)
+  - [:rocket: `deploy.sh`](#rocket-deploysh)
+  - [:bar_chart: `logs.sh`](#bar_chart-logssh)
+  - [:information_source: `info.sh`](#information_source-infosh)
+  - [:arrow_up: `upgrade.sh`](#arrow_up-upgradesh)
+  - [:boom: `teardown.sh`](#boom-teardownsh)
+- [:rocket: "Deploy to Azure" Button](#rocket-deploy-to-azure-button)
+  - [:sparkles: Service Principal Creation](#sparkles-service-principal-creation)
+  - [:chart_with_upwards_trend: Monitoring Deployment Progress](#chart_with_upwards_trend-monitoring-deployment-progress)
+  - [:package: Retrieving Deployment Output from Azure](#package-retrieving-deployment-output-from-azure)
+  - [:unlock: Accessing your BinderHub after Deployment](#unlock-accessing-your-binderhub-after-deployment)
+- [:house_with_garden: Running the Container Locally](#house_with_garden-running-the-container-locally)
+- [:art: Customising your BinderHub Deployment](#art-customising-your-binderhub-deployment)
+- [:computer: Developers Guide](#computer-developers-guide)
+  - [:wrench: Building the Docker image for testing](#wrench-building-the-docker-image-for-testing)
+  - [:label: Tagging a Release](#label-tagging-a-release)
+- [:purple_heart: Contributors](#purple_heart-contributors)
 
 ---
 
-## Usage
+## :children_crossing: Usage
 
 This repo can either be run locally or as "Platform as a Service" through the "Deploy to Azure" button in the ["Deploy to Azure" Button](#deploy-to-azure-button) section.
 
@@ -93,7 +97,8 @@ Fill the quotation marks with your desired namespaces, etc.
     "vm_size": "Standard_D2s_v3",  // Azure virtual machine type to deploy
     "sp_app_id": null,             // Azure service principal ID (optional)
     "sp_app_key": null,            // Azure service principal password (optional)
-    "sp_tenant_id": null           // Azure tenant ID (optional)
+    "sp_tenant_id": null,          // Azure tenant ID (optional)
+    "log_to_blob_storage": false   // Store logs in blob storage when not running from a container
   },
   "binderhub": {
     "name": "",                    // Name of your BinderHub
@@ -126,7 +131,7 @@ How many cores you deploy depends on your choice of `node_count` and `vm_size`.
 For example, a `Standard_D2s_v3` machine has 2 cores.
 Therefore, setting `node_count` to 2 will deploy 4 cores and you will have reached your quota for cores on your Free Trial subscription.
 
-### Choosing between Docker Hub and Azure Container Registry
+### :package: Choosing between Docker Hub and Azure Container Registry
 
 To select either a Docker Hub account/organisation or an Azure Container Registry (ACR), you must set the top-level `container_registry` key in `config.json` to either `dockerhub` or `azurecr` respectively.
 This will tell `deploy.sh` which variables and YAML templates to use.
@@ -144,7 +149,7 @@ In the [Service Principal Creation](#Service-Principal-Creation) section, we cov
 When following these steps, the `--role` argument of `Contributor` should be replaced with `Owner`.
 This is because the Service Principal will need the [`AcrPush`](https://docs.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles#acrpush) role in order to push images to the ACR and the `Contributor` role does not have permission to create new role assignments.
 
-### `setup.sh`
+### :vertical_traffic_light: `setup.sh`
 
 This script checks whether the required command line tools are already installed.
 If any are missing, the script uses the system package manager or [`curl`](https://curl.haxx.se/docs/) to install the command line interfaces (CLIs).
@@ -156,7 +161,7 @@ The CLIs to be installed are:
 
 Any dependencies that are not automatically installed by these packages will also be installed.
 
-### `deploy.sh`
+### :rocket: `deploy.sh`
 
 This script reads in values from `config.json` and deploys a Kubernetes cluster.
 It then creates `config.yaml` and `secret.yaml` files which are used to install the BinderHub using the templates in the [`templates` folder](./templates/).
@@ -175,35 +180,37 @@ Both a JupyterHub and BinderHub are installed via a Helm Chart onto the deployed
 The script also outputs log files (`<file-name>.log`) for each stage of the deployment.
 These files are also git-ignored.
 
-### `logs.sh`
+If the `azure.log_to_blob_storage` value in `config.json` is set to `true` the script is running from the command line, then the log files will be stored in blob storage.
+
+### :bar_chart: `logs.sh`
 
 This script will print the JupyterHub logs to the terminal to assist with debugging issues with the BinderHub.
 It reads from `config.json` in order to get the BinderHub name.
 
-### `info.sh`
+### :information_source: `info.sh`
 
 This script will print the pod status of the Kubernetes cluster and the IP addresses of both the JupyterHub and BinderHub to the terminal.
 It reads the BinderHub name from `config.json`.
 
-### `upgrade.sh`
+### :arrow_up: `upgrade.sh`
 
 This script will automatically upgrade the Helm Chart deployment configuring the BinderHub and then prints the Kubernetes pods.
 It reads the BinderHub name and Helm Chart version from `config.json`.
 
-### `teardown.sh`
+### :boom: `teardown.sh`
 
 This script will purge the Helm Chart release, delete the Kubernetes namespace and then delete the Azure Resource Group containing the computational resources.
 It will read the namespaces from `config.json`.
 The user should check the [Azure Portal](https://portal.azure.com/) to verify the resources have been deleted.
 It will also purge the cluster information from your `kubectl` configuration file.
 
-## "Deploy to Azure" Button
+## :rocket: "Deploy to Azure" Button
 
 To deploy [BinderHub](https://binderhub.readthedocs.io/) to Azure in a single click (and some form-filling), use the deploy button below.
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Falan-turing-institute%2Fbinderhub-deploy%2Fmaster%2Fazure%2Fpaas%2Farm%2Fazure.deploy.json)
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Falan-turing-institute%2Fbinderhub-deploy%2Fmaster%2Fazure.deploy.json)
 
-### Service Principal Creation
+### :sparkles: Service Principal Creation
 
 You will be asked to provide a [Service Principal](https://docs.microsoft.com/en-gb/azure/active-directory/develop/app-objects-and-service-principals) in the form launched when you click the "Deploy to Azure" button above.
 
@@ -212,14 +219,14 @@ They will require the Azure command line to be installed, so make sure to run [`
 
 To create a Service Principal, go to the [Azure Portal](https://portal.azure.com/) (and login!) and open the Cloud Shell:
 
-![Open Shell in Azure](images/open_shell_in_azure.png)
+![Open Shell in Azure](assets/open_shell_in_azure.png)
 
 You may be asked to create storage when you open the shell.
 This is expected, click "Create".
 
 Make sure the shell is set to Bash, not PowerShell.
 
-![Bash Shell](images/bash_shell.png)
+![Bash Shell](assets/bash_shell.png)
 
 Set the subscription you'd like to deploy your BinderHub on.
 
@@ -229,7 +236,7 @@ az account set --subscription <subscription>
 
 This image shows the command being executed for an "Azure Pass - Sponsorship" subscription.
 
-![Set Subscription](images/set_subscription.png)
+![Set Subscription](assets/set_subscription.png)
 
 You will need the subscription ID, which you can retrieve by running:
 
@@ -237,7 +244,7 @@ You will need the subscription ID, which you can retrieve by running:
 az account list --refresh --output table
 ```
 
-![List Subscriptions](images/az_account_list.png)
+![List Subscriptions](assets/az_account_list.png)
 
 Next, create the Service Principal with the following command.
 Make sure to give it a sensible name!
@@ -257,37 +264,37 @@ az ad sp create-for-rbac \
     --scope /subscriptions/<subscription ID from above>
 ```
 
-![Create Service Principal](images/create-for-rbac.png)
+![Create Service Principal](assets/create-for-rbac.png)
 
 The fields `appId`, `password` and `tenant` are the required pieces of information.
 These should be copied into the "Service Principal App ID", "Service Principal App Key" and "Service Principal Tenant ID" fields in the form, respectively.
 
 **Keep this information safe as the password cannot be recovered after this step!**
 
-### Monitoring Deployment Progress
+### :chart_with_upwards_trend: Monitoring Deployment Progress
 
 To monitor the progress of the blue-button deployment, go to the [Azure portal](https://portal.azure.com/) and select "Resource Groups" from the left hand pane.
 Then in the central pane select the resource group you chose to deploy into.
 
-![Select Resource Group](images/select_resource_group.png)
+![Select Resource Group](assets/select_resource_group.png)
 
 This will give you a right hand pane containing the resources within the group.
 You may need to "refresh" until you see a new container instance.
 
-![Select Container Instance](images/select_container_instance.png)
+![Select Container Instance](assets/select_container_instance.png)
 
 When it appears, select it and then in the new pane go to "Settings->Containers".
 You should see your new container listed.
 
-![Container Events](images/container_events.png)
+![Container Events](assets/container_events.png)
 
 Select it, then in the lower right hand pane select "Logs".
 You may need to "refresh" this to display the logs until the container starts up.
 The logs are also not auto-updating, so keep refreshing them to see progress.
 
-![Container Logs](images/container_logs.png)
+![Container Logs](assets/container_logs.png)
 
-### Retrieving Deployment Output from Azure
+### :package: Retrieving Deployment Output from Azure
 
 When BinderHub is deployed using the "Deploy to Azure" button (or with a local container), output logs, YAML files, and ssh keys are pushed to an Azure storage account to preserve them once the container exits.
 The storage account is created in the same resource group as the Kubernetes cluster, and files are pushed into a storage blob within the account.
@@ -297,15 +304,15 @@ To find the storage account name, navigate to your resource group by selecting "
 Along with any pre-existing resources (for example, if you re-used an existing resource group), you should see three new resources: a container instance, a Kubernetes service, and a storage account.
 Make a note of the name of the storage account (referred to in the following commands as `ACCOUNT_NAME`) then select this storage account.
 
-![Storage Account](images/storage_account.png)
+![Storage Account](assets/storage_account.png)
 
 In the new pane that opens, select "Blobs" from the "Services" section.
 You should see a single blob listed.
 Make a note of the name of this blob, which will be `BLOB_NAME` in the following commands.
 
-![Blob Storage](images/blob_storage.png)
+![Blob Storage](assets/blob_storage.png)
 
-![Select Blob Storage](images/select_blob_storage.png)
+![Select Blob Storage](assets/select_blob_storage.png)
 
 The Azure CLI can be used to fetch files from the blob (either in the cloud shell in the [Azure Portal](https://portal.azure.com), or in a local terminal session if you've run [`setup.sh`](.setup.sh) first).
 Files are fetched into a local directory, **which must already exist**, referred to as `OUTPUT_DIRECTORY` in the following commands.
@@ -344,7 +351,7 @@ az storage blob download \
 
 For full documentation, see the [`az storage blob` documentation](https://docs.microsoft.com/en-gb/cli/azure/storage/blob?view=azure-cli-latest).
 
-### Accessing your BinderHub after Deployment
+### :unlock: Accessing your BinderHub after Deployment
 
 Once the deployment has succeeded and you've downloaded the log files, visit the IP address of your Binder page to test it's working.
 
@@ -356,7 +363,7 @@ cat <OUTPUT_DIRECTORY>/binder-ip.log
 
 A good repository to test your BinderHub with is [binder-examples/requirements](https://github.com/binder-examples/requirements)
 
-## Running the Container Locally
+## :house_with_garden: Running the Container Locally
 
 The third way to deploy BinderHub to Azure would be to pull the Docker image and run it directly, parsing the values you would have entered in `config.json` as environment variables.
 
@@ -403,7 +410,7 @@ docker run \
 The output will be printed to your terminal and the files will be pushed to blob storage, as in the button deployment.
 See the [Retrieving Deployment Output from Azure](#Retrieving-Deployment-Output-from-Azure) section for how to return these files.
 
-## Customising your BinderHub Deployment
+## :art: Customising your BinderHub Deployment
 
 Customising your BinderHub deployment is as simple as editing `config.yaml` and/or `secret.yaml` and then upgrading the BinderHub Helm Chart.
 The Helm Chart can be upgraded by running [`upgrade.sh`](./upgrade.sh) (make sure you have the CLIs installed by running [`setup.sh`](./setup.sh) first).
@@ -412,9 +419,9 @@ The Jupyter guide to customising the underlying JupyterHub can be found [here](h
 
 The BinderHub guide for changing the landing page logo can be found [here](https://binderhub.readthedocs.io/en/latest/customizing.html#template-customization).
 
-## Developers Guide
+## :computer: Developers Guide
 
-### Building the Docker image for testing
+### :wrench: Building the Docker image for testing
 
 The Docker image will automatically be built by Docker Hub when new pushes are made to `master`.
 However, a developer may wish to build the image to test deployments before merging code.
@@ -435,11 +442,11 @@ But if you choose to do so, the command is as follows.
 docker push <REGISTRY-HOST>/<DOCKER-USERNAME>/binderhub-setup:<TAG>
 ```
 
-### Tagging a Release
+### :label: Tagging a Release
 
 Docker Hub will automatically build the image from the repo with every push to `master` and tag this as `latest`.
 
-To release a specific version, update the [Azure ARM template](https://github.com/alan-turing-institute/binderhub-deploy/blob/master/azure/paas/arm/azure.deploy.json) with the new/desired version on line [123](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure/paas/arm/azure.deploy.json#L123) and block [L127-L137](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure/paas/arm/azure.deploy.json#L127-L137).
+To release a specific version, update the [Azure ARM template](https://github.com/alan-turing-institute/binderhub-deploy/blob/master/azure.deploy.json) with the new/desired version on line [123](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure.deploy.json#L123) and block [L127-L137](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure.deploy.json#L127-L137).
 We follow [SemVer](https://semver.org/) versioning format.
 
 Once the Pull Request containing the new code/version/release has been merged, run the following commands, where `vX.Y.Z` is the new/desired version release.
@@ -460,11 +467,27 @@ See the following documentation for information on tagging:
 - <https://git-scm.com/book/en/v2/Git-Basics-Tagging>
 - <https://dev.to/neshaz/a-tutorial-for-tagging-releases-in-git-147e>
 
-## Contributors
+## :purple_heart: Contributors
 
-We would like to acknowledge and thank the following people for their contributions to this project:
+Please read our :purple_heart: [Code of Conduct](CODE_OF_CONDUCT.md) :purple_heart: and :space_invader: [Contributing Guidelines](CONTRIBUTING.md) :space_invader: to get you started!
 
-- Tim Greaves ([@tmbgreaves](https://github.com/tmbgreaves))
-- Gerard Gorman ([@ggorman](https://github.com/ggorman))
-- Tania Allard ([@trallard](https://github.com/trallard))
-- Diego Alonso Alvarez ([@dalonsoa](https://github.com/dalonsoa))
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://www.imperial.ac.uk/admin-services/ict/self-service/research-support/rcs/research-software-engineering/"><img src="https://avatars1.githubusercontent.com/u/6095790?v=4" width="100px;" alt=""/><br /><sub><b>Diego</b></sub></a><br /><a href="https://github.com/alan-turing-institute/binderhub-deploy/issues?q=author%3Adalonsoa" title="Bug reports">🐛</a> <a href="#ideas-dalonsoa" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/pulls?q=is%3Apr+reviewed-by%3Adalonsoa" title="Reviewed Pull Requests">👀</a></td>
+    <td align="center"><a href="https://uk.linkedin.com/in/gerardgorman"><img src="https://avatars1.githubusercontent.com/u/5394691?v=4" width="100px;" alt=""/><br /><sub><b>Gerard Gorman</b></sub></a><br /><a href="#ideas-ggorman" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/pulls?q=is%3Apr+reviewed-by%3Aggorman" title="Reviewed Pull Requests">👀</a></td>
+    <td align="center"><a href="https://github.com/jemrobinson"><img src="https://avatars2.githubusercontent.com/u/3502751?v=4" width="100px;" alt=""/><br /><sub><b>James Robinson</b></sub></a><br /><a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=jemrobinson" title="Code">💻</a></td>
+    <td align="center"><a href="http://oneframelink.com"><img src="https://avatars1.githubusercontent.com/u/561862?v=4" width="100px;" alt=""/><br /><sub><b>Nicholas Paldino</b></sub></a><br /><a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=casperOne" title="Code">💻</a></td>
+    <td align="center"><a href="https://sgibson91.github.io/"><img src="https://avatars2.githubusercontent.com/u/44771837?v=4" width="100px;" alt=""/><br /><sub><b>Sarah Gibson</b></sub></a><br /><a href="https://github.com/alan-turing-institute/binderhub-deploy/issues?q=author%3Asgibson91" title="Bug reports">🐛</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=sgibson91" title="Code">💻</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=sgibson91" title="Documentation">📖</a> <a href="#ideas-sgibson91" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-sgibson91" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#maintenance-sgibson91" title="Maintenance">🚧</a> <a href="#platform-sgibson91" title="Packaging/porting to new platform">📦</a> <a href="#projectManagement-sgibson91" title="Project Management">📆</a> <a href="#question-sgibson91" title="Answering Questions">💬</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/pulls?q=is%3Apr+reviewed-by%3Asgibson91" title="Reviewed Pull Requests">👀</a> <a href="#tool-sgibson91" title="Tools">🔧</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=sgibson91" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://trallard.dev"><img src="https://avatars3.githubusercontent.com/u/23552331?v=4" width="100px;" alt=""/><br /><sub><b>Tania Allard</b></sub></a><br /><a href="https://github.com/alan-turing-institute/binderhub-deploy/issues?q=author%3Atrallard" title="Bug reports">🐛</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=trallard" title="Code">💻</a> <a href="#ideas-trallard" title="Ideas, Planning, & Feedback">🤔</a> <a href="#tutorial-trallard" title="Tutorials">✅</a> <a href="#question-trallard" title="Answering Questions">💬</a></td>
+    <td align="center"><a href="http://www.imperial.ac.uk/people/tim.greaves"><img src="https://avatars2.githubusercontent.com/u/7603619?v=4" width="100px;" alt=""/><br /><sub><b>Tim Greaves</b></sub></a><br /><a href="https://github.com/alan-turing-institute/binderhub-deploy/issues?q=author%3Atmbgreaves" title="Bug reports">🐛</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=tmbgreaves" title="Code">💻</a> <a href="#ideas-tmbgreaves" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-tmbgreaves" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#platform-tmbgreaves" title="Packaging/porting to new platform">📦</a> <a href="#tool-tmbgreaves" title="Tools">🔧</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
