@@ -1,6 +1,9 @@
 # Automatically deploy a BinderHub to Microsoft Azure
 
 ![mit_license_badge](https://img.shields.io/badge/License-MIT-yellow.svg) [![Build Status](https://travis-ci.org/alan-turing-institute/binderhub-deploy.svg?branch=master)](https://travis-ci.org/alan-turing-institute/binderhub-deploy) ![GitHub Action Status - Shellcheck](https://github.com/alan-turing-institute/binderhub-deploy/workflows/shellcheck/badge.svg) ![GitHub Action Status - Yamllint](https://github.com/alan-turing-institute/binderhub-deploy/workflows/yamllint/badge.svg)
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-0-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) is a cloud-based, multi-server technology used for hosting repoducible computing environments and interactive Jupyter Notebooks built from code repositories.
 
@@ -458,7 +461,12 @@ See the following documentation for information on tagging:
 
 ## Contributors
 
-We would like to acknowledge and thank the following people for their contributions to this project:
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 - Tim Greaves ([@tmbgreaves](https://github.com/tmbgreaves))
 - Gerard Gorman ([@ggorman](https://github.com/ggorman))
