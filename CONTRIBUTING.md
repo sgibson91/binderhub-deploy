@@ -14,6 +14,7 @@ Use your best judgement and feel free to propose changes to this document in a P
   - [:open_file_folder: Scripts](#open_file_folder-scripts)
   - [:whale: Dockerfile](#whale-dockerfile)
   - [:rocket: Deploy to Azure button](#rocket-deploy-to-azure-button)
+  - [:white_check_mark: Tests](#white_check_mark-tests)
 - [:gift: How can I contribute?](#gift-how-can-i-contribute)
   - [:bug: Reporting Bugs](#bug-reporting-bugs)
   - [:sparkles: Requesting Features](#sparkles-requesting-features)
@@ -61,6 +62,15 @@ When running the image, the parameters defined in [`template-config.json`](templ
 
 The Deploy to Azure button serves as a graphical user interface to the Docker image that passes information as environment variables at runtime.
 The configuration of the button parameters and variables is stored in the [`azure.deploy.json`](azure.deploy.json) file.
+
+### :white_check_mark: Tests
+
+This repository uses [Continuous Integration](https://docs.microsoft.com/en-us/azure/devops/learn/what-is-continuous-integration) tests to check for breaking changes and formatting within the code base.
+This repository has the following tests:
+
+- **[Travis](.travis.yml):** This pipeline runs a [matrix job]() to test that [`setup.sh`](setup.sh) can run on Linux, OSX, and Windows platforms
+- **Shellcheck and format:** This GitHub Action workflow tests for formatting and linting of the shell scripts. It runs [on master](.github/workflows/shellcheck-master.yml) and [in Pull Requests](.github/workflows/shellcheck-pr.yml) and will leave comments on PRs if the test breaks.
+- **[YAML formatting](.github/workflows/yamllint.yml):** This GitHub Action workflow check that the YAML templates throughout the repository are well-formatted and readable to prevent errors running the scripts.
 
 ## :gift: How can I contribute?
 
