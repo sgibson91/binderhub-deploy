@@ -33,6 +33,18 @@
         "ideas",
         "review"
       ]
+    },
+    {
+      "login": "trallard",
+      "name": "Tania Allard",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/23552331?v=4",
+      "profile": "https://trallard.dev",
+      "contributions": [
+        "bug",
+        "code",
+        "ideas",
+        "tutorial"
+      ]
     }
   ],
   "contributorsPerLine": 7,
