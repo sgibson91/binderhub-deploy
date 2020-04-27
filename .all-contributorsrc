@@ -77,6 +77,15 @@
         "tool",
         "test"
       ]
+    },
+    {
+      "login": "casperOne",
+      "name": "Nicholas Paldino",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/561862?v=4",
+      "profile": "http://oneframelink.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
