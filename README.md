@@ -458,6 +458,8 @@ See the following documentation for information on tagging:
 
 ## :purple_heart: Contributors
 
+Please read our :purple_heart: [Code of Conduct](CODE_OF_CONDUCT.md) :purple_heart: and :space_invader: [Contributing Guidelines](CONTRIBUTING.md) :space_invader: to get you started!
+
 We would like to acknowledge and thank the following people for their contributions to this project:
 
 - Tim Greaves ([@tmbgreaves](https://github.com/tmbgreaves))
