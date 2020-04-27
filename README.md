@@ -16,6 +16,8 @@ Your resources will be frozen once your subscription expires, then deleted if yo
 If you are building a BinderHub as a service for an organisation, your institution may already have an Azure account.
 You should contact your IT Services for further information regarding permissions and access (see the [Service Principal Creation](#service-principal-creation) section below).
 
+Please read our :purple_heart: [Code of Conduct](CODE_OF_CONDUCT.md) :purple_heart: and :space_invader: [Contributing Guidelines](CONTRIBUTING.md) :space_invader:
+
 **Table of Contents:**
 
 - [:children_crossing: Usage](#children_crossing-usage)
