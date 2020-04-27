@@ -16,6 +16,7 @@ Use your best judgement and feel free to propose changes to this document in a P
   - [:hatching_chick: Your First Contribution](#hatching_chick-your-first-contribution)
   - [:arrow_right: Pull Requests](#arrow_right-pull-requests)
 - [:art: Styleguides](#art-styleguides)
+  - [:heavy_dollar_sign: Bash Styleguide](#heavy_dollar_sign-bash-styleguide)
   - [:pencil: Markdown Styleguide](#pencil-markdown-styleguide)
 - [:notebook: Additional Notes](#notebook-additional-notes)
   - [:label: Issue and Pull Request Labels](#label-issue-and-pull-request-labels)
@@ -78,6 +79,12 @@ The project maintainers will then review your Pull Request and may ask for some 
 Once you and the maintainers are happy, your contribution will be merged!
 
 ## :art: Styleguides
+
+### :heavy_dollar_sign: Bash Styleguide
+
+This repository implements bash linting and formatting via [`shellcheck`](https://github.com/koalaman/shellcheck) and [`shfmt`](https://github.com/mvdan/sh).
+These checks are run in a [GitHub Action](.github/workflows/shellcheck-master.yml) and will leave [comments on Pull Requests](.github/workflows/shellcheck-pr.yml) if issues are found.
+This will help us maintain readable code for future contributors.
 
 ### :pencil: Markdown Styleguide
 
