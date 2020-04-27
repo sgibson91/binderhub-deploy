@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get this script's path
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 # Read in config.json and get variables
 echo "--> Reading in config.json"
@@ -27,10 +27,10 @@ helm repo update
 # Upgrade helm chart
 echo "--> Upgrading ${BINDERHUB_NAME}'s helm chart with version ${BINDERHUB_VERSION}"
 helm upgrade "${BINDERHUB_NAME}" jupyterhub/binderhub \
---version="${BINDERHUB_VERSION}" \
--f "${DIR}/secret.yaml" \
--f "${DIR}/config.yaml" \
---wait
+	--version="${BINDERHUB_VERSION}" \
+	-f "${DIR}/secret.yaml" \
+	-f "${DIR}/config.yaml" \
+	--wait
 
 # Print Kubernetes pods
 echo "--> Getting pods"

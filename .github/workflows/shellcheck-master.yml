@@ -1,0 +1,14 @@
+name: Run shellcheck and shfmt
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  shell-checker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run shell-checker
+        uses: luizm/action-sh-checker@v0.1.3
