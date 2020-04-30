@@ -46,7 +46,7 @@ Please read our :purple_heart: [Code of Conduct](CODE_OF_CONDUCT.md) :purple_hea
 
 ## :children_crossing: Usage
 
-This repo can either be run locally or as "Platform as a Service" through the "Deploy to Azure" button in the ["Deploy to Azure" Button](#deploy-to-azure-button) section.
+This repo can either be run locally or as "Platform as a Service" through the "Deploy to Azure" button in the ["Deploy to Azure" Button](#rocket-deploy-to-azure-button) section.
 
 To use these scripts locally, clone this repo and change into the directory.
 
