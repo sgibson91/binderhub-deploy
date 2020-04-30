@@ -16,7 +16,7 @@ You will be asked to provide a credit card for verification purposes.
 **You will not be charged.**
 Your resources will be frozen once your subscription expires, then deleted if you do not reactivate your account within a given time period.
 If you are building a BinderHub as a service for an organisation, your institution may already have an Azure account.
-You should contact your IT Services for further information regarding permissions and access (see the [Service Principal Creation](#service-principal-creation) section below).
+You should contact your IT Services for further information regarding permissions and access (see the [Service Principal Creation](#sparkles-service-principal-creation) section below).
 
 Please read our :purple_heart: [Code of Conduct](CODE_OF_CONDUCT.md) :purple_heart: and :space_invader: [Contributing Guidelines](CONTRIBUTING.md) :space_invader:
 
@@ -138,7 +138,7 @@ For a few extra steps, deploying an ACR will allow the BinderHub images to be pu
 
 **Service Principal:**
 
-In the [Service Principal Creation](#Service-Principal-Creation) section, we cover how to create a Service Principal in order to deploy a BinderHub.
+In the [Service Principal Creation](#sparkles-service-principal-creation) section, we cover how to create a Service Principal in order to deploy a BinderHub.
 When following these steps, the `--role` argument of `Contributor` should be replaced with `Owner`.
 This is because the Service Principal will need the [`AcrPush`](https://docs.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles#acrpush) role in order to push images to the ACR and the `Contributor` role does not have permission to create new role assignments.
 
@@ -401,7 +401,7 @@ docker run \
 ```
 
 The output will be printed to your terminal and the files will be pushed to blob storage, as in the button deployment.
-See the [Retrieving Deployment Output from Azure](#Retrieving-Deployment-Output-from-Azure) section for how to return these files.
+See the [Retrieving Deployment Output from Azure](#package-retrieving-deployment-output-from-azure) section for how to return these files.
 
 ## :art: Customising your BinderHub Deployment
 
