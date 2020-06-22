@@ -1,6 +1,6 @@
 # Automatically deploy a BinderHub to Microsoft Azure
 
-![mit_license_badge](https://img.shields.io/badge/License-MIT-yellow.svg) [![Build Status](https://travis-ci.org/alan-turing-institute/binderhub-deploy.svg?branch=master)](https://travis-ci.org/alan-turing-institute/binderhub-deploy) ![Run shellcheck and shfmt](https://github.com/alan-turing-institute/binderhub-deploy/workflows/Run%20shellcheck%20and%20shfmt/badge.svg) ![GitHub Action Status - Yamllint](https://github.com/alan-turing-institute/binderhub-deploy/workflows/yamllint/badge.svg) [![Code of Conduct](https://img.shields.io/static/v1?label=Code%20of&message=Conduct&color=blueviolet)](CODE_OF_CONDUCT.md) [![Contributing Guidelines](https://img.shields.io/static/v1?label=Contributing&message=Guidelines&color=blueviolet)](CONTRIBUTING.md) [![good first issue](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/good%20first%20issue)](https://github.com/alan-turing-institute/binderhub-deploy/labels/good%20first%20issue) [![GitHub labels](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/help%20wanted)](https://github.com/alan-turing-institute/binderhub-deploy/labels/help%20wanted)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![mit_license_badge](https://img.shields.io/badge/License-MIT-yellow.svg) [![Check Setup](https://github.com/alan-turing-institute/binderhub-deploy/workflows/Check%20Setup/badge.svg)](https://github.com/alan-turing-institute/binderhub-deploy/actions?query=workflow%3A%22Check+Setup%22+branch%3Amaster) [![Run shellcheck and shfmt](https://github.com/alan-turing-institute/binderhub-deploy/workflows/Run%20shellcheck%20and%20shfmt/badge.svg)](https://github.com/alan-turing-institute/binderhub-deploy/actions?query=workflow%3A%22Run+shellcheck+and+shfmt%22+branch%3Amaster) [![yamllint](https://github.com/alan-turing-institute/binderhub-deploy/workflows/yamllint/badge.svg)](https://github.com/alan-turing-institute/binderhub-deploy/actions?query=workflow%3Ayamllint+branch%3Amaster) [![Code of Conduct](https://img.shields.io/static/v1?label=Code%20of&message=Conduct&color=blueviolet)](CODE_OF_CONDUCT.md) [![Contributing Guidelines](https://img.shields.io/static/v1?label=Contributing&message=Guidelines&color=blueviolet)](CONTRIBUTING.md) [![good first issue](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/good%20first%20issue)](https://github.com/alan-turing-institute/binderhub-deploy/labels/good%20first%20issue) [![GitHub labels](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/help%20wanted)](https://github.com/alan-turing-institute/binderhub-deploy/labels/help%20wanted)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -373,7 +373,7 @@ where `<TAG>` is your chosen image tag.
 
 A list of availabe tags can be found [here](https://cloud.docker.com/repository/docker/sgibson91/binderhub-setup/tags).
 It is recommended to use the most recent version number.
-The `latest` tag is the most recent build from `master` branch and may be subject fluctuations.
+The `latest` tag is the most recent build from the default branch and may be subject fluctuations.
 
 Then, run the container with the following arguments, replacing the `<>` fields as necessary:
 
@@ -416,7 +416,7 @@ The BinderHub guide for changing the landing page logo can be found [here](https
 
 ### :wrench: Building the Docker image for testing
 
-The Docker image will automatically be built by Docker Hub when new pushes are made to `master`.
+The Docker image will automatically be built by Docker Hub when new pushes are made to `main`.
 However, a developer may wish to build the image to test deployments before merging code.
 
 Firstly, make sure `config.json` has been removed from the repository.
@@ -437,7 +437,7 @@ docker push <REGISTRY-HOST>/<DOCKER-USERNAME>/binderhub-setup:<TAG>
 
 ### :label: Tagging a Release
 
-Docker Hub will automatically build the image from the repo with every push to `master` and tag this as `latest`.
+Docker Hub will automatically build the image from the repo with every push to `main` and tag this as `latest`.
 
 To release a specific version, update the [Azure ARM template](https://github.com/alan-turing-institute/binderhub-deploy/blob/master/azure.deploy.json) with the new/desired version on line [123](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure.deploy.json#L123) and block [L127-L137](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure.deploy.json#L127-L137).
 We follow [SemVer](https://semver.org/) versioning format.
@@ -445,7 +445,7 @@ We follow [SemVer](https://semver.org/) versioning format.
 Once the Pull Request containing the new code/version/release has been merged, run the following commands, where `vX.Y.Z` is the new/desired version release.
 
 ```bash
-git checkout master
+git checkout main
 git pull
 git tag -a vX.Y.Z  # For an annotated tag
 git tag -m vX.Y.Z  # For a lightweight tag
