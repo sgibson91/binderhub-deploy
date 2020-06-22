@@ -10,44 +10,35 @@ DESCRIPTION = (
 
 def parse_args(args):
     parser = argparse.ArgumentParser(description=DESCRIPTION)
-    subparsers = parser.add_subparsers(
-        help="Available binderhub-deploy sub-commands"
-    )
+    subparsers = parser.add_subparsers(help="Available binderhub-deploy sub-commands")
 
     parser_init = subparsers.add_parser(
-        "init",
-        help="Initialise a config.json file to describe the deployment",
+        "init", help="Initialise a config.json file to describe the deployment",
     )
     parser_init.set_defaults(func=construct_config)
 
     parser_setup = subparsers.add_parser(
-        "setup",
-        help="Install the required tools for deployment",
+        "setup", help="Install the required tools for deployment",
     )
 
     parser_deploy = subparsers.add_parser(
-        "deploy",
-        help="Deploy the BinderHub to Azure from config.json",
+        "deploy", help="Deploy the BinderHub to Azure from config.json",
     )
 
     parser_logs = subparsers.add_parser(
-        "logs",
-        help="Print the log output of the BinderHub",
+        "logs", help="Print the log output of the BinderHub",
     )
 
     parser_info = subparsers.add_parser(
-        "info",
-        help="Print the IP addresses of the BinderHub and JupyterHub",
+        "info", help="Print the IP addresses of the BinderHub and JupyterHub",
     )
 
     parser_upgrade = subparsers.add_parser(
-        "upgrade",
-        help="Upgrade the BinderHub helm chart",
+        "upgrade", help="Upgrade the BinderHub helm chart",
     )
 
     parser_teardown = subparsers.add_parser(
-        "teardown",
-        help="Destroy the BinderHub deployment",
+        "teardown", help="Destroy the BinderHub deployment",
     )
 
     return parser.parse_args()
