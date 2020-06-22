@@ -3,7 +3,7 @@ name: Run shellcheck and shfmt
 on:
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   shell-checker:
