@@ -1,16 +1,16 @@
 import sys
 import argparse
-from initialise import construct_config
+from .initialise import construct_config
 
 DESCRIPTION = (
     "binderhub-deploy: A command line tool to automatically deploy a BinderHub"
-    " to Azure Cloud."
+    " to Azure Cloud"
 )
 
 
 def parse_args(args):
     parser = argparse.ArgumentParser(description=DESCRIPTION)
-    subparsers = parser.add_subparsers(help="Available binderhub-deploy sub-commands")
+    subparsers = parser.add_subparsers()
 
     parser_init = subparsers.add_parser(
         "init", help="Initialise a config.json file to describe the deployment",
@@ -20,6 +20,7 @@ def parse_args(args):
     parser_setup = subparsers.add_parser(
         "setup", help="Install the required tools for deployment",
     )
+    parser_setup.set_defaults()
 
     parser_deploy = subparsers.add_parser(
         "deploy", help="Deploy the BinderHub to Azure from config.json",
@@ -41,12 +42,13 @@ def parse_args(args):
         "teardown", help="Destroy the BinderHub deployment",
     )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    return args.func()
 
 
 def main():
-    args = parse_args(sys.argv[1:])
-    print(vars(args))
+    parse_args(sys.argv[1:])
 
 
 if __name__ == "__main__":
