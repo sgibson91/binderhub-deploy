@@ -23,4 +23,4 @@ jobs:
           pip install flake8
       - name: Lint with Flake8
         run: |
-          flake8 src/
+          flake8 --ignore=E501 src/
