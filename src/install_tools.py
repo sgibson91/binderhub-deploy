@@ -1,64 +1,102 @@
+import sys
 import platform
 import subprocess
-from .run_command import run_cmd
+from .run_command import run_cmd, run_pipe_cmd
 
-# SUDO_CMD = ["sudo"]
-# PACKAGES = ["curl", "python", "openssl", "jq"]
-# TOOLS = ["azure-cli", "kubectl"]
+SUDO = "/usr/bin/sudo"
 
 
 def detect_os():
     return platform.system().lower()
 
 
-def detect_package_manager(os):
-    if os.lower() == "darwin":
-        # First try homebrew
-        out = subprocess.check_output(["brew", "--version"])
-        if out is not None:
-            return (
-                "brew",
-                [
-                    "curl",
-                    "python",
-                    "azure-cli",
-                    "kubernetes-cli",
-                    "kubernetes-helm",
-                    "jq",
-                ],
-            )
+def install_tools():
+    os = detect_os()
+    print("--> OS: %s" % os)
 
-
-def brew_install(packages):
-    # Update homebrew
-    print("Running brew update...")
-    run_cmd(["brew", "update"])
-
-    # Install packages
-    for package in packages:
-        out = run_cmd(["brew", "ls", "--versions", package])
+    # Linux install
+    if os == "linux":
+        # apt-based installs
+        out = run_cmd(["apt", "--version"])
 
         if out["returncode"] == 0:
-            if out["output"] == "":
-                print(f"Installing {package}...")
-                run_cmd(["brew", "install", package])
-            else:
-                print(f"{package} is already installed")
+            print("--> Checking system packages and installing any missing packages")
 
-        else:
-            print(out["err_msg"])
+            print("--> Updating apt")
+            run_cmd([SUDO, "apt", "update"])
+
+            # Install system packages
+            APT_PACKAGES = ["curl", "openssl", "jq"]
+            for package in APT_PACKAGES:
+                print("--> apt installing %s" % package)
+                out = run_cmd([SUDO, "apt", "install", "-y", package])
+
+                if out["returncode"] != 0:
+                    print("--> %s install failed; please install manually and re-run this script")
+                    sys.exit(1)
+                elif "is already the newest version" in out["output"]:
+                    print("--> %s is up-to-date" % package)
+
+            # Install Azure-CLI
+            out = run_cmd(["az", "--version"])
+
+            if out["returncode"] != 0:
+                print("--> Attempting to install Azure-CLI with deb packages")
+                cmds = [["curl", "-sL", "https://aka.ms/InstallAzureCLIDeb"], [SUDO, "bash"]]
+                out = run_pipe_cmd(cmds)
+
+                if out["returncode"] != 0:
+                    print("--> Azure-CLI install failed; please install manually and re-run this script")
+                    sys.exit(1)
+
+            else:
+                print("--> Azure-CLI already installed")
+
+            # Install kubectl
+            out = run_cmd(["kubectl", "version", "--client", "--short"])
+
+            if out["returncode"] != 0:
+                print("--> Attempting to install kubectl with deb packages")
+                out = run_cmd([SUDO, "apt-get", "install", "-y", "apt-transport-https", "gnupg2"])
+
+                cmds = [["curl", "-s", "https://packages.cloud.google.com/apt/doc/apt-key.gpg"], [SUDO, "apt-key", "add", "-"]]
+                out = run_pipe_cmd(cmds)
+
+                cmds = [["echo", "deb https://apt.kubernetes.io/ kubernetes-xenial main"], [SUDO, "tee", "-a", "/etc/apt/sources.list.d/kubernetes.list"]]
+                out = run_pipe_cmd(cmds)
+
+                out = run_cmd([SUDO, "apt-get", "install", "-y", "kubectl"])
+
+                if out["returncode"] != 0:
+                    print("--> kubectl install failed; please install manually and re-run this script")
+                    sys.exit(1)
+
+            else:
+                print("--> kubectl already installed")
+
+            # Install helm
+            out = run_cmd(["helm", "version", "--short"])
+
+            if out["returncode"] != 0:
+                print("--> Attempting to install helm with deb packages")
+                cmds = [["curl", "https://helm.baltorepo.com/organization/signing.asc"], [SUDO, "apt-key", "add", "-"]]
+                out = run_pipe_cmd(cmds)
+
+                cmds = [["echo", "deb https://baltocdn.com/helm/stable/debian/ all main"], [SUDO, "tee", "/etc/apt/sources.list.d/helm-stable-debian.list"]]
+                out = run_pipe_cmd(cmds)
+
+                out = run_cmd([SUDO, "apt-get", "install", "helm"])
+
+                if out["returncode"] != 0:
+                    print("--> helm install failed; please install manually and re-run this script")
+                    sys.exit(1)
+
+            else:
+                print("--> helm already installed")
 
 
 def main():
-    os = detect_os()
-    print(f"OS: {os}")
-
-    pkg_man, pkg_list = detect_package_manager(os)
-    print(f"Package manager: {pkg_man}")
-    print(f"Packages to be installed: {pkg_list}")
-
-    if (os == "darwin") and (pkg_man == "brew"):
-        brew_install(pkg_list)
+    install_tools()
 
 
 if __name__ == "__main__":
