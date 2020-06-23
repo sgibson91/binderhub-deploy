@@ -51,7 +51,11 @@ def brew_install(packages):
 
 def main():
     os = detect_os()
+    print(f"OS: {os}")
+
     pkg_man, pkg_list = detect_package_manager(os)
+    print(f"Package manager: {pkg_man}")
+    print(f"Packages to be installed: {pkg_list}")
 
     if (os == "darwin") and (pkg_man == "brew"):
         brew_install(pkg_list)
