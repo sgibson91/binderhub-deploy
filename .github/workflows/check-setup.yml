@@ -13,12 +13,28 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        python_version: [3.7, 3.8]
       fail-fast: true
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-      - name: Run setup.sh
+
+      - name: Setup Python ${{ matrix.python_version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python_version }
+
+      - name: Install tool
         run: |
-          chmod +x *.sh
-          ./setup.sh
+          pip install -U pip
+          pip install -e .
+
+      - name: Run setup
+        run: |
+          bhub-deploy setup
+
+      # - name: Run setup.sh
+      #   run: |
+      #     chmod +x *.sh
+      #     ./setup.sh
