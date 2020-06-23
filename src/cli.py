@@ -1,6 +1,7 @@
 import sys
 import argparse
 from .initialise import construct_config
+from .install_tools import main as install_tools
 
 DESCRIPTION = (
     "binderhub-deploy: A command line tool to automatically deploy a BinderHub"
@@ -20,7 +21,7 @@ def parse_args(args):
     parser_setup = subparsers.add_parser(
         "setup", help="Install the required tools for deployment",
     )
-    parser_setup.set_defaults()
+    parser_setup.set_defaults(func=install_tools)
 
     parser_deploy = subparsers.add_parser(
         "deploy", help="Deploy the BinderHub to Azure from config.json",
