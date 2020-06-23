@@ -15,9 +15,7 @@ def run_cmd(cmd):
     """
     result = {}
 
-    proc = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = proc.communicate()
 
     result["returncode"] = proc.returncode
