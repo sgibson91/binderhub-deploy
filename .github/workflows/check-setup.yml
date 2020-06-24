@@ -28,7 +28,7 @@ jobs:
       - name: Install tool
         run: |
           pip install -U pip
-          pip install -e .
+          python setup.py install
 
       - name: Run setup
         run: |
