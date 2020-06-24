@@ -143,6 +143,7 @@ def install_tools():
             if out["output"] == "":
                 print("--> brew installing %s" % package)
                 out = run_cmd(["brew", "install", package])
+                print(out)
 
                 if out["returncode"] != 0:
                     print(
