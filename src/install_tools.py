@@ -138,12 +138,10 @@ def install_tools():
         BREW_PACKAGES = ["curl", "jq", "azure-cli", "kubernetes-cli", "kubernetes-helm"]
         for package in BREW_PACKAGES:
             out = run_cmd(["brew", "ls", "--versions", package])
-            print(out["output"])
 
             if out["output"] == "":
                 print("--> brew installing %s" % package)
                 out = run_cmd(["brew", "install", package])
-                print(out)
 
                 if out["returncode"] != 0:
                     print(
