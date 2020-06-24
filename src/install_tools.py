@@ -139,22 +139,18 @@ def install_tools():
         for package in BREW_PACKAGES:
             out = run_cmd(["brew", "ls", "--versions", package])
 
-            if out["returncode"] != 0:
-                print("--> An error occurred!\n%s" % out)
-                sys.exit(1)
-            else:
-                if out["output"] == "":
-                    print("--> brew installing %s" % package)
-                    out = run_cmd(["brew", "install", package])
+            if out["output"] == "":
+                print("--> brew installing %s" % package)
+                out = run_cmd(["brew", "install", package])
 
-                    if out["returncode"] != 0:
-                        print(
-                            "--> %s install failed; please install manually and re-run this script"
-                            % package
-                        )
+                if out["returncode"] != 0:
+                    print(
+                        "--> %s install failed; please install manually and re-run this script"
+                        % package
+                    )
 
-                else:
-                    print("--> %s already installed" % package)
+            # else:
+            #     print("--> %s already installed" % package)
 
 
 def main():
