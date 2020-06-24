@@ -123,6 +123,39 @@ def install_tools():
             else:
                 print("--> helm already installed")
 
+    # MacOS install
+    elif os == "darwin":
+        # Homebrew installs
+        out = run_cmd(["brew", "--version"])
+
+        if out["returncode"] == 0:
+            print("--> Checking system packages and installing any missing packages")
+
+            print("--> Updating brew")
+            run_cmd(["brew", "update"])
+
+        # Install packages
+        BREW_PACKAGES = ["curl", "jq", "azure-cli", "kubernetes-cli", "kubernetes-helm"]
+        for package in BREW_PACKAGES:
+            out = run_cmd(["brew", "ls", "--versions", package])
+
+            if out["returncode"] != 0:
+                print("An error occurred!")
+                sys.exit(1)
+            else:
+                if out["output"] == "":
+                    print("--> brew installing %s" % package)
+                    out = run_cmd(["brew", "install", package])
+
+                    if out["returncode"] != 0:
+                        print(
+                            "--> %s install failed; please install manually and re-run this script"
+                            % package
+                        )
+
+                else:
+                    print("--> %s already installed" % package)
+
 
 def main():
     install_tools()
