@@ -140,7 +140,7 @@ def install_tools():
             out = run_cmd(["brew", "ls", "--versions", package])
 
             if out["returncode"] != 0:
-                print("An error occurred!")
+                print("--> An error occurred!\n%s" % out)
                 sys.exit(1)
             else:
                 if out["output"] == "":
