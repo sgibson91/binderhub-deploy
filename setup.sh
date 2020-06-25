@@ -51,7 +51,7 @@ if [[ ${OSTYPE} == 'linux'* ]]; then
 			echo "--> kubectl already installed"
 		fi
 
-		## yum-based systems
+	## yum-based systems
 	elif command -v yum >/dev/null 2>&1; then
 		if [ $(grep -iq centos /etc/redhat-release) ]; then
 			echo "***************************************************************"
@@ -67,13 +67,13 @@ if [[ ${OSTYPE} == 'linux'* ]]; then
 		fi
 		echo "--> Checking system packages and installing any missing packages"
 		YUMPACKAGES=" \
-      jq \
-      curl \
-      python \
-      tar \
-      which \
-      openssl \
-      "
+			jq \
+			curl \
+			python \
+			tar \
+			which \
+			openssl \
+			"
 		for package in $YUMPACKAGES; do
 			if ! rpm -q "$package" >/dev/null; then
 				echo "--> Yum installing $package"
@@ -114,17 +114,17 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 			echo "--> kubectl already installed"
 		fi
 
-		## zypper-based systems
+	## zypper-based systems
 	elif command -v zypper >/dev/null 2>&1; then
 		echo "--> Checking system packages and installing any missing packages"
 		ZYPPERPACKAGES=" \
-      curl \
-      python \
-      tar \
-      which \
-      jq \
-      openssl \
-      "
+			curl \
+			python \
+			tar \
+			which \
+			jq \
+			openssl \
+			"
 		for package in $ZYPPERPACKAGES; do
 			if ! rpm -q "$package" >/dev/null; then
 				echo "--> Zypper installing $package"
@@ -199,7 +199,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 			echo "--> Azure-CLI already installed"
 		fi
 
-		## Mystery linux system without any of our recognised package managers
+	## Mystery linux system without any of our recognised package managers
 	else
 		command -v curl >/dev/null 2>&1 || {
 			echo >&2 "curl not found; please install and re-run this script."
@@ -286,13 +286,13 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 	if command -v brew >/dev/null 2>&1; then
 		echo "--> Checking brew packages and installing any missing packages"
 		BREWPACKAGES=" \
-      curl \
-      python \
-      azure-cli \
-      kubernetes-cli \
-      kubernetes-helm \
-      jq \
-      "
+			curl \
+			python \
+			azure-cli \
+			kubernetes-cli \
+			kubernetes-helm \
+			jq \
+			"
 		brew update
 		for package in $BREWPACKAGES; do
 			if ! brew ls --versions "$package" >/dev/null; then
