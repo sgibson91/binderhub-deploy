@@ -4,6 +4,8 @@
 # Check sudo availability
 sudo_command=$(command -v sudo)
 
+echo "${OSTYPE}"
+
 ## Linux install cases
 if [[ ${OSTYPE} == 'linux'* ]]; then
 	echo "--> This is a Linux build"
