@@ -12,11 +12,11 @@ if [[ ${OSTYPE} == 'linux'* ]]; then
 		echo "--> Checking system packages and installing any missing packages"
 		# Update apt before starting, in case this is a new container
 		APTPACKAGES=" \
-      curl \
-      python \
-      openssl \
-      jq \
-      "
+			curl \
+			python \
+			openssl \
+			jq \
+			"
 
 		for package in $APTPACKAGES; do
 			if ! dpkg -s "$package" >/dev/null; then
@@ -167,17 +167,17 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 	elif command -v pacman >/dev/null 2>&1; then
 		echo "--> Checking system packages and installing any missing packages"
 		PACMANPACKAGES=" \
-      curl \
-      python \
-      tar \
-      which \
-      jq \
-      gcc \
-      awk \
-      grep \
-      openssl \
-      kubectl \
-      "
+			curl \
+			python \
+			tar \
+			which \
+			jq \
+			gcc \
+			awk \
+			grep \
+			openssl \
+			kubectl \
+			"
 
 		for package in $PACMANPACKAGES; do
 			if ! pacman -Q "$package" 2>/dev/null; then
@@ -286,13 +286,13 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 	if command -v brew >/dev/null 2>&1; then
 		echo "--> Checking brew packages and installing any missing packages"
 		BREWPACKAGES=" \
-      curl \
-      python \
-      azure-cli \
-      kubernetes-cli \
-      kubernetes-helm \
-      jq \
-      "
+			curl \
+			python \
+			azure-cli \
+			kubernetes-cli \
+			kubernetes-helm \
+			jq \
+			"
 
 		brew update
 		for package in $BREWPACKAGES; do
