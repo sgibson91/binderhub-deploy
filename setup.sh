@@ -6,6 +6,7 @@ sudo_command=$(command -v sudo)
 
 ## Linux install cases
 if [[ ${OSTYPE} == 'linux'* ]]; then
+	echo "--> This is a Linux build"
 
 	## apt-based systems
 	if command -v apt >/dev/null 2>&1; then
@@ -51,7 +52,7 @@ if [[ ${OSTYPE} == 'linux'* ]]; then
 			echo "--> kubectl already installed"
 		fi
 
-		## yum-based systems
+	## yum-based systems
 	elif command -v yum >/dev/null 2>&1; then
 		if [ $(grep -iq centos /etc/redhat-release) ]; then
 			echo "***************************************************************"
@@ -67,13 +68,13 @@ if [[ ${OSTYPE} == 'linux'* ]]; then
 		fi
 		echo "--> Checking system packages and installing any missing packages"
 		YUMPACKAGES=" \
-      jq \
-      curl \
-      python \
-      tar \
-      which \
-      openssl \
-      "
+			jq \
+			curl \
+			python \
+			tar \
+			which \
+			openssl \
+			"
 		for package in $YUMPACKAGES; do
 			if ! rpm -q "$package" >/dev/null; then
 				echo "--> Yum installing $package"
@@ -114,17 +115,17 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 			echo "--> kubectl already installed"
 		fi
 
-		## zypper-based systems
+	## zypper-based systems
 	elif command -v zypper >/dev/null 2>&1; then
 		echo "--> Checking system packages and installing any missing packages"
 		ZYPPERPACKAGES=" \
-      curl \
-      python \
-      tar \
-      which \
-      jq \
-      openssl \
-      "
+			curl \
+			python \
+			tar \
+			which \
+			jq \
+			openssl \
+			"
 		for package in $ZYPPERPACKAGES; do
 			if ! rpm -q "$package" >/dev/null; then
 				echo "--> Zypper installing $package"
@@ -200,7 +201,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 			echo "--> Azure-CLI already installed"
 		fi
 
-		## Mystery linux system without any of our recognised package managers
+	## Mystery linux system without any of our recognised package managers
 	else
 		command -v curl >/dev/null 2>&1 || {
 			echo >&2 "curl not found; please install and re-run this script."
@@ -283,6 +284,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 
 ## Installing on OS X
 elif [[ ${OSTYPE} == 'darwin'* ]]; then
+	echo "--> This is a MacOS build"
 	if command -v brew >/dev/null 2>&1; then
 		echo "--> Checking brew packages and installing any missing packages"
 		BREWPACKAGES=" \
@@ -299,6 +301,80 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 			if ! brew ls --versions "$package" >/dev/null; then
 				echo "--> Brew installing $package"
 				brew install "$package" || {
+					echo >&2 "--> $package install failed; please install manually and re-run this script."
+					exit 1
+				}
+			else
+				echo "--> $package is already installed"
+			fi
+		done
+	else
+		command -v curl >/dev/null 2>&1 || {
+			echo >&2 "curl not found; please install and re-run this script."
+			exit 1
+		}
+		command -v python >/dev/null 2>&1 || {
+			echo >&2 "python not found; please install and re-run this script."
+			exit 1
+		}
+		command -v tar >/dev/null 2>&1 || {
+			echo >&2 "tar not found; please install and re-run this script."
+			exit 1
+		}
+		command -v which >/dev/null 2>&1 || {
+			echo >&2 "which not found; please install and re-run this script."
+			exit 1
+		}
+		echo "--> Attempting to install Azure-CLI with curl"
+		if ! command -v az >/dev/null 2>&1; then
+			curl -L https://aka.ms/InstallAzureCli | sh || {
+				echo >&2 "--> Azure-CLI install failed; please install manually and re-run this script."
+				exit 1
+			}
+		else
+			echo "--> Azure-CLI already installed"
+		fi
+		echo "--> Attempting to install kubectl with curl"
+		if ! command -v kubectl >/dev/null 2>&1; then
+			curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl || {
+				echo >&2 "--> kubectl download failed; please install manually and re-run this script."
+				exit 1
+			}
+			chmod +x ./kubectl
+			${sudo_command} mv ./kubectl /usr/local/bin/kubectl
+		else
+			echo "--> kubectl already installed"
+		fi
+		echo "--> Attempting to install helm with curl"
+		if ! command -v helm >/dev/null 2>&1; then
+			curl https://raw.githubusercontent.com/helm/helm/master/scripts/get >get_helm.sh
+			chmod 700 get_helm.sh
+			./get_helm.sh || {
+				echo >&2 "--> helm install failed; please install manually and re-run this script."
+				exit 1
+			}
+		else
+			echo "--> helm already installed"
+		fi
+	fi
+else
+	echo "--> This is a Windows build"
+	## chocolatey-based systems
+	if command -v choco >/dev/null 2>&1; then
+		echo "--> Checking chocolatey packages and installing any missing packages"
+		CHOCPACKAGES=" \
+      curl \
+      python \
+      azure-cli \
+      kubernetes-cli \
+      kubernetes-helm \
+      jq \
+      "
+		choco upgrade chocolatey
+		for package in $CHOCPACKAGES; do
+			if ! choco search --local-only "$package" >/dev/null; then
+				echo "--> Choco installing $package"
+				choco install "$package" || {
 					echo >&2 "--> $package install failed; please install manually and re-run this script."
 					exit 1
 				}

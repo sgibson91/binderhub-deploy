@@ -54,7 +54,7 @@ This repository contains a [Dockerfile](Dockerfile) that can be built to run the
 It also serves as a back-end to the "Deploy to Azure" button.
 
 The built image of this file is hosted at: [hub.docker.com/repository/docker/sgibson91/binderhub-setup](https://hub.docker.com/repository/docker/sgibson91/binderhub-setup).
-The `master` branch is automatically built and tagged as `latest` whereas [GitHub releases and tags](https://github.com/alan-turing-institute/binderhub-deploy/releases) are given the matching image tag.
+The `main` branch is automatically built and tagged as `latest` whereas [GitHub releases and tags](https://github.com/alan-turing-institute/binderhub-deploy/releases) are given the matching image tag.
 
 When running the image, the parameters defined in [`template-config.json`](template-config.json) would be passed as [environment variables](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file).
 
@@ -69,7 +69,7 @@ This repository uses [Continuous Integration](https://docs.microsoft.com/en-us/a
 This repository has the following tests:
 
 - **[Travis](.travis.yml):** This pipeline runs a [matrix job]() to test that [`setup.sh`](setup.sh) can run on Linux, OSX, and Windows platforms
-- **Shellcheck and format:** This GitHub Action workflow tests for formatting and linting of the shell scripts. It runs [on master](.github/workflows/shellcheck-master.yml) and [in Pull Requests](.github/workflows/shellcheck-pr.yml) and will leave comments on PRs if the test breaks.
+- **Shellcheck and format:** This [GitHub Action workflow](.github/workflows/shellcheck.yml) tests for formatting and linting of the shell scripts. It runs on the default branch and in Pull Requests and will leave comments on PRs if the test breaks.
 - **[YAML formatting](.github/workflows/yamllint.yml):** This GitHub Action workflow check that the YAML templates throughout the repository are well-formatted and readable to prevent errors running the scripts.
 
 ## :gift: How can I contribute?
@@ -131,7 +131,7 @@ Specifically, all-contributors has an [emoji key](https://allcontributors.org/do
 ### :heavy_dollar_sign: Bash Styleguide
 
 This repository implements bash linting and formatting via [`shellcheck`](https://github.com/koalaman/shellcheck) and [`shfmt`](https://github.com/mvdan/sh).
-These checks are run in a [GitHub Action](.github/workflows/shellcheck-master.yml) and will leave [comments on Pull Requests](.github/workflows/shellcheck-pr.yml) if issues are found.
+These checks are run in a [GitHub Action](.github/workflows/shellcheck.yml) and will leave comments on Pull Requests if issues are found.
 This will help us maintain readable code for future contributors.
 
 ### :pencil: Markdown Styleguide

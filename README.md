@@ -1,7 +1,7 @@
 # Automatically deploy a BinderHub to Microsoft Azure
 
-![mit_license_badge](https://img.shields.io/badge/License-MIT-yellow.svg) [![Build Status](https://travis-ci.org/alan-turing-institute/binderhub-deploy.svg?branch=master)](https://travis-ci.org/alan-turing-institute/binderhub-deploy) ![Run shellcheck and shfmt](https://github.com/alan-turing-institute/binderhub-deploy/workflows/Run%20shellcheck%20and%20shfmt/badge.svg) ![GitHub Action Status - Yamllint](https://github.com/alan-turing-institute/binderhub-deploy/workflows/yamllint/badge.svg) [![Code of Conduct](https://img.shields.io/static/v1?label=Code%20of&message=Conduct&color=blueviolet)](CODE_OF_CONDUCT.md) [![Contributing Guidelines](https://img.shields.io/static/v1?label=Contributing&message=Guidelines&color=blueviolet)](CONTRIBUTING.md) [![good first issue](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/good%20first%20issue)](https://github.com/alan-turing-institute/binderhub-deploy/labels/good%20first%20issue) [![GitHub labels](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/help%20wanted)](https://github.com/alan-turing-institute/binderhub-deploy/labels/help%20wanted)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
+[![mit_license_badge](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/sgibson91/binderhub-setup)](https://hub.docker.com/repository/docker/sgibson91/binderhub-setup) [![Check Setup](https://github.com/alan-turing-institute/binderhub-deploy/workflows/Check%20Setup/badge.svg)](https://github.com/alan-turing-institute/binderhub-deploy/actions?query=workflow%3A%22Check+Setup%22+branch%3Amain) [![Run shellcheck and shfmt](https://github.com/alan-turing-institute/binderhub-deploy/workflows/Run%20shellcheck%20and%20shfmt/badge.svg)](https://github.com/alan-turing-institute/binderhub-deploy/actions?query=workflow%3A%22Run+shellcheck+and+shfmt%22+branch%3Amain) [![yamllint](https://github.com/alan-turing-institute/binderhub-deploy/workflows/yamllint/badge.svg)](https://github.com/alan-turing-institute/binderhub-deploy/actions?query=workflow%3Ayamllint+branch%3Amain) [![Code of Conduct](https://img.shields.io/static/v1?label=Code%20of&message=Conduct&color=blueviolet)](CODE_OF_CONDUCT.md) [![Contributing Guidelines](https://img.shields.io/static/v1?label=Contributing&message=Guidelines&color=blueviolet)](CONTRIBUTING.md) [![good first issue](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/good%20first%20issue)](https://github.com/alan-turing-institute/binderhub-deploy/labels/good%20first%20issue) [![GitHub labels](https://img.shields.io/github/labels/alan-turing-institute/binderhub-deploy/help%20wanted)](https://github.com/alan-turing-institute/binderhub-deploy/labels/help%20wanted)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [BinderHub](https://binderhub.readthedocs.io/en/latest/index.html) is a cloud-based, multi-server technology used for hosting repoducible computing environments and interactive Jupyter Notebooks built from code repositories.
@@ -16,7 +16,7 @@ You will be asked to provide a credit card for verification purposes.
 **You will not be charged.**
 Your resources will be frozen once your subscription expires, then deleted if you do not reactivate your account within a given time period.
 If you are building a BinderHub as a service for an organisation, your institution may already have an Azure account.
-You should contact your IT Services for further information regarding permissions and access (see the [Service Principal Creation](#service-principal-creation) section below).
+You should contact your IT Services for further information regarding permissions and access (see the [Service Principal Creation](#sparkles-service-principal-creation) section below).
 
 Please read our :purple_heart: [Code of Conduct](CODE_OF_CONDUCT.md) :purple_heart: and :space_invader: [Contributing Guidelines](CONTRIBUTING.md) :space_invader:
 
@@ -46,7 +46,7 @@ Please read our :purple_heart: [Code of Conduct](CODE_OF_CONDUCT.md) :purple_hea
 
 ## :children_crossing: Usage
 
-This repo can either be run locally or as "Platform as a Service" through the "Deploy to Azure" button in the ["Deploy to Azure" Button](#deploy-to-azure-button) section.
+This repo can either be run locally or as "Platform as a Service" through the "Deploy to Azure" button in the ["Deploy to Azure" Button](#rocket-deploy-to-azure-button) section.
 
 To use these scripts locally, clone this repo and change into the directory.
 
@@ -145,7 +145,7 @@ For a few extra steps, deploying an ACR will allow the BinderHub images to be pu
 
 **Service Principal:**
 
-In the [Service Principal Creation](#Service-Principal-Creation) section, we cover how to create a Service Principal in order to deploy a BinderHub.
+In the [Service Principal Creation](#sparkles-service-principal-creation) section, we cover how to create a Service Principal in order to deploy a BinderHub.
 When following these steps, the `--role` argument of `Contributor` should be replaced with `Owner`.
 This is because the Service Principal will need the [`AcrPush`](https://docs.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles#acrpush) role in order to push images to the ACR and the `Contributor` role does not have permission to create new role assignments.
 
@@ -208,7 +208,7 @@ It will also purge the cluster information from your `kubectl` configuration fil
 
 To deploy [BinderHub](https://binderhub.readthedocs.io/) to Azure in a single click (and some form-filling), use the deploy button below.
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Falan-turing-institute%2Fbinderhub-deploy%2Fmaster%2Fazure.deploy.json)
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Falan-turing-institute%2Fbinderhub-deploy%2Fmain%2Fazure.deploy.json)
 
 ### :sparkles: Service Principal Creation
 
@@ -380,7 +380,7 @@ where `<TAG>` is your chosen image tag.
 
 A list of availabe tags can be found [here](https://cloud.docker.com/repository/docker/sgibson91/binderhub-setup/tags).
 It is recommended to use the most recent version number.
-The `latest` tag is the most recent build from `master` branch and may be subject fluctuations.
+The `latest` tag is the most recent build from the default branch and may be subject fluctuations.
 
 Then, run the container with the following arguments, replacing the `<>` fields as necessary:
 
@@ -408,7 +408,7 @@ docker run \
 ```
 
 The output will be printed to your terminal and the files will be pushed to blob storage, as in the button deployment.
-See the [Retrieving Deployment Output from Azure](#Retrieving-Deployment-Output-from-Azure) section for how to return these files.
+See the [Retrieving Deployment Output from Azure](#package-retrieving-deployment-output-from-azure) section for how to return these files.
 
 ## :art: Customising your BinderHub Deployment
 
@@ -423,7 +423,7 @@ The BinderHub guide for changing the landing page logo can be found [here](https
 
 ### :wrench: Building the Docker image for testing
 
-The Docker image will automatically be built by Docker Hub when new pushes are made to `master`.
+The Docker image will automatically be built by Docker Hub when new pushes are made to `main`.
 However, a developer may wish to build the image to test deployments before merging code.
 
 Firstly, make sure `config.json` has been removed from the repository.
@@ -444,15 +444,15 @@ docker push <REGISTRY-HOST>/<DOCKER-USERNAME>/binderhub-setup:<TAG>
 
 ### :label: Tagging a Release
 
-Docker Hub will automatically build the image from the repo with every push to `master` and tag this as `latest`.
+Docker Hub will automatically build the image from the repo with every push to `main` and tag this as `latest`.
 
-To release a specific version, update the [Azure ARM template](https://github.com/alan-turing-institute/binderhub-deploy/blob/master/azure.deploy.json) with the new/desired version on line [123](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure.deploy.json#L123) and block [L127-L137](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure.deploy.json#L127-L137).
+To release a specific version, update the [Azure ARM template](https://github.com/alan-turing-institute/binderhub-deploy/blob/main/azure.deploy.json) with the new/desired version on line [123](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure.deploy.json#L123) and block [L127-L137](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure.deploy.json#L127-L137).
 We follow [SemVer](https://semver.org/) versioning format.
 
 Once the Pull Request containing the new code/version/release has been merged, run the following commands, where `vX.Y.Z` is the new/desired version release.
 
 ```bash
-git checkout master
+git checkout main
 git pull
 git tag -a vX.Y.Z  # For an annotated tag
 git tag -m vX.Y.Z  # For a lightweight tag
@@ -483,7 +483,10 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/jemrobinson"><img src="https://avatars2.githubusercontent.com/u/3502751?v=4" width="100px;" alt=""/><br /><sub><b>James Robinson</b></sub></a><br /><a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=jemrobinson" title="Code">💻</a></td>
     <td align="center"><a href="http://oneframelink.com"><img src="https://avatars1.githubusercontent.com/u/561862?v=4" width="100px;" alt=""/><br /><sub><b>Nicholas Paldino</b></sub></a><br /><a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=casperOne" title="Code">💻</a></td>
     <td align="center"><a href="https://sgibson91.github.io/"><img src="https://avatars2.githubusercontent.com/u/44771837?v=4" width="100px;" alt=""/><br /><sub><b>Sarah Gibson</b></sub></a><br /><a href="https://github.com/alan-turing-institute/binderhub-deploy/issues?q=author%3Asgibson91" title="Bug reports">🐛</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=sgibson91" title="Code">💻</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=sgibson91" title="Documentation">📖</a> <a href="#ideas-sgibson91" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-sgibson91" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#maintenance-sgibson91" title="Maintenance">🚧</a> <a href="#platform-sgibson91" title="Packaging/porting to new platform">📦</a> <a href="#projectManagement-sgibson91" title="Project Management">📆</a> <a href="#question-sgibson91" title="Answering Questions">💬</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/pulls?q=is%3Apr+reviewed-by%3Asgibson91" title="Reviewed Pull Requests">👀</a> <a href="#tool-sgibson91" title="Tools">🔧</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=sgibson91" title="Tests">⚠️</a></td>
+    <td align="center"><a href="http://www.flickr.com/photos/manicstreetpreacher/"><img src="https://avatars2.githubusercontent.com/u/1644105?v=4" width="100px;" alt=""/><br /><sub><b>Simon Li</b></sub></a><br /><a href="https://github.com/alan-turing-institute/binderhub-deploy/issues?q=author%3Amanics" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://trallard.dev"><img src="https://avatars3.githubusercontent.com/u/23552331?v=4" width="100px;" alt=""/><br /><sub><b>Tania Allard</b></sub></a><br /><a href="https://github.com/alan-turing-institute/binderhub-deploy/issues?q=author%3Atrallard" title="Bug reports">🐛</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=trallard" title="Code">💻</a> <a href="#ideas-trallard" title="Ideas, Planning, & Feedback">🤔</a> <a href="#tutorial-trallard" title="Tutorials">✅</a> <a href="#question-trallard" title="Answering Questions">💬</a></td>
+  </tr>
+  <tr>
     <td align="center"><a href="http://www.imperial.ac.uk/people/tim.greaves"><img src="https://avatars2.githubusercontent.com/u/7603619?v=4" width="100px;" alt=""/><br /><sub><b>Tim Greaves</b></sub></a><br /><a href="https://github.com/alan-turing-institute/binderhub-deploy/issues?q=author%3Atmbgreaves" title="Bug reports">🐛</a> <a href="https://github.com/alan-turing-institute/binderhub-deploy/commits?author=tmbgreaves" title="Code">💻</a> <a href="#ideas-tmbgreaves" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-tmbgreaves" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#platform-tmbgreaves" title="Packaging/porting to new platform">📦</a> <a href="#tool-tmbgreaves" title="Tools">🔧</a></td>
   </tr>
 </table>
