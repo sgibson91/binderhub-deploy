@@ -273,6 +273,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 		curl -LJO https://github.com/helm/helm/tarball/v2.16.9
 		tar -zxvf helm-v2.16.9-linux-amd64.tar.gz
 		${sudo_command} cp linux-amd64/helm /usr/local/bin/helm
+		helm version --short --client
 	else
 		echo "--> helm already installed"
 	fi
@@ -303,7 +304,6 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 			fi
 			if [ "$package" == "helm@2" ]; then
 				${sudo_command} cp /usr/local/Cellar/helm@2/2.16.9/bin/helm /usr/local/bin
-				helm version --short --client
 			fi
 		done
 	else
