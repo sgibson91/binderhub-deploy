@@ -270,7 +270,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 	}
 	echo "--> Helm doesn't have a system package; attempting to install with curl"
 	curl -LJO -o helm-v2.16.9-linux-amd64.tar.gz https://github.com/helm/helm/tarball/v2.16.9
-	tar -zxvf helm-v2.16.9-linux-amd64.tar.gzq
+	tar -zxvf helm-v2.16.9-linux-amd64.tar.gz
 	${sudo_command} cp linux-amd64/helm /usr/local/bin/helm
 	helm version --short --client
 
