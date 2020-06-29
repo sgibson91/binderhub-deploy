@@ -244,39 +244,35 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 	fi
 
 	## Helm isn't well packaged for Linux, alas
-	if ! command -v helm >/dev/null 2>&1; then
-		command -v curl >/dev/null 2>&1 || {
-			echo >&2 "curl not found; please install and re-run this script."
-			exit 1
-		}
-		command -v awk >/dev/null 2>&1 || {
-			echo >&2 "awk not found; please install and re-run this script."
-			exit 1
-		}
-		command -v grep >/dev/null 2>&1 || {
-			echo >&2 "grep not found; please install and re-run this script."
-			exit 1
-		}
-		command -v python >/dev/null 2>&1 || {
-			echo >&2 "python not found; please install and re-run this script."
-			exit 1
-		}
-		command -v tar >/dev/null 2>&1 || {
-			echo >&2 "tar not found; please install and re-run this script."
-			exit 1
-		}
-		command -v which >/dev/null 2>&1 || {
-			echo >&2 "which not found; please install and re-run this script."
-			exit 1
-		}
-		echo "--> Helm doesn't have a system package; attempting to install with curl"
-		curl -LJO https://github.com/helm/helm/tarball/v2.16.9
-		tar -zxvf helm-v2.16.9-linux-amd64.tar.gz
-		${sudo_command} cp linux-amd64/helm /usr/local/bin/helm
-		helm version --short --client
-	else
-		echo "--> helm already installed"
-	fi
+	command -v curl >/dev/null 2>&1 || {
+		echo >&2 "curl not found; please install and re-run this script."
+		exit 1
+	}
+	command -v awk >/dev/null 2>&1 || {
+		echo >&2 "awk not found; please install and re-run this script."
+		exit 1
+	}
+	command -v grep >/dev/null 2>&1 || {
+		echo >&2 "grep not found; please install and re-run this script."
+		exit 1
+	}
+	command -v python >/dev/null 2>&1 || {
+		echo >&2 "python not found; please install and re-run this script."
+		exit 1
+	}
+	command -v tar >/dev/null 2>&1 || {
+		echo >&2 "tar not found; please install and re-run this script."
+		exit 1
+	}
+	command -v which >/dev/null 2>&1 || {
+		echo >&2 "which not found; please install and re-run this script."
+		exit 1
+	}
+	echo "--> Helm doesn't have a system package; attempting to install with curl"
+	curl -LJO https://github.com/helm/helm/tarball/v2.16.9
+	tar -zxvf helm-v2.16.9-linux-amd64.tar.gz
+	${sudo_command} cp linux-amd64/helm /usr/local/bin/helm
+	helm version --short --client
 
 ## Installing on OS X
 elif [[ ${OSTYPE} == 'darwin'* ]]; then
