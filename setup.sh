@@ -307,7 +307,7 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 			if [ "$package" == "helm@2" ] ; then
 			    # shellcheck disable=SC2016
 				echo 'export PATH="/usr/local/opt/helm@2/bin:$PATH"' >> ~/.bash_profile
-				helm version --short --client
+				helm@2 version --short --client
 			fi
 		done
 	else
