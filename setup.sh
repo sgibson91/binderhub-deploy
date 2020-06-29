@@ -304,6 +304,7 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 				if [ package == "helm@2" ] ; then
 				    echo 'export PATH="/usr/local/opt/helm@2/bin:$PATH"' >> ~/.bash_profile
 					helm version --short --client
+				fi
 			else
 				echo "--> $package is already installed"
 			fi
