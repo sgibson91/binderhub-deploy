@@ -127,11 +127,11 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
 	if [ "$ENABLE_HTTPS" == 'true' ]; then
 
 		REQUIREDVARS="\
-      CERTMANAGER_VERSION \
-      CONTACT_EMAIL \
-      DOMAIN_NAME \
-      NGINX_VERSION \
-      "
+			CERTMANAGER_VERSION \
+			CONTACT_EMAIL \
+			DOMAIN_NAME \
+			NGINX_VERSION \
+			"
 
 		for required_var in $REQUIREDVARS; do
 			if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ]; then
@@ -178,9 +178,6 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
       SP_TENANT_ID: ${SP_TENANT_ID}
       " | tee read-config.log
 
-	# Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
-	AZURE_SUBSCRIPTION=$(echo $AZURE_SUBSCRIPTION | sed -r "s/^\/subscriptions\///")
-
 else
 
 	# Read in config file and assign variables for the non-container case
@@ -205,17 +202,17 @@ else
 
 	# Check that the variables are all set non-zero, non-null
 	REQUIREDVARS=" \
-          AKS_NODE_COUNT \
-          AKS_NODE_VM_SIZE \
-          AZURE_SUBSCRIPTION \
-          BINDERHUB_NAME \
-          BINDERHUB_VERSION \
-          CONTAINER_REGISTRY \
-          DOCKER_IMAGE_PREFIX \
-          ENABLE_HTTPS \
-          RESOURCE_GROUP_LOCATION \
-          RESOURCE_GROUP_NAME \
-          "
+		AKS_NODE_COUNT \
+		AKS_NODE_VM_SIZE \
+		AZURE_SUBSCRIPTION \
+		BINDERHUB_NAME \
+		BINDERHUB_VERSION \
+		CONTAINER_REGISTRY \
+		DOCKER_IMAGE_PREFIX \
+		ENABLE_HTTPS \
+		RESOURCE_GROUP_LOCATION \
+		RESOURCE_GROUP_NAME \
+		"
 
 	for required_var in $REQUIREDVARS; do
 		if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ]; then
@@ -290,11 +287,11 @@ else
 
 		# Checking required variables
 		REQUIREDVARS=" \
-        REGISTRY_NAME \
-        REGISTRY_SKU \
-        SP_APP_ID \
-        SP_APP_KEY \
-        "
+			REGISTRY_NAME \
+			REGISTRY_SKU \
+			SP_APP_ID \
+			SP_APP_KEY \
+			"
 
 		for required_var in $REQUIREDVARS; do
 			if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ]; then
@@ -339,11 +336,11 @@ else
 
 		# Checking required variables
 		REQUIREDVARS="\
-      CERTMANAGER_VERSION \
-      CONTACT_EMAIL \
-      DOMAIN_NAME \
-      NGINX_VERSION \
-      "
+			CERTMANAGER_VERSION \
+			CONTACT_EMAIL \
+			DOMAIN_NAME \
+			NGINX_VERSION \
+			"
 
 		for required_var in $REQUIREDVARS; do
 			if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ]; then
@@ -731,9 +728,6 @@ else
 			${DIR}/templates/acr-secret-template.yaml >${DIR}/secret.yaml
 	fi
 fi
-
-# Format BinderHub name for Kubernetes
-HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//')
 
 echo "--> Installing Helm chart"
 helm install jupyterhub/binderhub \
