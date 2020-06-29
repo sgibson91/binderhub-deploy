@@ -306,7 +306,7 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 			fi
 			if [ "$package" == "helm@2" ]; then
 				cp /usr/local/Cellar/helm@2/2.16.9/bin/helm /usr/local/bin
-				helm@2 version --short --client
+				helm version --short --client
 			fi
 		done
 	else
