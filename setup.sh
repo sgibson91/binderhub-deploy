@@ -305,6 +305,7 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 				echo "--> $package is already installed"
 			fi
 			if [ "$package" == "helm@2" ] ; then
+			    # shellcheck disable=SC2016
 				echo 'export PATH="/usr/local/opt/helm@2/bin:$PATH"' >> ~/.bash_profile
 				helm version --short --client
 			fi
