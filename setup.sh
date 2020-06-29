@@ -270,12 +270,9 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 			exit 1
 		}
 		echo "--> Helm doesn't have a system package; attempting to install with curl"
-		curl https://raw.githubusercontent.com/helm/helm/master/scripts/get >get_helm.sh
-		chmod 700 get_helm.sh
-		./get_helm.sh || {
-			echo >&2 "--> helm install failed; please install manually and re-run this script."
-			exit 1
-		}
+		curl -LJO https://github.com/helm/helm/tarball/v2.16.9
+		tar -zxvf helm-v2.16.9-linux-amd64.tar.gz
+		${sudo_command} cp linux-amd64/helm /usr/local/bin/helm
 	else
 		echo "--> helm already installed"
 	fi
