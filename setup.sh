@@ -290,7 +290,7 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 			python \
 			azure-cli \
 			kubernetes-cli \
-			kubernetes-helm \
+			helm@2 \
 			jq \
 			"
 		brew update
