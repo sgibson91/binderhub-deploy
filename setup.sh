@@ -301,6 +301,9 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 					echo >&2 "--> $package install failed; please install manually and re-run this script."
 					exit 1
 				}
+				if [ package == "helm@2" ] ; then
+				    echo 'export PATH="/usr/local/opt/helm@2/bin:$PATH"' >> ~/.bash_profile
+					helm version --short --client
 			else
 				echo "--> $package is already installed"
 			fi
