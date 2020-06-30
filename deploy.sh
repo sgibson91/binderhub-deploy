@@ -124,7 +124,7 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
 		exit 1
 	fi
 
-	if [ "$ENABLE_HTTPS" == 'true' ]; then
+	if [[ -n $ENABLE_HTTPS ]]; then
 
 		REQUIREDVARS="\
 			CERTMANAGER_VERSION \
@@ -326,7 +326,7 @@ else
 		echo "    Options are: 'dockerhub' or 'azurecr'."
 	fi
 
-	if [ "$ENABLE_HTTPS" == 'true' ]; then
+	if [[ -n $ENABLE_HTTPS ]]; then
 
 		# Read in cert-manager config
 		CERTMANAGER_VERSION=$(jq -r '.https .certmanager_version' ${configFile})
@@ -586,7 +586,7 @@ helm repo update
 
 # If HTTPS is enabled, get nginx-ingress and cert-manager helm charts and
 # install them into the hub namespace
-if [ "$ENABLE_HTTPS" == 'true' ]; then
+if [[ -n $ENABLE_HTTPS ]]; then
 	echo "--> Add nginx-ingress and cert-manager helm repos"
 	helm repo add stable https://kubernetes-charts.storage.googleapis.com
 	helm repo add jetstack https://charts.jetstack.io
@@ -627,12 +627,7 @@ if [ "$ENABLE_HTTPS" == 'true' ]; then
 	echo "--> Writing ClusterIssuer config"
 	sed -e "s/<namespace>/${HELM_BINDERHUB_NAME}/g" \
 		-e "s/<contact_email>/${CONTACT_EMAIL}/g" \
-		${DIR}/templates/cluster-issuer-template.yaml >${DIR}/cluster-issuer.yaml
-
-	BINDER_HOST="binder.${DOMAIN_NAME}"
-	HUB_HOST="hub.${DOMAIN_NAME}"
-	BINDER_SECRET="${HELM_BINDERHUB_NAME}-binder-secret"
-	HUB_SECRET="${HELM_BINDERHUB_NAME}-hub-secret"
+		${DIR}/templates/cluster-issuer-template.yaml > ${DIR}/cluster-issuer.yaml
 
 	# Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
 	if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ]; then
