@@ -359,15 +359,8 @@ else
 		choco upgrade chocolatey
 		for package in $CHOCPACKAGES; do
 			if [ "$package" == "kubernetes-helm" ] ; then
-				if ! choco search --local-only --version 2.16.9 "$package" >/dev/null; then
-					echo "--> Choco installing $package"
-					choco install "$package" || {
-						echo >&2 "--> $package install failed; please install manually and re-run this script."
-						exit 1
-					}
-				else
-					echo "--> $package is already installed"
-				fi
+				echo "--> Choco installing $package"
+				choco install "$package" --version 2.16.9
 			else
 				if ! choco search --local-only "$package" >/dev/null; then
 					echo "--> Choco installing $package"
