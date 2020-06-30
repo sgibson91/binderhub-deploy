@@ -629,7 +629,7 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	LOAD_BALANCER_IP=$(kubectl get svc nginx-ingress-controller -n ${HELM_BINDERHUB_NAME} | awk '{ print $4}' | tail -n 1)
 
 	echo "--> cert-manager pods status:"
-	kubectl get pods --namespace cert-manager | tee cert-manager-get-pods.log
+	kubectl get pods --namespace $HELM_BINDERHUB_NAME | tee cert-manager-get-pods.log
 
 	# Create a ClusterIssuer to test deployment
 	echo "--> Testing cert-manager webhooks"
