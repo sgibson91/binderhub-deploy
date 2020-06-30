@@ -356,11 +356,11 @@ else
 			kubernetes-helm \
 			jq \
 			"
-		choco upgrade chocolatey
+		choco upgrade chocolatey -y
 		for package in $CHOCPACKAGES; do
 			if [ "$package" == "kubernetes-helm" ]; then
 				echo "--> Choco installing $package"
-				choco install "$package" --version 2.16.9
+				choco install "$package" --version 2.16.9 --allow-downgrade
 			else
 				if ! choco search --local-only "$package" >/dev/null; then
 					echo "--> Choco installing $package"
