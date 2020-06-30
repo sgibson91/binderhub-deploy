@@ -493,7 +493,7 @@ fi
 
 # If HTTPS is required, set up a DNS zone and empty A records
 if [[ -n $ENABLE_HTTPS ]]; then
-    # Set some variables
+	# Set some variables
 	BINDER_HOST="binder.${DOMAIN_NAME}"
 	HUB_HOST="hub.${DOMAIN_NAME}"
 	BINDER_SECRET="${HELM_BINDERHUB_NAME}-binder-secret"
@@ -501,6 +501,11 @@ if [[ -n $ENABLE_HTTPS ]]; then
 
 	# Create a DNS zone
 	az network dns zone create -g $RESOURCE_GROUP_NAME -n $DOMAIN_NAME
+
+	# Create empty A records for the binder and hub pods
+	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n binder
+	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n hub
+
 fi
 
 # Create an AKS cluster
@@ -639,7 +644,7 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	echo "--> Writing ClusterIssuer config"
 	sed -e "s/<namespace>/${HELM_BINDERHUB_NAME}/g" \
 		-e "s/<contact_email>/${CONTACT_EMAIL}/g" \
-		${DIR}/templates/cluster-issuer-template.yaml > ${DIR}/cluster-issuer.yaml
+		${DIR}/templates/cluster-issuer-template.yaml >${DIR}/cluster-issuer.yaml
 
 	# Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
 	if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ]; then
