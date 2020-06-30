@@ -269,8 +269,8 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 		exit 1
 	}
 	echo "--> Helm doesn't have a system package; attempting to install with curl"
-	curl https://get.helm.sh/helm-v2.16.9-linux-amd64.tar.gz --output helm.tar.gz
-	tar -xvf ./helm.tar.gz
+	curl -s https://get.helm.sh/helm-v2.16.9-linux-amd64.tar.gz --output helm.tar.gz
+	tar -xf ./helm.tar.gz
 	${sudo_command} cp ./linux-amd64/helm /usr/local/bin/helm
 
 ## Installing on OS X
@@ -339,8 +339,8 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 			echo "--> kubectl already installed"
 		fi
 		echo "--> Attempting to install helm with curl"
-		curl https://get.helm.sh/helm-v2.16.9-macos-amd64.tar.gz --output helm.tar.gz
-		tar -xvf ./helm.tar.gz
+		curl -s https://get.helm.sh/helm-v2.16.9-macos-amd64.tar.gz --output helm.tar.gz
+		tar -xf ./helm.tar.gz
 		${sudo_command} cp ./macos-amd64/helm /usr/local/bin/helm
 	fi
 else
@@ -418,8 +418,8 @@ else
 			echo "--> kubectl already installed"
 		fi
 		echo "--> Attempting to install helm with curl"
-		curl https://get.helm.sh/helm-v2.16.9-windows-amd64.tar.gz --output helm.tar.gz
-		tar -xvf ./helm.tar.gz
+		curl -s https://get.helm.sh/helm-v2.16.9-windows-amd64.tar.gz --output helm.tar.gz
+		tar -xf ./helm.tar.gz
 		${sudo_command} cp ./windows-amd64/helm /usr/local/bin/helm
 	fi
 fi
