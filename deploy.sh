@@ -740,17 +740,18 @@ helm install jupyterhub/binderhub \
 
 if [[ -n $ENABLE_HTTPS ]]; then
 	CLUSTER_RESOURCE_GROUP="MC_${RESOURCE_GROUP_NAME}_${AKS_NAME}_${RESOURCE_GROUP_LOCATION}"
-
-	echo "--> Retrieving resources in ${RESOURCE_GROUP_NAME}"
-	IP_ADDRESS_NAME=$(az resource list -g $CLUSTER_RESOURCE_GROUP --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)
+	echo "--> Retrieving resources in ${CLUSTER_RESOURCE_GROUP}"
+	# shellcheck disable=SC2030 disable=SC2036
+	IP_ADDRESS_NAME=$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-) | tee ip-address-name.log
+	# shellcheck disable=SC2031
 	while [ "${IP_ADDRESS_NAME}" = "" ]; do
 		echo "Sleeping 30s before trying again"
-		IP_ADDRESS_NAME=$(az resource list -g $CLUSTER_RESOURCE_GROUP --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)
-		echo "IP Address resource: ${IP_ADDRESS_NAME}"
+		IP_ADDRESS_NAME=$(az resource list --resource-group "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)
+		echo "IP Address resource: ${IP_ADDRESS_NAME}" | tee ip-address-name.log
 	done
 
-	IP_ADDRESS_ID=$(az resource show -g $CLUSTER_RESOURCE_GROUP -n $IP_ADDRESS_NAME)
-	echo $IP_ADDRESS_ID
+	IP_ADDRESS_ID=$(az resource show --resource-group "${CLUSTER_RESOURCE_GROUP}" --name "${IP_ADDRESS_NAME}" --query id -o tsv)
+	echo "IP Address ID: ${IP_ADDRESS_ID}" | tee ip-address-id.log
 else
 	# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 	echo "--> Retrieving JupyterHub IP"
