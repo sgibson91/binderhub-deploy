@@ -358,7 +358,7 @@ else
 			"
 		choco upgrade chocolatey
 		for package in $CHOCPACKAGES; do
-			if [ "$package" == "kubernetes-helm" ] ; then
+			if [ "$package" == "kubernetes-helm" ]; then
 				echo "--> Choco installing $package"
 				choco install "$package" --version 2.16.9
 			else
