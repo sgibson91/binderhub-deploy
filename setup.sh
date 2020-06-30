@@ -244,41 +244,34 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 	fi
 
 	## Helm isn't well packaged for Linux, alas
-	if ! command -v helm >/dev/null 2>&1; then
-		command -v curl >/dev/null 2>&1 || {
-			echo >&2 "curl not found; please install and re-run this script."
-			exit 1
-		}
-		command -v awk >/dev/null 2>&1 || {
-			echo >&2 "awk not found; please install and re-run this script."
-			exit 1
-		}
-		command -v grep >/dev/null 2>&1 || {
-			echo >&2 "grep not found; please install and re-run this script."
-			exit 1
-		}
-		command -v python >/dev/null 2>&1 || {
-			echo >&2 "python not found; please install and re-run this script."
-			exit 1
-		}
-		command -v tar >/dev/null 2>&1 || {
-			echo >&2 "tar not found; please install and re-run this script."
-			exit 1
-		}
-		command -v which >/dev/null 2>&1 || {
-			echo >&2 "which not found; please install and re-run this script."
-			exit 1
-		}
-		echo "--> Helm doesn't have a system package; attempting to install with curl"
-		curl https://raw.githubusercontent.com/helm/helm/master/scripts/get >get_helm.sh
-		chmod 700 get_helm.sh
-		./get_helm.sh || {
-			echo >&2 "--> helm install failed; please install manually and re-run this script."
-			exit 1
-		}
-	else
-		echo "--> helm already installed"
-	fi
+	command -v curl >/dev/null 2>&1 || {
+		echo >&2 "curl not found; please install and re-run this script."
+		exit 1
+	}
+	command -v awk >/dev/null 2>&1 || {
+		echo >&2 "awk not found; please install and re-run this script."
+		exit 1
+	}
+	command -v grep >/dev/null 2>&1 || {
+		echo >&2 "grep not found; please install and re-run this script."
+		exit 1
+	}
+	command -v python >/dev/null 2>&1 || {
+		echo >&2 "python not found; please install and re-run this script."
+		exit 1
+	}
+	command -v tar >/dev/null 2>&1 || {
+		echo >&2 "tar not found; please install and re-run this script."
+		exit 1
+	}
+	command -v which >/dev/null 2>&1 || {
+		echo >&2 "which not found; please install and re-run this script."
+		exit 1
+	}
+	echo "--> Helm doesn't have a system package; attempting to install with curl"
+	curl -s https://get.helm.sh/helm-v2.16.9-linux-amd64.tar.gz --output helm.tar.gz
+	tar -xf ./helm.tar.gz
+	${sudo_command} cp ./linux-amd64/helm /usr/local/bin/helm
 
 ## Installing on OS X
 elif [[ ${OSTYPE} == 'darwin'* ]]; then
@@ -290,7 +283,7 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 			python \
 			azure-cli \
 			kubernetes-cli \
-			kubernetes-helm \
+			helm@2 \
 			jq \
 			"
 		brew update
@@ -304,79 +297,8 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 			else
 				echo "--> $package is already installed"
 			fi
-		done
-	else
-		command -v curl >/dev/null 2>&1 || {
-			echo >&2 "curl not found; please install and re-run this script."
-			exit 1
-		}
-		command -v python >/dev/null 2>&1 || {
-			echo >&2 "python not found; please install and re-run this script."
-			exit 1
-		}
-		command -v tar >/dev/null 2>&1 || {
-			echo >&2 "tar not found; please install and re-run this script."
-			exit 1
-		}
-		command -v which >/dev/null 2>&1 || {
-			echo >&2 "which not found; please install and re-run this script."
-			exit 1
-		}
-		echo "--> Attempting to install Azure-CLI with curl"
-		if ! command -v az >/dev/null 2>&1; then
-			curl -L https://aka.ms/InstallAzureCli | sh || {
-				echo >&2 "--> Azure-CLI install failed; please install manually and re-run this script."
-				exit 1
-			}
-		else
-			echo "--> Azure-CLI already installed"
-		fi
-		echo "--> Attempting to install kubectl with curl"
-		if ! command -v kubectl >/dev/null 2>&1; then
-			curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl || {
-				echo >&2 "--> kubectl download failed; please install manually and re-run this script."
-				exit 1
-			}
-			chmod +x ./kubectl
-			${sudo_command} mv ./kubectl /usr/local/bin/kubectl
-		else
-			echo "--> kubectl already installed"
-		fi
-		echo "--> Attempting to install helm with curl"
-		if ! command -v helm >/dev/null 2>&1; then
-			curl https://raw.githubusercontent.com/helm/helm/master/scripts/get >get_helm.sh
-			chmod 700 get_helm.sh
-			./get_helm.sh || {
-				echo >&2 "--> helm install failed; please install manually and re-run this script."
-				exit 1
-			}
-		else
-			echo "--> helm already installed"
-		fi
-	fi
-else
-	echo "--> This is a Windows build"
-	## chocolatey-based systems
-	if command -v choco >/dev/null 2>&1; then
-		echo "--> Checking chocolatey packages and installing any missing packages"
-		CHOCPACKAGES=" \
-      curl \
-      python \
-      azure-cli \
-      kubernetes-cli \
-      kubernetes-helm \
-      jq \
-      "
-		choco upgrade chocolatey
-		for package in $CHOCPACKAGES; do
-			if ! choco search --local-only "$package" >/dev/null; then
-				echo "--> Choco installing $package"
-				choco install "$package" || {
-					echo >&2 "--> $package install failed; please install manually and re-run this script."
-					exit 1
-				}
-			else
-				echo "--> $package is already installed"
+			if [ "$package" == "helm@2" ]; then
+				${sudo_command} cp /usr/local/Cellar/helm@2/2.16.9/bin/helm /usr/local/bin/helm
 			fi
 		done
 	else
@@ -417,15 +339,80 @@ else
 			echo "--> kubectl already installed"
 		fi
 		echo "--> Attempting to install helm with curl"
-		if ! command -v helm >/dev/null 2>&1; then
-			curl https://raw.githubusercontent.com/helm/helm/master/scripts/get >get_helm.sh
-			chmod 700 get_helm.sh
-			./get_helm.sh || {
-				echo >&2 "--> helm install failed; please install manually and re-run this script."
+		curl -s https://get.helm.sh/helm-v2.16.9-macos-amd64.tar.gz --output helm.tar.gz
+		tar -xf ./helm.tar.gz
+		${sudo_command} cp ./macos-amd64/helm /usr/local/bin/helm
+	fi
+else
+	echo "--> This is a Windows build"
+	## chocolatey-based systems
+	if command -v choco >/dev/null 2>&1; then
+		echo "--> Checking chocolatey packages and installing any missing packages"
+		CHOCPACKAGES=" \
+			curl \
+			python \
+			azure-cli \
+			kubernetes-cli \
+			kubernetes-helm \
+			jq \
+			"
+		choco upgrade chocolatey -y
+		for package in $CHOCPACKAGES; do
+			if [ "$package" == "kubernetes-helm" ]; then
+				echo "--> Choco installing $package"
+				choco install "$package" --version 2.16.3 --allow-downgrade -y
+			else
+				if ! choco search --local-only "$package" >/dev/null; then
+					echo "--> Choco installing $package"
+					choco install "$package" || {
+						echo >&2 "--> $package install failed; please install manually and re-run this script."
+						exit 1
+					}
+				else
+					echo "--> $package is already installed"
+				fi
+			fi
+		done
+	else
+		command -v curl >/dev/null 2>&1 || {
+			echo >&2 "curl not found; please install and re-run this script."
+			exit 1
+		}
+		command -v python >/dev/null 2>&1 || {
+			echo >&2 "python not found; please install and re-run this script."
+			exit 1
+		}
+		command -v tar >/dev/null 2>&1 || {
+			echo >&2 "tar not found; please install and re-run this script."
+			exit 1
+		}
+		command -v which >/dev/null 2>&1 || {
+			echo >&2 "which not found; please install and re-run this script."
+			exit 1
+		}
+		echo "--> Attempting to install Azure-CLI with curl"
+		if ! command -v az >/dev/null 2>&1; then
+			curl -L https://aka.ms/InstallAzureCli | sh || {
+				echo >&2 "--> Azure-CLI install failed; please install manually and re-run this script."
 				exit 1
 			}
 		else
-			echo "--> helm already installed"
+			echo "--> Azure-CLI already installed"
 		fi
+		echo "--> Attempting to install kubectl with curl"
+		if ! command -v kubectl >/dev/null 2>&1; then
+			curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl || {
+				echo >&2 "--> kubectl download failed; please install manually and re-run this script."
+				exit 1
+			}
+			chmod +x ./kubectl
+			${sudo_command} mv ./kubectl /usr/local/bin/kubectl
+		else
+			echo "--> kubectl already installed"
+		fi
+		echo "--> Attempting to install helm with curl"
+		curl -s https://get.helm.sh/helm-v2.16.9-windows-amd64.tar.gz --output helm.tar.gz
+		tar -xf ./helm.tar.gz
+		${sudo_command} cp ./windows-amd64/helm /usr/local/bin/helm
 	fi
 fi
