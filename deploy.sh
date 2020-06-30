@@ -739,7 +739,8 @@ helm install jupyterhub/binderhub \
 	--wait | tee binderhub-chart-install.log
 
 if [[ -n $ENABLE_HTTPS ]]; then
-	:
+	CLUSTER_RESOURCE_GROUP="MC_${RESOURCE_GROUP_NAME}_${AKS_NAME}_${RESOURCE_GROUP_LOCATION}"
+	echo $CLUSTER_RESOURCE_GROUP
 else
 	# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 	echo "--> Retrieving JupyterHub IP"
