@@ -740,7 +740,17 @@ helm install jupyterhub/binderhub \
 
 if [[ -n $ENABLE_HTTPS ]]; then
 	CLUSTER_RESOURCE_GROUP="MC_${RESOURCE_GROUP_NAME}_${AKS_NAME}_${RESOURCE_GROUP_LOCATION}"
-	az resource list -g $CLUSTER_RESOURCE_GROUP
+
+	echo "--> Retrieving resources in ${RESOURCE_GROUP_NAME}"
+	IP_ADDRESS_NAME=$(az resource list -g $CLUSTER_RESOURCE_GROUP --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)
+	while [ "${IP_ADDRESS_NAME}" = "" ]; do
+		echo "Sleeping 30s before trying again"
+		IP_ADDRESS_NAME=$(az resource list -g $CLUSTER_RESOURCE_GROUP --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)
+		echo "IP Address resource: ${IP_ADDRESS_NAME}"
+	done
+
+	IP_ADDRESS_ID=$(az resource show -g $CLUSTER_RESOURCE_GROUP -n $IP_ADDRESS_NAME)
+	echo $IP_ADDRESS_ID
 else
 	# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 	echo "--> Retrieving JupyterHub IP"
