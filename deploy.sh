@@ -659,6 +659,7 @@ if [[ -n $ENABLE_HTTPS ]]; then
 				-e "s/<binder-secret-name>/${BINDER_SECRET}/" \
 				-e "s/<hub-host>/${HUB_HOST}/g" \
 				-e "s/<hub-secret-name>/${HUB_SECRET}/" \
+				-e "s/<load-balancer-ip>/${LOAD_BALANCER_IP}/" \
 				${DIR}/templates/https-config-template.yaml >${DIR}/config.yaml
 		else
 			sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
@@ -669,6 +670,7 @@ if [[ -n $ENABLE_HTTPS ]]; then
 				-e "s/<binder-secret-name>/${BINDER_SECRET}/" \
 				-e "s/<hub-host>/${HUB_HOST}/g" \
 				-e "s/<hub-secret-name>/${HUB_SECRET}/" \
+				-e "s/<load-balancer-ip>/${LOAD_BALANCER_IP}/" \
 				${DIR}/templates/https-config-template.yaml >${DIR}/config.yaml
 		fi
 
@@ -690,6 +692,7 @@ if [[ -n $ENABLE_HTTPS ]]; then
 			-e "s/<binder-secret-name>/${BINDER_SECRET}/" \
 			-e "s/<hub-host>/${HUB_HOST}/g" \
 			-e "s/<hub-secret-name>/${HUB_SECRET}/" \
+			-e "s/<load-balancer-ip>/${LOAD_BALANCER_IP}/" \
 			${DIR}/templates/https-acr-config-template.yaml >${DIR}/config.yaml
 
 		echo "--> Generating initial secrets file"
