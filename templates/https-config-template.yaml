@@ -44,3 +44,10 @@ jupyterhub:
       - secretName: <hub-secret-name>
         hosts:
           - <hub-host>
+
+nginx-ingress:
+  controller:
+    service:
+      loadBalancerIP: <load-balancer-ip>
+    config:
+      proxy-body-size: 64m
