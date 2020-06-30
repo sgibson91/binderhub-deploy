@@ -349,23 +349,35 @@ else
 	if command -v choco >/dev/null 2>&1; then
 		echo "--> Checking chocolatey packages and installing any missing packages"
 		CHOCPACKAGES=" \
-      curl \
-      python \
-      azure-cli \
-      kubernetes-cli \
-      kubernetes-helm \
-      jq \
-      "
+			curl \
+			python \
+			azure-cli \
+			kubernetes-cli \
+			kubernetes-helm \
+			jq \
+			"
 		choco upgrade chocolatey
 		for package in $CHOCPACKAGES; do
-			if ! choco search --local-only "$package" >/dev/null; then
-				echo "--> Choco installing $package"
-				choco install "$package" || {
-					echo >&2 "--> $package install failed; please install manually and re-run this script."
-					exit 1
-				}
+			if [ "$package" == "kubernetes-helm" ] ; then
+				if ! choco search --local-only --version 2.16.9 "$package" >/dev/null; then
+					echo "--> Choco installing $package"
+					choco install "$package" || {
+						echo >&2 "--> $package install failed; please install manually and re-run this script."
+						exit 1
+					}
+				else
+					echo "--> $package is already installed"
+				fi
 			else
-				echo "--> $package is already installed"
+				if ! choco search --local-only "$package" >/dev/null; then
+					echo "--> Choco installing $package"
+					choco install "$package" || {
+						echo >&2 "--> $package install failed; please install manually and re-run this script."
+						exit 1
+					}
+				else
+					echo "--> $package is already installed"
+				fi
 			fi
 		done
 	else
