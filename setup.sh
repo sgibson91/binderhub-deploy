@@ -360,7 +360,7 @@ else
 		for package in $CHOCPACKAGES; do
 			if [ "$package" == "kubernetes-helm" ]; then
 				echo "--> Choco installing $package"
-				choco install "$package" --version 2.16.9 --allow-downgrade
+				choco install "$package" --version 2.16.3 --allow-downgrade -y
 			else
 				if ! choco search --local-only "$package" >/dev/null; then
 					echo "--> Choco installing $package"
