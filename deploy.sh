@@ -145,12 +145,6 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
 		SHORT_VERSION=${STRIPPED_VERSION%.*}
 		CERTMANAGER_CRDS="https://raw.githubusercontent.com/jetstack/cert-manager/release-${SHORT_VERSION}/deploy/manifests/00-crds.yaml"
 
-		# Set some extra variables
-		BINDER_HOST="binder.${DOMAIN_NAME}"
-		HUB_HOST="hub.${DOMAIN_NAME}"
-		BINDER_SECRET="${HELM_BINDERHUB_NAME}-binder-secret"
-		HUB_SECRET="${HELM_BINDERHUB_NAME}-hub-secret"
-
 	else
 		if [ x${CONTACT_EMAIL} == 'xnull' ]; then CONTACT_EMAIL=''; fi
 		if [ x${DOMAIN_NAME} == 'xnull' ]; then DOMAIN_NAME=''; fi
@@ -509,6 +503,11 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n binder | tee binder-a-record.log
 	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n hub | tee hub-a-record.log
 
+	# Set some extra variables
+	BINDER_HOST="binder.${DOMAIN_NAME}"
+	HUB_HOST="hub.${DOMAIN_NAME}"
+	BINDER_SECRET="${HELM_BINDERHUB_NAME}-binder-secret"
+	HUB_SECRET="${HELM_BINDERHUB_NAME}-hub-secret"
 fi
 
 # Create an AKS cluster
@@ -757,7 +756,9 @@ helm install jupyterhub/binderhub \
 	--timeout=3600 \
 	--wait | tee binderhub-chart-install.log
 
-if [ "$ENABLE_HTTPS" == "false" ]; then
+if [[ -n $ENABLE_HTTPS ]]; then
+	:
+else
 	# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 	echo "--> Retrieving JupyterHub IP"
 	# shellcheck disable=SC2030 disable=SC2036
