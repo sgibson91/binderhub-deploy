@@ -145,6 +145,12 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
 		SHORT_VERSION=${STRIPPED_VERSION%.*}
 		CERTMANAGER_CRDS="https://raw.githubusercontent.com/jetstack/cert-manager/release-${SHORT_VERSION}/deploy/manifests/00-crds.yaml"
 
+		# Set some extra variables
+		BINDER_HOST="binder.${DOMAIN_NAME}"
+		HUB_HOST="hub.${DOMAIN_NAME}"
+		BINDER_SECRET="${HELM_BINDERHUB_NAME}-binder-secret"
+		HUB_SECRET="${HELM_BINDERHUB_NAME}-hub-secret"
+
 	else
 		if [ x${CONTACT_EMAIL} == 'xnull' ]; then CONTACT_EMAIL=''; fi
 		if [ x${DOMAIN_NAME} == 'xnull' ]; then DOMAIN_NAME=''; fi
@@ -493,12 +499,6 @@ fi
 
 # If HTTPS is required, set up a DNS zone and empty A records
 if [[ -n $ENABLE_HTTPS ]]; then
-	# Set some variables
-	BINDER_HOST="binder.${DOMAIN_NAME}"
-	HUB_HOST="hub.${DOMAIN_NAME}"
-	BINDER_SECRET="${HELM_BINDERHUB_NAME}-binder-secret"
-	HUB_SECRET="${HELM_BINDERHUB_NAME}-hub-secret"
-
 	# Create a DNS zone
 	az network dns zone create -g $RESOURCE_GROUP_NAME -n $DOMAIN_NAME -o table | tee create-dns-zone.log
 
