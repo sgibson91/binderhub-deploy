@@ -12,6 +12,7 @@ AKS_USERNAME="users.clusterUser_${RESOURCE_GROUP}_${AKS_NAME}"
 if [[ -n $ENABLE_HTTPS ]]; then
 	echo "--> Deleting Custom Resource Definitions"
 	kubectl delete crds --all
+	kubectl delete apiservices v1beta1.webhook.cert-manager.io
 fi
 
 # Purge the Helm release and delete the Kubernetes namespace
