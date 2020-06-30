@@ -272,7 +272,6 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 	curl https://get.helm.sh/helm-v2.16.9-linux-amd64.tar.gz --output helm.tar.gz
 	tar -xvf ./helm.tar.gz
 	${sudo_command} cp ./linux-amd64/helm /usr/local/bin/helm
-	helm version --short --client
 
 ## Installing on OS X
 elif [[ ${OSTYPE} == 'darwin'* ]]; then
