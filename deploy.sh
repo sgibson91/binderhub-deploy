@@ -500,11 +500,14 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	HUB_SECRET="${HELM_BINDERHUB_NAME}-hub-secret"
 
 	# Create a DNS zone
-	az network dns zone create -g $RESOURCE_GROUP_NAME -n $DOMAIN_NAME
+	az network dns zone create -g $RESOURCE_GROUP_NAME -n $DOMAIN_NAME -o table | tee create-dns-zone.log
+
+	# Echo name name servers
+	az network dns zone show -g $RESOURCE_GROUP_NAME -n $DOMAIN_NAME --query nameServers -o tsv | tee name-servers.log
 
 	# Create empty A records for the binder and hub pods
-	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n binder
-	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n hub
+	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n binder | tee binder-a-record.log
+	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n hub | tee hub-a-record.log
 
 fi
 
