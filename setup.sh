@@ -298,7 +298,7 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 				echo "--> $package is already installed"
 			fi
 			if [ "$package" == "helm@2" ]; then
-				${sudo_command} cp /usr/local/Cellar/helm@2/2.16.9/bin/helm /usr/local/bin
+				${sudo_command} cp /usr/local/Cellar/helm@2/2.16.9/bin/helm /usr/local/bin/helm
 			fi
 		done
 	else
@@ -339,16 +339,9 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 			echo "--> kubectl already installed"
 		fi
 		echo "--> Attempting to install helm with curl"
-		if ! command -v helm >/dev/null 2>&1; then
-			curl https://raw.githubusercontent.com/helm/helm/master/scripts/get >get_helm.sh
-			chmod 700 get_helm.sh
-			./get_helm.sh || {
-				echo >&2 "--> helm install failed; please install manually and re-run this script."
-				exit 1
-			}
-		else
-			echo "--> helm already installed"
-		fi
+		curl https://get.helm.sh/helm-v2.16.9-macos-amd64.tar.gz --output helm.tar.gz
+		tar -xvf ./helm.tar.gz
+		${sudo_command} cp ./macos-amd64/helm /usr/local/bin/helm
 	fi
 else
 	echo "--> This is a Windows build"
@@ -413,15 +406,8 @@ else
 			echo "--> kubectl already installed"
 		fi
 		echo "--> Attempting to install helm with curl"
-		if ! command -v helm >/dev/null 2>&1; then
-			curl https://raw.githubusercontent.com/helm/helm/master/scripts/get >get_helm.sh
-			chmod 700 get_helm.sh
-			./get_helm.sh || {
-				echo >&2 "--> helm install failed; please install manually and re-run this script."
-				exit 1
-			}
-		else
-			echo "--> helm already installed"
-		fi
+		curl https://get.helm.sh/helm-v2.16.9-windows-amd64.tar.gz --output helm.tar.gz
+		tar -xvf ./helm.tar.gz
+		${sudo_command} cp ./windows-amd64/helm /usr/local/bin/helm
 	fi
 fi
