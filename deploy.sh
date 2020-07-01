@@ -744,8 +744,9 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	# shellcheck disable=SC2030 disable=SC2036
 	IP_ADDRESS_NAME=$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-) | tee ip-address-name.log
 	# shellcheck disable=SC2031
-	while [ "${IP_ADDRESS_NAME}" = "" ]; do
+	while [ -z "${!IP_ADDRESS_NAME}" ]; do
 		echo "Sleeping 30s before trying again"
+		sleep 30
 		IP_ADDRESS_NAME=$(az resource list --resource-group "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)
 		echo "IP Address resource: ${IP_ADDRESS_NAME}" | tee ip-address-name.log
 	done
