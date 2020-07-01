@@ -743,8 +743,10 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	echo "--> Retrieving resources in ${CLUSTER_RESOURCE_GROUP}"
 	# shellcheck disable=SC2030 disable=SC2036
 	IP_ADDRESS_NAME=$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-) | tee ip-address-name.log
+	echo "I made it to line 746"
+	echo "IP Address name: ${IP_ADDRESS_NAME}"
 	# shellcheck disable=SC2031
-	while [ -z "${!IP_ADDRESS_NAME}" ]; do
+	while [ -z "${IP_ADDRESS_NAME}" ]; do
 		echo "Sleeping 30s before trying again"
 		sleep 30
 		IP_ADDRESS_NAME=$(az resource list --resource-group "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)
@@ -759,7 +761,7 @@ else
 	# shellcheck disable=SC2030 disable=SC2036
 	JUPYTERHUB_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1) | tee jupyterhub-ip.log
 	# shellcheck disable=SC2031
-	while [ "${JUPYTERHUB_IP}" = '<pending>' ] || [ "${JUPYTERHUB_IP}" = "" ]; do
+	while [ "${JUPYTERHUB_IP}" == '<pending>' ] || [ -z "${JUPYTERHUB_IP}" ]; do
 		echo "Sleeping 30s before checking again"
 		sleep 30
 		JUPYTERHUB_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1)
