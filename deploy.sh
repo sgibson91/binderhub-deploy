@@ -742,7 +742,7 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	CLUSTER_RESOURCE_GROUP="MC_${RESOURCE_GROUP_NAME}_${AKS_NAME}_${RESOURCE_GROUP_LOCATION}"
 	echo "--> Retrieving resources in ${CLUSTER_RESOURCE_GROUP}"
 
-	IP_ADDRESS_NAME=$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)
+	IP_ADDRESS_NAME="$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)"
 	echo "IP Address Name: ${IP_ADDRESS_NAME}" | tee ip-address-name.log
 
 	ipAddressAttempts=0
@@ -755,12 +755,12 @@ if [[ -n $ENABLE_HTTPS ]]; then
 		fi
 		echo "--> Waiting 30s before trying again"
 		sleep 30
-		IP_ADDRESS_NAME=$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)
+		IP_ADDRESS_NAME="$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)"
 		echo "IP Address: ${IP_ADDRESS_NAME}" | tee ip-address-name.log
 	done
 
 	if [ -n "${IP_ADDRESS_NAME}" ]; then
-		IP_ADDRESS_ID=$(az resource show -g "${CLUSTER_RESOURCE_GROUP}" -n "${IP_ADDRESS_NAME}" --resource-type 'Microsoft.Network/publicIPAddresses' --query id -o tsv)
+		IP_ADDRESS_ID="$(az resource show -g "${CLUSTER_RESOURCE_GROUP}" -n "${IP_ADDRESS_NAME}" --resource-type 'Microsoft.Network/publicIPAddresses' --query id -o tsv)"
 		echo "IP Address ID: ${IP_ADDRESS_ID}" | tee ip-address-id.log
 	fi
 else
