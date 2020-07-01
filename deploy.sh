@@ -741,20 +741,28 @@ helm install jupyterhub/binderhub \
 if [[ -n $ENABLE_HTTPS ]]; then
 	CLUSTER_RESOURCE_GROUP="MC_${RESOURCE_GROUP_NAME}_${AKS_NAME}_${RESOURCE_GROUP_LOCATION}"
 	echo "--> Retrieving resources in ${CLUSTER_RESOURCE_GROUP}"
-	# shellcheck disable=SC2030 disable=SC2036
-	IP_ADDRESS_NAME=$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-) | tee ip-address-name.log
-	echo "I made it to line 746"
-	echo "IP Address name: ${IP_ADDRESS_NAME}"
-	# shellcheck disable=SC2031
+
+	IP_ADDRESS_NAME=$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)
+	echo "IP Address Name: ${IP_ADDRESS_NAME}" | tee ip-address-name.log
+
+	ipAddressAttempts=0
 	while [ -z "${IP_ADDRESS_NAME}" ]; do
-		echo "Sleeping 30s before trying again"
+		((ipAddressAttempts++))
+		echo "--> IP Address Name attempt ${ipAddressAttempts} of 10 failed"
+		if ((ipAddressAttempts > 9)); then
+			echo "--> Name of the IP Address can not be pulled. You will need to set the A record manually."
+			break
+		fi
+		echo "--> Waiting 30s before trying again"
 		sleep 30
-		IP_ADDRESS_NAME=$(az resource list --resource-group "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)
-		echo "IP Address resource: ${IP_ADDRESS_NAME}" | tee ip-address-name.log
+		IP_ADDRESS_NAME=$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)
+		echo "IP Address: ${IP_ADDRESS_NAME}" | tee ip-address-name.log
 	done
 
-	IP_ADDRESS_ID=$(az resource show --resource-group "${CLUSTER_RESOURCE_GROUP}" --name "${IP_ADDRESS_NAME}" --query id -o tsv)
-	echo "IP Address ID: ${IP_ADDRESS_ID}" | tee ip-address-id.log
+	if [ -n "${IP_ADDRESS_NAME}" ]; then
+		IP_ADDRESS_ID=$(az resource show -g "${CLUSTER_RESOURCE_GROUP}" -n "${IP_ADDRESS_NAME}" --resource-type 'Microsoft.Network/publicIPAddresses' --query id -o tsv)
+		echo "IP Address ID: ${IP_ADDRESS_ID}" | tee ip-address-id.log
+	fi
 else
 	# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 	echo "--> Retrieving JupyterHub IP"
