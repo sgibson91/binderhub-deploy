@@ -482,8 +482,8 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	az network dns zone show -g $RESOURCE_GROUP_NAME -n $DOMAIN_NAME --query nameServers -o tsv | tee name-servers.log
 
 	# Create empty A records for the binder and hub pods
-	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n binder --ttl 300 | tee binder-a-record.log
-	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n hub --ttl 300 | tee hub-a-record.log
+	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n binder --ttl 300 | tee create-binder-a-record.log
+	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n hub --ttl 300 | tee create-hub-a-record.log
 
 	# Set some extra variables
 	BINDER_HOST="binder.${DOMAIN_NAME}"
@@ -746,7 +746,7 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	echo "--> Retrieving resources in ${CLUSTER_RESOURCE_GROUP}"
 
 	IP_ADDRESS_NAME="$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)"
-	echo "IP Address: ${IP_ADDRESS_NAME}"
+	echo "IP Address: ${IP_ADDRESS_NAME}" | tee ip-address-name.log
 
 	ipAddressAttempts=0
 	while [ -z "${IP_ADDRESS_NAME}" ]; do
@@ -759,15 +759,15 @@ if [[ -n $ENABLE_HTTPS ]]; then
 		echo "--> Waiting 30s before trying again"
 		sleep 30
 		IP_ADDRESS_NAME="$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)"
-		echo "IP Address: ${IP_ADDRESS_NAME}"
+		echo "IP Address: ${IP_ADDRESS_NAME}" | tee ip-address-name.log
 	done
 
 	if [ -n "${IP_ADDRESS_NAME}" ]; then
 		IP_ADDRESS_ID="$(az resource show -g "${CLUSTER_RESOURCE_GROUP}" -n "${IP_ADDRESS_NAME}" --resource-type 'Microsoft.Network/publicIPAddresses' --query id -o tsv)"
-		echo "IP Address ID: ${IP_ADDRESS_ID}"
+		echo "IP Address ID: ${IP_ADDRESS_ID}" | tee ip-address-id.log
 
-		az network dns record-set a update -n hub -g "${RESOURCE_GROUP_NAME}" -z "${DOMAIN_NAME}" --target-resource "${IP_ADDRESS_ID}" -o table
-		az network dns record-set a update -n binder -g "${RESOURCE_GROUP_NAME}" -z "${DOMAIN_NAME}" --target-resource "${IP_ADDRESS_ID}" -o table
+		az network dns record-set a update -n hub -g "${RESOURCE_GROUP_NAME}" -z "${DOMAIN_NAME}" --target-resource "${IP_ADDRESS_ID}" -o table  | tee update-hub-a-record.log
+		az network dns record-set a update -n binder -g "${RESOURCE_GROUP_NAME}" -z "${DOMAIN_NAME}" --target-resource "${IP_ADDRESS_ID}" -o table  | tee update-binder-a-record.log
 	fi
 
 	# Revert to error-intolerance
