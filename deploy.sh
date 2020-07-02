@@ -425,7 +425,8 @@ az network vnet create \
 	-n ${BINDERHUB_NAME}-vnet \
 	--address-prefixes 10.0.0.0/8 \
 	--subnet-name ${BINDERHUB_NAME}-subnet \
-	--subnet-prefix 10.240.0.0/16 | tee create-vnet.log
+	--subnet-prefix 10.240.0.0/16 \
+	-o table | tee create-vnet.log
 echo "--> Retrieving the Virtual Network application ID"
 VNET_ID=$(az network vnet show -g ${RESOURCE_GROUP_NAME} -n ${BINDERHUB_NAME}-vnet --query id -o tsv)
 echo "--> Retrieving the subnet application ID"
@@ -443,7 +444,7 @@ if [ -z "${SP_APP_ID}" ] && [ -z "${SP_APP_KEY}" ]; then
 fi
 
 # Assign Contributor role to Service Principal
-az role assignment create --assignee ${SP_APP_ID} --scope ${VNET_ID} --role Contributor
+az role assignment create --assignee ${SP_APP_ID} --scope ${VNET_ID} --role Contributor -o table | tee contributor-role-assignment.log
 
 # If Azure container registry is required, create an ACR and give Service Principal AcrPush role.
 if [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
@@ -466,7 +467,7 @@ if [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
 
 	# Assigning AcrPush role to Service Principal using AcrPush's specific object-ID
 	echo "--> Assigning AcrPush role to Service Principal"
-	az role assignment create --assignee ${SP_APP_ID} --role 8311e382-0749-4cb8-b61a-304f252e45ec --scope $ACR_ID -o table | tee role-assignment.log
+	az role assignment create --assignee ${SP_APP_ID} --role 8311e382-0749-4cb8-b61a-304f252e45ec --scope $ACR_ID -o table | tee acrpush-role-assignment.log
 
 	# Reassign IMAGE_PREFIX to conform with BinderHub's expectation:
 	# <container-registry>/<project-id>/<prefix>-name:tag
@@ -482,8 +483,8 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	az network dns zone show -g $RESOURCE_GROUP_NAME -n $DOMAIN_NAME --query nameServers -o tsv | tee name-servers.log
 
 	# Create empty A records for the binder and hub pods
-	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n binder --ttl 300 | tee create-binder-a-record.log
-	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n hub --ttl 300 | tee create-hub-a-record.log
+	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME --ttl 300 -n binder -o table | tee create-binder-a-record.log
+	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME --ttl 300 -n hub -o table | tee create-hub-a-record.log
 
 	# Set some extra variables
 	BINDER_HOST="binder.${DOMAIN_NAME}"
