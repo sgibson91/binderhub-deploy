@@ -480,7 +480,8 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	az network dns zone create -g $RESOURCE_GROUP_NAME -n $DOMAIN_NAME -o table | tee create-dns-zone.log
 
 	# Echo name name servers
-	az network dns zone show -g $RESOURCE_GROUP_NAME -n $DOMAIN_NAME --query nameServers -o tsv | tee name-servers.log
+	NAME_SERVERS=$(az network dns zone show -g $RESOURCE_GROUP_NAME -n $DOMAIN_NAME --query nameServers -o tsv)
+	printf "Please update your parent domain with the following name servers:\n%s" "${NAME_SERVERS}" | tee name-servers.log
 
 	# Create empty A records for the binder and hub pods
 	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME --ttl 300 -n binder -o table | tee create-binder-a-record.log
