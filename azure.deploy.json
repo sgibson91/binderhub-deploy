@@ -128,6 +128,14 @@
         true
       ]
     },
+    "contactEmail": {
+      "type": "string",
+      "defaultValue": "null",
+       "minLength": 1,
+      "metadata": {
+        "description": "An email address to provide to Let's Encrypt"
+      }
+    },
     "setupDockerImage": {
       "type": "string",
       "minLength": 1,
@@ -243,6 +251,10 @@
                 {
                   "name": "ENABLE_HTTPS",
                   "value": "[parameters('enableHttps')]"
+                },
+                {
+                  "name": "CONTACT_EMAIL",
+                  "value": "[parameters('contactEmail')]"
                 }
               ],
               "resources": {
