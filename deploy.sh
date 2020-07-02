@@ -765,6 +765,9 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	if [ -n "${IP_ADDRESS_NAME}" ]; then
 		IP_ADDRESS_ID="$(az resource show -g "${CLUSTER_RESOURCE_GROUP}" -n "${IP_ADDRESS_NAME}" --resource-type 'Microsoft.Network/publicIPAddresses' --query id -o tsv)"
 		echo "IP Address ID: ${IP_ADDRESS_ID}"
+
+		az network dns record-set a update -n hub -g "${RESOURCE_GROUP_NAME}" -z "${DOMAIN_NAME}" --target-resource "${IP_ADDRESS_ID}" -o table
+		az network dns record-set a update -n binder -g "${RESOURCE_GROUP_NAME}" -z "${DOMAIN_NAME}" --target-resource "${IP_ADDRESS_ID}" -o table
 	fi
 
 	# Revert to error-intolerance
