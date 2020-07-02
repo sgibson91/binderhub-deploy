@@ -152,6 +152,14 @@
         "description": "The version of cert-manager to install. Note: must include the preceding 'v', e.g., v0.11.0. Versions can be found here: https://github.com/jetstack/cert-manager/releases"
       }
     },
+    "nginxVersion": {
+      "type": "string",
+      "defaultValue": "null",
+      "minLength": 1,
+      "metadata": {
+        "description": "The version of nginx-ingress to install, e.g., 1.29.1. Versions can be found here: https://hub.helm.sh/charts/stable/nginx-ingress"
+      }
+    },
     "setupDockerImage": {
       "type": "string",
       "minLength": 1,
@@ -279,6 +287,10 @@
                 {
                   "name": "CERTMANAGER_VERSION",
                   "value": "[parameters('certManagerVersion')]"
+                },
+                {
+                  "name": "NGINX_VERSION",
+                  "value": "[parameters('nginxVersion')]"
                 }
               ],
               "resources": {
