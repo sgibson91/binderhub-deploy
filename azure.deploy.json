@@ -131,9 +131,17 @@
     "contactEmail": {
       "type": "string",
       "defaultValue": "null",
-       "minLength": 1,
+      "minLength": 1,
       "metadata": {
         "description": "An email address to provide to Let's Encrypt"
+      }
+    },
+    "domainName": {
+      "type": "string",
+      "defaultValue": "null",
+      "minLength": 1,
+      "metadata": {
+        "description": "The domain name to provide HTTPS certificates for"
       }
     },
     "setupDockerImage": {
@@ -255,6 +263,10 @@
                 {
                   "name": "CONTACT_EMAIL",
                   "value": "[parameters('contactEmail')]"
+                },
+                {
+                  "name": "DOMAIN_NAME",
+                  "value": "[parameters('domainName')]"
                 }
               ],
               "resources": {
