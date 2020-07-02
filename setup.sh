@@ -1,8 +1,6 @@
 #!/bin/bash
 # shellcheck disable=SC2046 disable=SC2143
 
-set -e
-
 # Check sudo availability
 sudo_command=$(command -v sudo)
 
