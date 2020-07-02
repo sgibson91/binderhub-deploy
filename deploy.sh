@@ -832,6 +832,8 @@ else
 	done
 fi
 
+echo "BinderHub deployment completed!"
+
 if [[ -n $BINDERHUB_CONTAINER_MODE ]] || [[ "$LOG_TO_BLOB_STORAGE" == 'true' ]]; then
 	# Finally, save outputs to blob storage
 	#
