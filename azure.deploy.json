@@ -117,6 +117,17 @@
         "Premium"
       ]
     },
+    "enableHttps": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Choose to enable HTTPS for a domain name using cert-manager and Let's Encrypt"
+      },
+      "allowedValues": [
+        false,
+        true
+      ]
+    },
     "setupDockerImage": {
       "type": "string",
       "minLength": 1,
@@ -228,6 +239,10 @@
                 {
                   "name": "REGISTRY_SKU",
                   "value": "[parameters('containerRegistrySku')]"
+                },
+                {
+                  "name": "ENABLE_HTTPS",
+                  "value": "[parameters('enableHttps')]"
                 }
               ],
               "resources": {
