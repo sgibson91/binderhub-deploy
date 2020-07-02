@@ -482,8 +482,8 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	az network dns zone show -g $RESOURCE_GROUP_NAME -n $DOMAIN_NAME --query nameServers -o tsv | tee name-servers.log
 
 	# Create empty A records for the binder and hub pods
-	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n binder | tee binder-a-record.log
-	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n hub | tee hub-a-record.log
+	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n binder --ttl 300 | tee binder-a-record.log
+	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME -n hub --ttl 300 | tee hub-a-record.log
 
 	# Set some extra variables
 	BINDER_HOST="binder.${DOMAIN_NAME}"
