@@ -739,6 +739,9 @@ helm install jupyterhub/binderhub \
 	--wait | tee binderhub-chart-install.log
 
 if [[ -n $ENABLE_HTTPS ]]; then
+	# Be error tolerant for this stage
+	set +e
+
 	CLUSTER_RESOURCE_GROUP="MC_${RESOURCE_GROUP_NAME}_${AKS_NAME}_${RESOURCE_GROUP_LOCATION}"
 	echo "--> Retrieving resources in ${CLUSTER_RESOURCE_GROUP}"
 
@@ -763,6 +766,10 @@ if [[ -n $ENABLE_HTTPS ]]; then
 		IP_ADDRESS_ID="$(az resource show -g "${CLUSTER_RESOURCE_GROUP}" -n "${IP_ADDRESS_NAME}" --resource-type 'Microsoft.Network/publicIPAddresses' --query id -o tsv)"
 		echo "IP Address ID: ${IP_ADDRESS_ID}"
 	fi
+
+	# Revert to error-intolerance
+	set -eo pipefail
+	
 else
 	# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 	echo "--> Retrieving JupyterHub IP"
