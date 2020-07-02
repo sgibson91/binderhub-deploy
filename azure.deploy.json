@@ -144,6 +144,14 @@
         "description": "The domain name to provide HTTPS certificates for"
       }
     },
+    "certManagerVersion": {
+      "type": "string",
+      "defaultValue": "null",
+      "minLength": 1,
+      "metadata": {
+        "description": "The version of cert-manager to install. Note: must include the preceding 'v', e.g., v0.11.0. Versions can be found here: https://github.com/jetstack/cert-manager/releases"
+      }
+    },
     "setupDockerImage": {
       "type": "string",
       "minLength": 1,
@@ -267,6 +275,10 @@
                 {
                   "name": "DOMAIN_NAME",
                   "value": "[parameters('domainName')]"
+                },
+                {
+                  "name": "CERTMANAGER_VERSION",
+                  "value": "[parameters('certManagerVersion')]"
                 }
               ],
               "resources": {
