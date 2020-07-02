@@ -755,7 +755,7 @@ if [[ -n $ENABLE_HTTPS ]]; then
 		((ipAddressAttempts++))
 		echo "--> IP Address Name pull attempt ${ipAddressAttempts} of 10 failed"
 		if ((ipAddressAttempts > 9)); then
-			echo "--> Failed to pull the IP Address name. You will have to set the A records manually."
+			echo "--> Failed to pull the IP Address name. You will have to set the A records manually. You can do this by running set_a_records.sh."
 			break
 		fi
 		echo "--> Waiting 30s before trying again"
