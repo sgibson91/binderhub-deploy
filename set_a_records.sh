@@ -37,6 +37,6 @@ if [ -n "${IP_ADDRESS_NAME}" ]; then
 	IP_ADDRESS_ID="$(az resource show -g "${CLUSTER_RESOURCE_GROUP}" -n "${IP_ADDRESS_NAME}" --resource-type 'Microsoft.Network/publicIPAddresses' --query id -o tsv)"
 	echo "IP Address ID: ${IP_ADDRESS_ID}" | tee ip-address-id.log
 
-    az network dns record-set a update -n hub -g "${AKS_RESOURCE_GROUP}" -z "${DOMAIN_NAME}" --target-resource "${IP_ADDRESS_ID}" -o table | tee update-hub-a-record.log
-    az network dns record-set a update -n binder -g "${AKS_RESOURCE_GROUP}" -z "${DOMAIN_NAME}" --target-resource "${IP_ADDRESS_ID}" -o table | tee update-binder-a-record.log
+	az network dns record-set a update -n hub -g "${AKS_RESOURCE_GROUP}" -z "${DOMAIN_NAME}" --target-resource "${IP_ADDRESS_ID}" -o table | tee update-hub-a-record.log
+	az network dns record-set a update -n binder -g "${AKS_RESOURCE_GROUP}" -z "${DOMAIN_NAME}" --target-resource "${IP_ADDRESS_ID}" -o table | tee update-binder-a-record.log
 fi
