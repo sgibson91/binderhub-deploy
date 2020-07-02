@@ -210,7 +210,7 @@
                 },
                 {
                   "name": "SP_APP_KEY",
-                  "value": "[parameters('servicePrincipalAppKey')]"
+                  "secureValue": "[parameters('servicePrincipalAppKey')]"
                 },
                 {
                   "name": "SP_TENANT_ID",
@@ -258,7 +258,7 @@
                 },
                 {
                   "name": "DOCKERHUB_PASSWORD",
-                  "value": "[parameters('dockerHubPassword')]"
+                  "secureValue": "[parameters('dockerHubPassword')]"
                 },
                 {
                   "name": "DOCKERHUB_ORGANISATION",
