@@ -769,7 +769,7 @@ if [[ -n $ENABLE_HTTPS ]]; then
 
 	# Revert to error-intolerance
 	set -eo pipefail
-	
+
 else
 	# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
 	echo "--> Retrieving JupyterHub IP"
