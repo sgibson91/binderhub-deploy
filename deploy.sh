@@ -743,25 +743,25 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	echo "--> Retrieving resources in ${CLUSTER_RESOURCE_GROUP}"
 
 	IP_ADDRESS_NAME="$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)"
-	echo "IP Address Name: ${IP_ADDRESS_NAME}" | tee ip-address-name.log
+	echo "IP Address: ${IP_ADDRESS_NAME}"
 
 	ipAddressAttempts=0
 	while [ -z "${IP_ADDRESS_NAME}" ]; do
 		((ipAddressAttempts++))
-		echo "--> IP Address Name attempt ${ipAddressAttempts} of 10 failed"
+		echo "--> IP Address Name pull attempt ${ipAddressAttempts} of 10 failed"
 		if ((ipAddressAttempts > 9)); then
-			echo "--> Name of the IP Address can not be pulled. You will need to set the A record manually."
+			echo "--> Failed to pull the IP Address name. You will have to set the A records manually."
 			break
 		fi
 		echo "--> Waiting 30s before trying again"
 		sleep 30
 		IP_ADDRESS_NAME="$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)"
-		echo "IP Address: ${IP_ADDRESS_NAME}" | tee ip-address-name.log
+		echo "IP Address: ${IP_ADDRESS_NAME}"
 	done
 
 	if [ -n "${IP_ADDRESS_NAME}" ]; then
 		IP_ADDRESS_ID="$(az resource show -g "${CLUSTER_RESOURCE_GROUP}" -n "${IP_ADDRESS_NAME}" --resource-type 'Microsoft.Network/publicIPAddresses' --query id -o tsv)"
-		echo "IP Address ID: ${IP_ADDRESS_ID}" | tee ip-address-id.log
+		echo "IP Address ID: ${IP_ADDRESS_ID}"
 	fi
 else
 	# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
