@@ -24,9 +24,10 @@ Please read our :purple_heart: [Code of Conduct](CODE_OF_CONDUCT.md) :purple_hea
 
 - [:children_crossing: Usage](#children_crossing-usage)
   - [:package: Choosing between Docker Hub and Azure Container Registry](#package-choosing-between-docker-hub-and-azure-container-registry)
-  - [:closed_lock_with_key: Enabling HTTPS for a Domain Name](#-enabling-https-for-a-domain-name)
+  - [:closed_lock_with_key: Enabling HTTPS for a Domain Name](#closed_lock_with_key-enabling-https-for-a-domain-name)
   - [:vertical_traffic_light: `setup.sh`](#vertical_traffic_light-setupsh)
   - [:rocket: `deploy.sh`](#rocket-deploysh)
+  - [:inbox_tray: `set-a-records.sh`](inbox_tray-set-a-recordssh)
   - [:bar_chart: `logs.sh`](#bar_chart-logssh)
   - [:information_source: `info.sh`](#information_source-infosh)
   - [:arrow_up: `upgrade.sh`](#arrow_up-upgradesh)
@@ -206,6 +207,12 @@ The script also outputs log files (`<file-name>.log`) for each stage of the depl
 These files are also git-ignored.
 
 If the `azure.log_to_blob_storage` value in `config.json` is set to `true` the script is running from the command line, then the log files will be stored in blob storage.
+
+### :inbox_tray: `set-a-records.sh`
+
+:rotating_light: This script is only relevant if deploying a BinderHub with a domain name and HTTPS certificates :rotating_light:
+
+This script reads in values from `config.json` and try to set the Kubernetes public IP address to the `binder` and `hub` A records in the DNS Zone.
 
 ### :bar_chart: `logs.sh`
 
