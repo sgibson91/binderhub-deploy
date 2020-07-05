@@ -24,6 +24,7 @@ Please read our :purple_heart: [Code of Conduct](CODE_OF_CONDUCT.md) :purple_hea
 
 - [:children_crossing: Usage](#children_crossing-usage)
   - [:package: Choosing between Docker Hub and Azure Container Registry](#package-choosing-between-docker-hub-and-azure-container-registry)
+  - [:closed_lock_with_key: Enabling HTTPS for a Domain Name](#-enabling-https-for-a-domain-name)
   - [:vertical_traffic_light: `setup.sh`](#vertical_traffic_light-setupsh)
   - [:rocket: `deploy.sh`](#rocket-deploysh)
   - [:bar_chart: `logs.sh`](#bar_chart-logssh)
@@ -161,6 +162,27 @@ The CLIs to be installed are:
 
 Any dependencies that are not automatically installed by these packages will also be installed.
 
+### :closed_lock_with_key: Enabling HTTPS for a Domain Name
+
+If you have a domain name that you would like your BinderHub to be hosted at, the package can configure a [DNS Zone](https://docs.microsoft.com/en-gb/azure/dns/dns-zones-records#dns-zones) to host the records for your domain name and configure the BinderHub to use these addresses rather than raw IP addresses.
+HTTPS certificates will also be requested for the [DNS records](https://docs.microsoft.com/en-us/azure/dns/dns-zones-records#dns-records) using [`cert-manager`](https://cert-manager.io/docs/) and [Let's Encrypt](https://letsencrypt.org/).
+
+#### :hammer: Manual steps required
+
+While the package tries to automate as much as possible, when enabling HTTPS there are still a few steps that the user will have to do manually.
+
+1) **Delegate the domain to the name servers**
+
+   The script will return four name servers that are hosting the DNS Zone, the will be saved to the log file `name-servers.log`.
+   Your parent domain NS records need to be updated to delegate to these name servers (see the [Azure documentation](https://docs.microsoft.com/en-us/azure/dns/dns-delegate-domain-azure-dns#delegate-the-domain)).
+   How this is achieved will be different depending on your domain registrar.
+
+2) **Point the A records to the Load Balancer IP Address**
+
+   Two A records are created for the Binder page and the JupyterHub and these records need to be set to the public IP address of the cluster's load balancer.
+   The package tries to complete this step automatically but often fails, due to the long-running nature of Azure's process to update the CLI.
+   It is recommended to wait some time (overnight is best) and then run `set-a-records.sh`.
+
 ### :rocket: `deploy.sh`
 
 This script reads in values from `config.json` and deploys a Kubernetes cluster.
@@ -172,6 +194,9 @@ If you have provided a Docker organisation in `config.json`, then Docker ID **MU
 
 If you have chosen an ACR, the script will create one and assign the `AcrPush` role to your Service Principal.
 The registry server and Service Principal credentials will then be parsed into `config.yaml` and `secret.yaml` so that the BinderHub can connect to the ACR.
+
+If you have requested HTTPS to be enabled, the script will create a DNS Zone and A records for the Binder and JupyterHub endpoints.
+The [`nginx-ingress`](https://github.com/helm/charts/tree/master/stable/nginx-ingress) and [`cert-manager`](https://github.com/jetstack/cert-manager) helm charts will also be installed to provide a load balancer and automated requests for certificates from Let's Encrypt, respectively.
 
 Both a JupyterHub and BinderHub are installed via a Helm Chart onto the deployed Kubernetes cluster and the `config.yaml` file is updated with the JupyterHub IP address.
 
