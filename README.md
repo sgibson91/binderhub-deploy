@@ -189,6 +189,7 @@ While the package tries to automate as much as possible, when enabling HTTPS the
 
    Let's Encrypt provides a [staging platform](https://letsencrypt.org/docs/staging-environment/) to test against and this is the environment the package will request certificates from.
    Once you have [verified the staging certificates](https://www.cyberciti.biz/faq/test-ssl-certificates-diagnosis-ssl-certificate/) have been issued correctly, the user must switch to requesting certificates from Let's Encrypt's production environment to receive trusted certificates.
+   [Instructions for switching environments](docs/lets_encrypt_prod_switch.md).
 
 ### :rocket: `deploy.sh`
 
