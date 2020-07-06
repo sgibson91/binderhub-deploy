@@ -184,6 +184,11 @@ While the package tries to automate as much as possible, when enabling HTTPS the
    The package tries to complete this step automatically but often fails, due to the long-running nature of Azure's process to update the CLI.
    It is recommended to wait some time (overnight is best) and then run `set-a-records.sh`.
 
+3) **Switching from Let's Encrypt staging to production**
+
+   Let's Encrypt provides a [staging platform](https://letsencrypt.org/docs/staging-environment/) to test against and this is the environment the package will request certificates from.
+   Once you have [verified the staging certificates](https://www.cyberciti.biz/faq/test-ssl-certificates-diagnosis-ssl-certificate/) have been issued correctly, the user must switch to requesting certificates from Let's Encrypt's production environment to receive trusted certificates.
+
 ### :rocket: `deploy.sh`
 
 This script reads in values from `config.json` and deploys a Kubernetes cluster.
