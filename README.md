@@ -183,6 +183,7 @@ While the package tries to automate as much as possible, when enabling HTTPS the
    Two A records are created for the Binder page and the JupyterHub and these records need to be set to the public IP address of the cluster's load balancer.
    The package tries to complete this step automatically but often fails, due to the long-running nature of Azure's process to update the CLI.
    It is recommended to wait some time (overnight is best) and then run `set-a-records.sh`.
+   Alternatively, there are [manual instructions](docs/manually-setting-a-records.md) for setting the A records in the Azure Portal.
 
 3) **Switching from Let's Encrypt staging to production**
 
