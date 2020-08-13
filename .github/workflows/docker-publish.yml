@@ -1,0 +1,24 @@
+name: Build and Publish Docker image
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+
+jobs:
+  build-n-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v1
+        with:
+          username: sgibson91
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: sgibson91/binderhub-setup
+          tag_with_ref: true
