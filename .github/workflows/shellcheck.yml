@@ -1,18 +1,15 @@
 name: Run shellcheck and shfmt
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   shell-checker:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        
       - name: Run shell-checker
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: luizm/action-sh-checker@v0.1.3
