@@ -24,8 +24,10 @@ Please read our :purple_heart: [Code of Conduct](CODE_OF_CONDUCT.md) :purple_hea
 
 - [:children_crossing: Usage](#children_crossing-usage)
   - [:package: Choosing between Docker Hub and Azure Container Registry](#package-choosing-between-docker-hub-and-azure-container-registry)
+  - [:closed_lock_with_key: Enabling HTTPS for a Domain Name](#closed_lock_with_key-enabling-https-for-a-domain-name)
   - [:vertical_traffic_light: `setup.sh`](#vertical_traffic_light-setupsh)
   - [:rocket: `deploy.sh`](#rocket-deploysh)
+  - [:inbox_tray: `set-a-records.sh`](inbox_tray-set-a-recordssh)
   - [:bar_chart: `logs.sh`](#bar_chart-logssh)
   - [:information_source: `info.sh`](#information_source-infosh)
   - [:arrow_up: `upgrade.sh`](#arrow_up-upgradesh)
@@ -84,6 +86,11 @@ Fill the quotation marks with your desired namespaces, etc.
 ```json
 {
   "container_registry": "",        // Choose Docker Hub or ACR with 'dockerhub' or 'azurecr' values, respectively.
+  "enable_https": "false",         // Choose whether to enable HTTPS with cert-manager. Boolean.
+  "acr": {
+    "registry_name": null,         // Name to give the ACR. This must be alpha-numerical and unique to Azure.
+    "sku": "Basic"                 // The SKU capacity and pricing tier for the ACR
+  },
   "azure": {
     "subscription": "",            // Azure subscription name or ID (a hex-string)
     "res_grp_name": "",            // Azure Resource Group name
@@ -105,9 +112,11 @@ Fill the quotation marks with your desired namespaces, etc.
     "password": null,              // Docker password (can be supplied at runtime)
     "org": null                    // A Docker Hub organisation to push images to (optional)
   },
-  "acr": {
-    "registry_name": null,         // Name to give the ACR. This must be alpha-numerical and unique to Azure.
-    "sku": "Basic"                 // The SKU capacity and pricing tier for the ACR
+  "https:": {
+    "certmanager_version": null,   // Version of cert-manager to install
+    "contact_email": null,        // Contact email for Let's Encrypt
+    "domain_name": null,          // Domain name to issue certificates for
+    "nginx_version": null         // Version on nginx-ingress to install
   }
 }
 ```
@@ -154,6 +163,34 @@ The CLIs to be installed are:
 
 Any dependencies that are not automatically installed by these packages will also be installed.
 
+### :closed_lock_with_key: Enabling HTTPS for a Domain Name
+
+If you have a domain name that you would like your BinderHub to be hosted at, the package can configure a [DNS Zone](https://docs.microsoft.com/en-gb/azure/dns/dns-zones-records#dns-zones) to host the records for your domain name and configure the BinderHub to use these addresses rather than raw IP addresses.
+HTTPS certificates will also be requested for the [DNS records](https://docs.microsoft.com/en-us/azure/dns/dns-zones-records#dns-records) using [`cert-manager`](https://cert-manager.io/docs/) and [Let's Encrypt](https://letsencrypt.org/).
+
+#### :hammer: Manual steps required
+
+While the package tries to automate as much as possible, when enabling HTTPS there are still a few steps that the user will have to do manually.
+
+1) **Delegate the domain to the name servers**
+
+   The script will return four name servers that are hosting the DNS Zone, the will be saved to the log file `name-servers.log`.
+   Your parent domain NS records need to be updated to delegate to these name servers (see the [Azure documentation](https://docs.microsoft.com/en-us/azure/dns/dns-delegate-domain-azure-dns#delegate-the-domain)).
+   How this is achieved will be different depending on your domain registrar.
+
+2) **Point the A records to the Load Balancer IP Address**
+
+   Two A records are created for the Binder page and the JupyterHub and these records need to be set to the public IP address of the cluster's load balancer.
+   The package tries to complete this step automatically but often fails, due to the long-running nature of Azure's process to update the CLI.
+   It is recommended to wait some time (overnight is best) and then run `set-a-records.sh`.
+   Alternatively, there are [manual instructions](docs/manually-setting-a-records.md) for setting the A records in the Azure Portal.
+
+3) **Switching from Let's Encrypt staging to production**
+
+   Let's Encrypt provides a [staging platform](https://letsencrypt.org/docs/staging-environment/) to test against and this is the environment the package will request certificates from.
+   Once you have [verified the staging certificates](https://www.cyberciti.biz/faq/test-ssl-certificates-diagnosis-ssl-certificate/) have been issued correctly, the user must switch to requesting certificates from Let's Encrypt's production environment to receive trusted certificates.
+   [Instructions for switching environments](docs/lets_encrypt_prod_switch.md).
+
 ### :rocket: `deploy.sh`
 
 This script reads in values from `config.json` and deploys a Kubernetes cluster.
@@ -166,6 +203,9 @@ If you have provided a Docker organisation in `config.json`, then Docker ID **MU
 If you have chosen an ACR, the script will create one and assign the `AcrPush` role to your Service Principal.
 The registry server and Service Principal credentials will then be parsed into `config.yaml` and `secret.yaml` so that the BinderHub can connect to the ACR.
 
+If you have requested HTTPS to be enabled, the script will create a DNS Zone and A records for the Binder and JupyterHub endpoints.
+The [`nginx-ingress`](https://github.com/helm/charts/tree/master/stable/nginx-ingress) and [`cert-manager`](https://github.com/jetstack/cert-manager) helm charts will also be installed to provide a load balancer and automated requests for certificates from Let's Encrypt, respectively.
+
 Both a JupyterHub and BinderHub are installed via a Helm Chart onto the deployed Kubernetes cluster and the `config.yaml` file is updated with the JupyterHub IP address.
 
 `config.yaml` and `secret.yaml` are both git-ignored so that secrets cannot be pushed back to GitHub.
@@ -174,6 +214,12 @@ The script also outputs log files (`<file-name>.log`) for each stage of the depl
 These files are also git-ignored.
 
 If the `azure.log_to_blob_storage` value in `config.json` is set to `true` the script is running from the command line, then the log files will be stored in blob storage.
+
+### :inbox_tray: `set-a-records.sh`
+
+:rotating_light: This script is only relevant if deploying a BinderHub with a domain name and HTTPS certificates :rotating_light:
+
+This script reads in values from `config.json` and try to set the Kubernetes public IP address to the `binder` and `hub` A records in the DNS Zone.
 
 ### :bar_chart: `logs.sh`
 
@@ -201,7 +247,7 @@ It will also purge the cluster information from your `kubectl` configuration fil
 
 To deploy [BinderHub](https://binderhub.readthedocs.io/) to Azure in a single click (and some form-filling), use the deploy button below.
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Falan-turing-institute%2Fbinderhub-deploy%2Fmain%2Fazure.deploy.json)
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Falan-turing-institute%2Fbinderhub-deploy%2Fenable-https%2Fazure.deploy.json)
 
 ### :sparkles: Service Principal Creation
 

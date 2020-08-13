@@ -4,8 +4,16 @@
 configFile='config.json'
 BINDERHUB_NAME=$(jq -r '.binderhub .name' "${configFile}")
 RESOURCE_GROUP=$(jq -r '.azure .res_grp_name' "${configFile}")
+ENABLE_HTTPS=$(jq -r '.enable_https' "${configFile}")
 AKS_NAME=$(echo "${BINDERHUB_NAME}" | tr -cd '[:alnum:]-' | cut -c 1-59)-AKS
 AKS_USERNAME="users.clusterUser_${RESOURCE_GROUP}_${AKS_NAME}"
+
+# If CRDs were installed, deleted
+if [[ -n $ENABLE_HTTPS ]]; then
+	echo "--> Deleting Custom Resource Definitions"
+	kubectl delete crds --all
+	kubectl delete apiservices v1beta1.webhook.cert-manager.io
+fi
 
 # Purge the Helm release and delete the Kubernetes namespace
 echo "--> Purging the helm chart: ${BINDERHUB_NAME}"

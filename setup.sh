@@ -18,6 +18,7 @@ if [[ ${OSTYPE} == 'linux'* ]]; then
 			openssl \
 			jq \
 			"
+
 		for package in $APTPACKAGES; do
 			if ! dpkg -s "$package" >/dev/null; then
 				echo "--> Apt installing $package"
@@ -178,6 +179,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 			openssl \
 			kubectl \
 			"
+
 		for package in $PACMANPACKAGES; do
 			if ! pacman -Q "$package" 2>/dev/null; then
 				echo "--> pacman installing $package"
@@ -286,6 +288,7 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 			helm@2 \
 			jq \
 			"
+
 		brew update
 		for package in $BREWPACKAGES; do
 			if ! brew ls --versions "$package" >/dev/null; then

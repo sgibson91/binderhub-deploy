@@ -30,6 +30,7 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
           BINDERHUB_VERSION \
           CONTAINER_REGISTRY \
           DOCKER_IMAGE_PREFIX \
+          ENABLE_HTTPS \
           RESOURCE_GROUP_LOCATION \
           RESOURCE_GROUP_NAME \
           SP_APP_ID \
@@ -123,8 +124,59 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
 		exit 1
 	fi
 
+	if [[ -n $ENABLE_HTTPS ]]; then
+
+		REQUIREDVARS="\
+			CERTMANAGER_VERSION \
+			CONTACT_EMAIL \
+			DOMAIN_NAME \
+			NGINX_VERSION \
+			"
+
+		for required_var in $REQUIREDVARS; do
+			if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ]; then
+				echo "--> ${required_var} must be set for container-based setup" >&2
+				exit 1
+			fi
+		done
+
+		# Configure URL for Custom Resource Definitions
+		STRIPPED_VERSION=$(echo "${CERTMANAGER_VERSION}" | tr -d 'v')
+		SHORT_VERSION=${STRIPPED_VERSION%.*}
+		CERTMANAGER_CRDS="https://raw.githubusercontent.com/jetstack/cert-manager/release-${SHORT_VERSION}/deploy/manifests/00-crds.yaml"
+
+	else
+		if [ x${CONTACT_EMAIL} == 'xnull' ]; then CONTACT_EMAIL=''; fi
+		if [ x${DOMAIN_NAME} == 'xnull' ]; then DOMAIN_NAME=''; fi
+		if [ x${CERTMANAGER_VERSION} == 'xnull' ]; then CERTMANAGER_VERSION=''; fi
+		if [ x${NGINX_VERSION} == 'xnull' ]; then NGINX_VERSION=''; fi
+	fi
+
 	# Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
 	AZURE_SUBSCRIPTION=$(echo $AZURE_SUBSCRIPTION | sed -r "s/^\/subscriptions\///")
+
+	echo "--> Configuration parsed from blue button:
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+      BINDERHUB_NAME: ${BINDERHUB_NAME}
+      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      CERTMANAGER_VERSION: ${CERTMANAGER_VERSION}
+      CONTACT_EMAIL: ${CONTACT_EMAIL}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
+      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      ENABLE_HTTPS: ${ENABLE_HTTPS}
+      NGINX_VERSION: ${NGINX_VERSION}
+      REGISTRY_NAME: ${REGISTRY_NAME}
+      REGISTRY_SKU: ${REGISTRY_SKU}
+      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+      SP_APP_ID: ${SP_APP_ID}
+      SP_TENANT_ID: ${SP_TENANT_ID}
+      " | tee read-config.log
 
 else
 
@@ -140,6 +192,7 @@ else
 	BINDERHUB_VERSION=$(jq -r '.binderhub .version' ${configFile})
 	CONTAINER_REGISTRY=$(jq -r '.container_registry' ${configFile})
 	DOCKER_IMAGE_PREFIX=$(jq -r '.binderhub .image_prefix' ${configFile})
+	ENABLE_HTTPS=$(jq -r '.enable_https' ${configFile})
 	LOG_TO_BLOB_STORAGE=$(jq -r '.azure .log_to_blob_storage' ${configFile})
 	RESOURCE_GROUP_LOCATION=$(jq -r '.azure .location' ${configFile})
 	RESOURCE_GROUP_NAME=$(jq -r '.azure .res_grp_name' ${configFile})
@@ -156,6 +209,7 @@ else
 		BINDERHUB_VERSION \
 		CONTAINER_REGISTRY \
 		DOCKER_IMAGE_PREFIX \
+		ENABLE_HTTPS \
 		RESOURCE_GROUP_LOCATION \
 		RESOURCE_GROUP_NAME \
 		"
@@ -206,24 +260,6 @@ else
 			fi
 		fi
 
-		echo "--> Configuration read in:
-			AKS_NODE_COUNT: ${AKS_NODE_COUNT}
-			AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
-			AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
-			BINDERHUB_NAME: ${BINDERHUB_NAME}
-			BINDERHUB_VERSION: ${BINDERHUB_VERSION}
-			CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
-			DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
-			DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
-			DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
-			LOG_TO_BLOB_STORAGE: ${LOG_TO_BLOB_STORAGE}
-			RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
-			RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
-			SP_APP_ID: ${SP_APP_ID}
-			SP_APP_KEY: ${SP_APP_KEY}
-			SP_TENANT_ID: ${SP_TENANT_ID}
-			" | tee read-config.log
-
 	elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
 		echo "--> Getting configuration for Azure Container Registry"
 
@@ -271,6 +307,65 @@ else
 		echo "--> Please provide a valid option for CONTAINER_REGISTRY."
 		echo "    Options are: 'dockerhub' or 'azurecr'."
 	fi
+
+	if [[ -n $ENABLE_HTTPS ]]; then
+
+		# Read in cert-manager config
+		CERTMANAGER_VERSION=$(jq -r '.https .certmanager_version' ${configFile})
+		CONTACT_EMAIL=$(jq -r '.https .contact_email' ${configFile})
+		DOMAIN_NAME=$(jq -r '.https .domain_name' ${configFile})
+		NGINX_VERSION=$(jq -r '.https .nginx_version' ${configFile})
+
+		# Checking required variables
+		REQUIREDVARS="\
+			CERTMANAGER_VERSION \
+			CONTACT_EMAIL \
+			DOMAIN_NAME \
+			NGINX_VERSION \
+			"
+
+		for required_var in $REQUIREDVARS; do
+			if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ]; then
+				echo "--> ${required_var} must be set for deployment" >&2
+				exit 1
+			fi
+		done
+
+		# Configure URL for Custom Resource Definitions
+		STRIPPED_VERSION=$(echo "${CERTMANAGER_VERSION}" | tr -d 'v')
+		SHORT_VERSION=${STRIPPED_VERSION%.*}
+		CERTMANAGER_CRDS="https://raw.githubusercontent.com/jetstack/cert-manager/release-${SHORT_VERSION}/deploy/manifests/00-crds.yaml"
+
+	else
+		if [ x${CONTACT_EMAIL} == 'xnull' ]; then CONTACT_EMAIL=''; fi
+		if [ x${DOMAIN_NAME} == 'xnull' ]; then DOMAIN_NAME=''; fi
+		if [ x${CERTMANAGER_VERSION} == 'xnull' ]; then CERTMANAGER_VERSION=''; fi
+		if [ x${NGINX_VERSION} == 'xnull' ]; then NGINX_VERSION=''; fi
+	fi
+
+	echo "--> Configuration read in:
+      AKS_NODE_COUNT: ${AKS_NODE_COUNT}
+      AKS_NODE_VM_SIZE: ${AKS_NODE_VM_SIZE}
+      AZURE_SUBSCRIPTION: ${AZURE_SUBSCRIPTION}
+      BINDERHUB_NAME: ${BINDERHUB_NAME}
+      BINDERHUB_VERSION: ${BINDERHUB_VERSION}
+      CERTMANAGER_VERSION: ${CERTMANAGER_VERSION}
+      CONTACT_EMAIL: ${CONTACT_EMAIL}
+      CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+      DOCKER_IMAGE_PREFIX: ${DOCKER_IMAGE_PREFIX}
+      DOCKERHUB_ORGANISATION: ${DOCKERHUB_ORGANISATION}
+      DOCKERHUB_USERNAME: ${DOCKERHUB_USERNAME}
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      ENABLE_HTTPS: ${ENABLE_HTTPS}
+      NGINX_VERSION: ${NGINX_VERSION}
+      REGISTRY_NAME: ${REGISTRY_NAME}
+      REGISTRY_SKU: ${REGISTRY_SKU}
+      RESOURCE_GROUP_LOCATION: ${RESOURCE_GROUP_LOCATION}
+      RESOURCE_GROUP_NAME: ${RESOURCE_GROUP_NAME}
+      SP_APP_ID: ${SP_APP_ID}
+      SP_TENANT_ID: ${SP_TENANT_ID}
+      " | tee read-config.log
+
 fi
 
 set -eo pipefail
@@ -280,6 +375,9 @@ RESOURCE_GROUP_LOCATION=$(echo ${RESOURCE_GROUP_LOCATION//[[:blank::]]/} | tr '[
 
 # Generate a valid name for the AKS cluster
 AKS_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59)-AKS
+
+# Format BinderHub name for Kubernetes
+HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//')
 
 # Azure login will be different depending on whether this script is running
 # with or without service principal details supplied.
@@ -322,7 +420,13 @@ fi
 
 # Create a Virtual Network to deploy the k8s cluster into
 echo "--> Creating a Virtual Network and subnet"
-az network vnet create -g ${RESOURCE_GROUP_NAME} -n ${BINDERHUB_NAME}-vnet --address-prefixes 10.0.0.0/8 --subnet-name ${BINDERHUB_NAME}-subnet --subnet-prefix 10.240.0.0/16
+az network vnet create \
+	-g ${RESOURCE_GROUP_NAME} \
+	-n ${BINDERHUB_NAME}-vnet \
+	--address-prefixes 10.0.0.0/8 \
+	--subnet-name ${BINDERHUB_NAME}-subnet \
+	--subnet-prefix 10.240.0.0/16 \
+	-o table | tee create-vnet.log
 echo "--> Retrieving the Virtual Network application ID"
 VNET_ID=$(az network vnet show -g ${RESOURCE_GROUP_NAME} -n ${BINDERHUB_NAME}-vnet --query id -o tsv)
 echo "--> Retrieving the subnet application ID"
@@ -340,7 +444,7 @@ if [ -z "${SP_APP_ID}" ] && [ -z "${SP_APP_KEY}" ]; then
 fi
 
 # Assign Contributor role to Service Principal
-az role assignment create --assignee ${SP_APP_ID} --scope ${VNET_ID} --role Contributor
+az role assignment create --assignee ${SP_APP_ID} --scope ${VNET_ID} --role Contributor -o table | tee contributor-role-assignment.log
 
 # If Azure container registry is required, create an ACR and give Service Principal AcrPush role.
 if [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
@@ -363,11 +467,31 @@ if [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
 
 	# Assigning AcrPush role to Service Principal using AcrPush's specific object-ID
 	echo "--> Assigning AcrPush role to Service Principal"
-	az role assignment create --assignee ${SP_APP_ID} --role 8311e382-0749-4cb8-b61a-304f252e45ec --scope $ACR_ID -o table | tee role-assignment.log
+	az role assignment create --assignee ${SP_APP_ID} --role 8311e382-0749-4cb8-b61a-304f252e45ec --scope $ACR_ID -o table | tee acrpush-role-assignment.log
 
 	# Reassign IMAGE_PREFIX to conform with BinderHub's expectation:
 	# <container-registry>/<project-id>/<prefix>-name:tag
 	IMAGE_PREFIX=${BINDERHUB_NAME}/${IMAGE_PREFIX}
+fi
+
+# If HTTPS is required, set up a DNS zone and empty A records
+if [[ -n $ENABLE_HTTPS ]]; then
+	# Create a DNS zone
+	az network dns zone create -g $RESOURCE_GROUP_NAME -n $DOMAIN_NAME -o table | tee create-dns-zone.log
+
+	# Echo name name servers
+	NAME_SERVERS=$(az network dns zone show -g $RESOURCE_GROUP_NAME -n $DOMAIN_NAME --query nameServers -o tsv)
+	printf "Please update your parent domain with the following name servers:\n%s" "${NAME_SERVERS}" | tee name-servers.log
+
+	# Create empty A records for the binder and hub pods
+	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME --ttl 300 -n binder -o table | tee create-binder-a-record.log
+	az network dns record-set a create -g $RESOURCE_GROUP_NAME -z $DOMAIN_NAME --ttl 300 -n hub -o table | tee create-hub-a-record.log
+
+	# Set some extra variables
+	BINDER_HOST="binder.${DOMAIN_NAME}"
+	HUB_HOST="hub.${DOMAIN_NAME}"
+	BINDER_SECRET="${HELM_BINDERHUB_NAME}-binder-secret"
+	HUB_SECRET="${HELM_BINDERHUB_NAME}-hub-secret"
 fi
 
 # Create an AKS cluster
@@ -463,45 +587,148 @@ secretToken=$(openssl rand -hex 32)
 helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 helm repo update
 
-# Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
-if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ]; then
+# If HTTPS is enabled, get nginx-ingress and cert-manager helm charts and
+# install them into the hub namespace
+if [[ -n $ENABLE_HTTPS ]]; then
+	echo "--> Add nginx-ingress and cert-manager helm repos"
+	helm repo add stable https://kubernetes-charts.storage.googleapis.com
+	helm repo add jetstack https://charts.jetstack.io
+	helm repo update
+	kubectl apply --validate=false -f ${CERTMANAGER_CRDS}
 
-	echo "--> Generating initial configuration file"
-	if [ -z "${DOCKERHUB_ORGANISATION}" ]; then
-		sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
-			-e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-			${DIR}/templates/config-template.yaml >${DIR}/config.yaml
-	else
-		sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
-			-e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-			${DIR}/templates/config-template.yaml >${DIR}/config.yaml
+	echo "--> Install nginx-ingress helm chart"
+	helm install stable/nginx-ingress \
+		--name nginx-ingress \
+		--namespace ${HELM_BINDERHUB_NAME} \
+		--version ${NGINX_VERSION} \
+		--timeout=3600 \
+		--wait | tee nginx-chart-install.log
+
+	echo "--> Install cert-manager helm chart"
+	helm install jetstack/cert-manager \
+		--name cert-manager \
+		--namespace ${HELM_BINDERHUB_NAME} \
+		--version ${CERTMANAGER_VERSION} \
+		--timeout=3600 \
+		--wait | tee cert-manager-chart-install.log
+
+	LOAD_BALANCER_IP=$(kubectl get svc nginx-ingress-controller -n ${HELM_BINDERHUB_NAME} | awk '{ print $4}' | tail -n 1)
+
+	echo "--> cert-manager pods status:"
+	kubectl get pods --namespace $HELM_BINDERHUB_NAME | tee cert-manager-get-pods.log
+
+	# Create a ClusterIssuer to test deployment
+	echo "--> Testing cert-manager webhooks"
+	kubectl apply -f ${DIR}/templates/test-resources.yaml
+	sleep 30
+	kubectl describe certificate -n cert-manager-test | tee cert-manager-test.log
+
+	# Clean up resources
+	kubectl delete -f ${DIR}/templates/test-resources.yaml
+
+	# Parse info to cluster issuer
+	echo "--> Writing ClusterIssuer config"
+	sed -e "s/<namespace>/${HELM_BINDERHUB_NAME}/g" \
+		-e "s/<contact_email>/${CONTACT_EMAIL}/g" \
+		${DIR}/templates/cluster-issuer-template.yaml >${DIR}/cluster-issuer.yaml
+
+	# Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
+	if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ]; then
+
+		echo "--> Generating initial configuration file"
+		if [ -z "${DOCKERHUB_ORGANISATION}" ]; then
+			sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+				-e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+				-e "s/<jupyterhub-ip>/${HUB_HOST}/" \
+				-e "s/<cluster-issuer>/letsencrypt-staging/g" \
+				-e "s/<binder-host>/${BINDER_HOST}/g" \
+				-e "s/<binder-secret-name>/${BINDER_SECRET}/" \
+				-e "s/<hub-host>/${HUB_HOST}/g" \
+				-e "s/<hub-secret-name>/${HUB_SECRET}/" \
+				-e "s/<load-balancer-ip>/${LOAD_BALANCER_IP}/" \
+				${DIR}/templates/https-config-template.yaml >${DIR}/config.yaml
+		else
+			sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
+				-e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+				-e "s/<jupyterhub-ip>/${HUB_HOST}/" \
+				-e "s/<cluster-issuer>/letsencrypt-staging/g" \
+				-e "s/<binder-host>/${BINDER_HOST}/g" \
+				-e "s/<binder-secret-name>/${BINDER_SECRET}/" \
+				-e "s/<hub-host>/${HUB_HOST}/g" \
+				-e "s/<hub-secret-name>/${HUB_SECRET}/" \
+				-e "s/<load-balancer-ip>/${LOAD_BALANCER_IP}/" \
+				${DIR}/templates/https-config-template.yaml >${DIR}/config.yaml
+		fi
+
+		echo "--> Generating initial secrets file"
+		sed -e "s/<apiToken>/${apiToken}/" \
+			-e "s/<secretToken>/${secretToken}/" \
+			-e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+			-e "s/<password>/${DOCKERHUB_PASSWORD}/" \
+			${DIR}/templates/secret-template.yaml >${DIR}/secret.yaml
+
+	elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
+
+		echo "--> Generating initial configuration file"
+		sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
+			-e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
+			-e "s/<jupyterhub-ip>/${HUB_HOST}/" \
+			-e "s/<cluster-issuer>/letsencrypt-staging/g" \
+			-e "s/<binder-host>/${BINDER_HOST}/g" \
+			-e "s/<binder-secret-name>/${BINDER_SECRET}/" \
+			-e "s/<hub-host>/${HUB_HOST}/g" \
+			-e "s/<hub-secret-name>/${HUB_SECRET}/" \
+			-e "s/<load-balancer-ip>/${LOAD_BALANCER_IP}/" \
+			${DIR}/templates/https-acr-config-template.yaml >${DIR}/config.yaml
+
+		echo "--> Generating initial secrets file"
+		sed -e "s/<apiToken>/${apiToken}/" \
+			-e "s/<secretToken>/${secretToken}/" \
+			-e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@" \
+			-e "s/<username>/${SP_APP_ID}/" \
+			-e "s/<password>/${SP_APP_KEY}/" \
+			${DIR}/templates/acr-secret-template.yaml >${DIR}/secret.yaml
 	fi
 
-	echo "--> Generating initial secrets file"
-	sed -e "s/<apiToken>/${apiToken}/" \
-		-e "s/<secretToken>/${secretToken}/" \
-		-e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
-		-e "s/<password>/${DOCKERHUB_PASSWORD}/" \
-		${DIR}/templates/secret-template.yaml >${DIR}/secret.yaml
+else
 
-elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
+	# Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
+	if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ]; then
 
-	echo "--> Generating initial configuration file"
-	sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
-		-e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
-		${DIR}/templates/acr-config-template.yaml >${DIR}/config.yaml
+		echo "--> Generating initial configuration file"
+		if [ -z "${DOCKERHUB_ORGANISATION}" ]; then
+			sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+				-e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+				${DIR}/templates/config-template.yaml >${DIR}/config.yaml
+		else
+			sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
+				-e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+				${DIR}/templates/config-template.yaml >${DIR}/config.yaml
+		fi
 
-	echo "--> Generating initial secrets file"
-	sed -e "s/<apiToken>/${apiToken}/" \
-		-e "s/<secretToken>/${secretToken}/" \
-		-e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@" \
-		-e "s/<username>/${SP_APP_ID}/" \
-		-e "s/<password>/${SP_APP_KEY}/" \
-		${DIR}/templates/acr-secret-template.yaml >${DIR}/secret.yaml
+		echo "--> Generating initial secrets file"
+		sed -e "s/<apiToken>/${apiToken}/" \
+			-e "s/<secretToken>/${secretToken}/" \
+			-e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+			-e "s/<password>/${DOCKERHUB_PASSWORD}/" \
+			${DIR}/templates/secret-template.yaml >${DIR}/secret.yaml
+
+	elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
+
+		echo "--> Generating initial configuration file"
+		sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
+			-e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
+			${DIR}/templates/acr-config-template.yaml >${DIR}/config.yaml
+
+		echo "--> Generating initial secrets file"
+		sed -e "s/<apiToken>/${apiToken}/" \
+			-e "s/<secretToken>/${secretToken}/" \
+			-e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@" \
+			-e "s/<username>/${SP_APP_ID}/" \
+			-e "s/<password>/${SP_APP_KEY}/" \
+			${DIR}/templates/acr-secret-template.yaml >${DIR}/secret.yaml
+	fi
 fi
-
-# Format BinderHub name for Kubernetes
-HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//')
 
 echo "--> Installing Helm chart"
 helm install jupyterhub/binderhub \
@@ -511,62 +738,101 @@ helm install jupyterhub/binderhub \
 	-f ${DIR}/secret.yaml \
 	-f ${DIR}/config.yaml \
 	--timeout=3600 \
-	--wait | tee helm-chart-install.log
+	--wait | tee binderhub-chart-install.log
 
-# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
-echo "--> Retrieving JupyterHub IP"
-# shellcheck disable=SC2030 disable=SC2036
-JUPYTERHUB_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1) | tee jupyterhub-ip.log
-# shellcheck disable=SC2031
-while [ "${JUPYTERHUB_IP}" = '<pending>' ] || [ "${JUPYTERHUB_IP}" = "" ]; do
-	echo "Sleeping 30s before checking again"
-	sleep 30
-	JUPYTERHUB_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1)
-	echo "JupyterHub IP: ${JUPYTERHUB_IP}" | tee jupyterhub-ip.log
-done
+if [[ -n $ENABLE_HTTPS ]]; then
+	# Be error tolerant for this stage
+	set +e
 
-if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ]; then
+	CLUSTER_RESOURCE_GROUP="MC_${RESOURCE_GROUP_NAME}_${AKS_NAME}_${RESOURCE_GROUP_LOCATION}"
+	echo "--> Retrieving resources in ${CLUSTER_RESOURCE_GROUP}"
 
-	echo "--> Finalising configurations"
-	if [ -z "$DOCKERHUB_ORGANISATION" ]; then
-		sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
-			-e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
-			-e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
-			${DIR}/templates/config-template.yaml >${DIR}/config.yaml
-	else
-		sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
-			-e "s/<prefix>/${DOCKERHUB_IMAGE_PREFIX}/" \
-			-e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
-			${DIR}/templates/config-template.yaml >${DIR}/config.yaml
+	IP_ADDRESS_NAME="$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)"
+	echo "IP Address: ${IP_ADDRESS_NAME}" | tee ip-address-name.log
+
+	ipAddressAttempts=0
+	while [ -z "${IP_ADDRESS_NAME}" ]; do
+		((ipAddressAttempts++))
+		echo "--> IP Address Name pull attempt ${ipAddressAttempts} of 10 failed"
+		if ((ipAddressAttempts > 9)); then
+			echo "--> Failed to pull the IP Address name. You will have to set the A records manually. You can do this by running set_a_records.sh."
+			break
+		fi
+		echo "--> Waiting 30s before trying again"
+		sleep 30
+		IP_ADDRESS_NAME="$(az resource list -g "${CLUSTER_RESOURCE_GROUP}" --query "[?type == 'Microsoft.Network/publicIPAddresses'].name" -o tsv | grep ^kubernetes-)"
+		echo "IP Address: ${IP_ADDRESS_NAME}" | tee ip-address-name.log
+	done
+
+	if [ -n "${IP_ADDRESS_NAME}" ]; then
+		IP_ADDRESS_ID="$(az resource show -g "${CLUSTER_RESOURCE_GROUP}" -n "${IP_ADDRESS_NAME}" --resource-type 'Microsoft.Network/publicIPAddresses' --query id -o tsv)"
+		echo "IP Address ID: ${IP_ADDRESS_ID}" | tee ip-address-id.log
+
+		az network dns record-set a update -n hub -g "${RESOURCE_GROUP_NAME}" -z "${DOMAIN_NAME}" --target-resource "${IP_ADDRESS_ID}" -o table | tee update-hub-a-record.log
+		az network dns record-set a update -n binder -g "${RESOURCE_GROUP_NAME}" -z "${DOMAIN_NAME}" --target-resource "${IP_ADDRESS_ID}" -o table | tee update-binder-a-record.log
 	fi
 
-elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
+	# Revert to error-intolerance
+	set -eo pipefail
 
-	echo "--> Finalising configurations"
-	sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
-		-e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
-		-e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
-		${DIR}/templates/acr-config-template.yaml >${DIR}/config.yaml
+else
+	# Wait for  JupyterHub, grab its IP address, and update BinderHub to link together:
+	echo "--> Retrieving JupyterHub IP"
+	# shellcheck disable=SC2030 disable=SC2036
+	JUPYTERHUB_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1) | tee jupyterhub-ip.log
+	# shellcheck disable=SC2031
+	while [ "${JUPYTERHUB_IP}" == '<pending>' ] || [ -z "${JUPYTERHUB_IP}" ]; do
+		echo "Sleeping 30s before checking again"
+		sleep 30
+		JUPYTERHUB_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc proxy-public | awk '{ print $4}' | tail -n 1)
+		echo "JupyterHub IP: ${JUPYTERHUB_IP}" | tee jupyterhub-ip.log
+	done
 
-fi
+	if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ]; then
 
-echo "--> Updating Helm chart"
-helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
-	--version=$BINDERHUB_VERSION \
-	-f ${DIR}/secret.yaml \
-	-f ${DIR}/config.yaml \
-	--wait | tee helm-upgrade.log
+		echo "--> Finalising configurations"
+		if [ -z "$DOCKERHUB_ORGANISATION" ]; then
+			sed -e "s/<docker-id>/${DOCKERHUB_USERNAME}/" \
+				-e "s/<prefix>/${DOCKER_IMAGE_PREFIX}/" \
+				-e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
+				${DIR}/templates/config-template.yaml >${DIR}/config.yaml
+		else
+			sed -e "s/<docker-id>/${DOCKERHUB_ORGANISATION}/" \
+				-e "s/<prefix>/${DOCKERHUB_IMAGE_PREFIX}/" \
+				-e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
+				${DIR}/templates/config-template.yaml >${DIR}/config.yaml
+		fi
 
-# Print Binder IP address
-echo "--> Retrieving Binder IP"
-BINDER_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1)
-echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
-while [ "${BINDER_IP}" = '<pending>' ] || [ "${BINDER_IP}" = "" ]; do
-	echo "Sleeping 30s before checking again"
-	sleep 30
+	elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
+
+		echo "--> Finalising configurations"
+		sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
+			-e "s@<prefix>@${DOCKER_IMAGE_PREFIX}@" \
+			-e "s/<jupyterhub-ip>/${JUPYTERHUB_IP}/" \
+			${DIR}/templates/acr-config-template.yaml >${DIR}/config.yaml
+
+	fi
+
+	echo "--> Updating Helm chart"
+	helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
+		--version=$BINDERHUB_VERSION \
+		-f ${DIR}/secret.yaml \
+		-f ${DIR}/config.yaml \
+		--wait | tee helm-upgrade.log
+
+	# Print Binder IP address
+	echo "--> Retrieving Binder IP"
 	BINDER_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1)
 	echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
-done
+	while [ "${BINDER_IP}" = '<pending>' ] || [ "${BINDER_IP}" = "" ]; do
+		echo "Sleeping 30s before checking again"
+		sleep 30
+		BINDER_IP=$(kubectl --namespace=$HELM_BINDERHUB_NAME get svc binder | awk '{ print $4}' | tail -n 1)
+		echo "Binder IP: ${BINDER_IP}" | tee binder-ip.log
+	done
+fi
+
+echo "BinderHub deployment completed!"
 
 if [[ -n $BINDERHUB_CONTAINER_MODE ]] || [[ "$LOG_TO_BLOB_STORAGE" == 'true' ]]; then
 	# Finally, save outputs to blob storage

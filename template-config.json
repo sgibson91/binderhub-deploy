@@ -1,5 +1,10 @@
 {
   "container_registry": "",
+  "enable_https": false,
+  "acr": {
+    "registry_name": null,
+    "sku": "Basic"
+  },
   "azure": {
     "subscription": "",
     "res_grp_name": "",
@@ -8,7 +13,8 @@
     "vm_size": "",
     "sp_app_id": null,
     "sp_app_key": null,
-    "sp_tenant_id": null
+    "sp_tenant_id": null,
+    "log_to_blob_storage": false
   },
   "binderhub": {
     "name": "",
@@ -20,8 +26,10 @@
     "password": null,
     "org": null
   },
-  "acr": {
-    "registry_name": null,
-    "sku": "Basic"
+  "https": {
+    "certmanager_version": null,
+    "contact_email": null,
+    "domain_name": null,
+    "nginx_version": null
   }
 }
