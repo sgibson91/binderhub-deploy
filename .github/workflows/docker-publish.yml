@@ -28,11 +28,10 @@ jobs:
 
     steps:
       - uses: octokit/request-action@v2.x
-        id: get_all_tags
+        id: get_latest_release
         with:
-          route: GET /repos/:owner/:repo/git/matching-refs/tags
+          route: GET /repos/:repository/releases/latest
           repository: ${{ github.repository }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - run: "echo tags: ${{ steps.get_all_tags.outputs.data }}"
+      - run: "echo latest release: ${{ steps.get_latest_release.outputs.data }}"
