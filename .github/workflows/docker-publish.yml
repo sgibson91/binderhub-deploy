@@ -1,24 +1,38 @@
 name: Build and Publish Docker image
 
-on:
-  push:
-    branches:
-      - main
-    tags:
-      - "v*"
+on: [push]
+  # push:
+  #   branches:
+  #     - main
+  #   tags:
+  #     - "v*"
 
 jobs:
-  build-n-publish:
+  # build-n-publish:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v2
+
+  #     - name: Build and push Docker image
+  #       uses: docker/build-push-action@v1
+  #       with:
+  #         username: sgibson91
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
+  #         repository: sgibson91/binderhub-setup
+  #         tag_with_ref: true
+
+  cron-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v1
+      - uses: octokit/request-action@v2.x
+        id: get_all_tags
         with:
-          username: sgibson91
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: sgibson91/binderhub-setup
-          tag_with_ref: true
+          route: GET /repos/:owner/:repo/git/matching-refs/tags
+          repository: ${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: "echo tags: ${{ steps.get_all_tags.outputs.data }}"
