@@ -1,6 +1,8 @@
 name: Pull Docker images
 
-on: [push]
+on:
+  schedule:
+    - cron: "0 0 1 * *"
 
 jobs:
   cron-pull:
