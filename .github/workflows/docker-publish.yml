@@ -1,37 +1,27 @@
-name: Build and Publish Docker image
+name: Pull Docker images
 
 on: [push]
-  # push:
-  #   branches:
-  #     - main
-  #   tags:
-  #     - "v*"
 
 jobs:
-  # build-n-publish:
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: Checkout repo
-  #       uses: actions/checkout@v2
-
-  #     - name: Build and push Docker image
-  #       uses: docker/build-push-action@v1
-  #       with:
-  #         username: sgibson91
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
-  #         repository: sgibson91/binderhub-setup
-  #         tag_with_ref: true
-
-  cron-push:
+  cron-pull:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: octokit/request-action@v2.x
-        id: get_latest_release
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
         with:
-          route: GET /repos/:repository/releases/latest
-          repository: ${{ github.repository }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: "echo latest release: ${{ steps.get_latest_release.outputs.data }}"
+          python-version: 3.8
+
+      - name: Install dependencies
+        working-directory: scripts
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements.txt
+
+      - name: Pull images
+        working-directory: scripts
+        run: |
+          python docker_pull.py
