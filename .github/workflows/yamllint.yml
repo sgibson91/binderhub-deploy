@@ -1,26 +1,20 @@
 name: yamllint
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   yamllint:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v1
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Run yamllint
+        uses: karancode/yamllint-github-action@v2.0.0
         with:
-          python-version: 3.7
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install yamllint
-      - name: Lint with yamllint
-        run: |
-          yamllint templates
+          yamllint_file_or_dir: templates
+          yamllint_strict: false
+          yamllint_comment: true
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}

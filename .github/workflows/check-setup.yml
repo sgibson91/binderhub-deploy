@@ -1,12 +1,6 @@
 name: Check Setup
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 defaults:
   run:
@@ -15,13 +9,16 @@ defaults:
 jobs:
   check-setup:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-      fail-fast: false
+
     runs-on: ${{ matrix.os }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
+        
       - name: Run setup.sh
         run: |
           chmod +x *.sh
