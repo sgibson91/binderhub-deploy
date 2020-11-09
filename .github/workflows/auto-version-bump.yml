@@ -1,6 +1,8 @@
 name: Auto-bump Version
 
-on: [issue_comment]
+on:
+  issue_comment:
+    types: ["created"]
 
 jobs:
   bump-version:
@@ -14,6 +16,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Echo comment body
+      - name: Pull version from comment body
         run: |
-          echo ${{ github.event.comment.body }}
+          NEW_VERSION=$(echo ${{ github.event.comment.body }} | grep '/bump-version' file.txt | cut -d" " -f2)
+          echo $NEW_VERSION
