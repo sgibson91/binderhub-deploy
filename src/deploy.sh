@@ -540,76 +540,52 @@ kubectl --namespace kube-system create serviceaccount tiller | tee tiller-servic
 echo "--> Giving the ServiceAccount full permissions to manage the cluster"
 kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller | tee cluster-role-bindings.log
 
-# Initialise helm and tiller
-echo "--> Initialising helm and tiller"
-helm init --service-account tiller --wait | tee helm-init.log
+# Check helm installation
+helm=$(command -v helm3 || command -v helm)
+HELM_VERSION=$($helm version -c --short | cut -f1 -d".")
 
-# Secure tiller against attacks from within the cluster
-echo "--> Securing tiller against attacks from within the cluster"
-kubectl patch deployment tiller-deploy --namespace=kube-system --type=json --patch='[{"op": "add", "path": "/spec/template/spec/containers/0/command", "value": ["/tiller", "--listen=localhost:44134"]}]' | tee tiller-securing.log
-
-# Waiting until tiller pod is ready
-tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')"
-while [[ ! x${tillerStatus} == xRunning ]]; do
-	echo -n "$(date)"
-	echo " : tiller pod status : ${tillerStatus} "
-	sleep 30
-	tillerStatus="$(kubectl get pods --namespace kube-system | grep ^tiller | awk '{print $3}')"
-done
-echo
-echo "--> AKS system pods status:"
-kubectl get pods --namespace kube-system | tee kubectl-get-pods.log
-echo
-
-# Check helm has been configured correctly
-echo "--> Verify Client and Server are running the same version number:"
-# Be error tolerant for this step
-set +e
-helmVersionAttempts=0
-while ! helm version; do
-	((helmVersionAttempts++))
-	echo "--> helm version attempt ${helmVersionAttempts} of 3 failed"
-	if ((helmVersionAttempts > 2)); then
-		echo "--> Please check helm versions manually later. Run 'helm init --upgrade' if they do not match."
-		break
-	fi
-	echo "--> Waiting 30 seconds before attempting helm version check again"
-	sleep 30
-done
-# Revert to error-intolerance
-set -eo pipefail
+if [ "${HELM_VERSION}" == "v3" ]; then
+	echo "--> You are running helm v3!"
+elif [ "${HELM_VERSION}" == "v2" ]; then
+	echo "--> You have helm v2 installed, but we really recommend using helm v3."
+	echo "    Please install helm v3 and rerun this script."
+	exit 1
+else
+	echo "--> Helm not found. Please run setup.sh then rerun this script."
+	exit 1
+fi
 
 # Create tokens for the secrets file:
 apiToken=$(openssl rand -hex 32)
 secretToken=$(openssl rand -hex 32)
 
 # Get the latest helm chart for BinderHub:
-helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
-helm repo update
+$helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
+$helm repo update
 
 # If HTTPS is enabled, get nginx-ingress and cert-manager helm charts and
 # install them into the hub namespace
 if [[ -n $ENABLE_HTTPS ]]; then
 	echo "--> Add nginx-ingress and cert-manager helm repos"
-	helm repo add stable https://kubernetes-charts.storage.googleapis.com
-	helm repo add jetstack https://charts.jetstack.io
-	helm repo update
+	$helm repo add stable https://kubernetes-charts.storage.googleapis.com
+	$helm repo add jetstack https://charts.jetstack.io
+	$helm repo update
 	kubectl apply --validate=false -f ${CERTMANAGER_CRDS}
 
 	echo "--> Install nginx-ingress helm chart"
-	helm install stable/nginx-ingress \
-		--name nginx-ingress \
+	$helm install nginx-ingress stable/nginx-ingress \
 		--namespace ${HELM_BINDERHUB_NAME} \
 		--version ${NGINX_VERSION} \
-		--timeout=3600 \
+		--create-namespace \
+		--timeout 10m0s \
 		--wait | tee nginx-chart-install.log
 
 	echo "--> Install cert-manager helm chart"
-	helm install jetstack/cert-manager \
-		--name cert-manager \
+	$helm install cert-manager jetstack/cert-manager \
 		--namespace ${HELM_BINDERHUB_NAME} \
 		--version ${CERTMANAGER_VERSION} \
-		--timeout=3600 \
+		--create-namespace \
+		--timeout 10m0s \
 		--wait | tee cert-manager-chart-install.log
 
 	LOAD_BALANCER_IP=$(kubectl get svc nginx-ingress-controller -n ${HELM_BINDERHUB_NAME} | awk '{ print $4}' | tail -n 1)
@@ -731,13 +707,13 @@ else
 fi
 
 echo "--> Installing Helm chart"
-helm install jupyterhub/binderhub \
+$helm install $HELM_BINDERHUB_NAME jupyterhub/binderhub \
 	--version=$BINDERHUB_VERSION \
-	--name=$HELM_BINDERHUB_NAME \
 	--namespace=$HELM_BINDERHUB_NAME \
 	-f ${DIR}/secret.yaml \
 	-f ${DIR}/config.yaml \
-	--timeout=3600 \
+	--create-namespace \
+	--timeout 10m0s \
 	--wait | tee binderhub-chart-install.log
 
 if [[ -n $ENABLE_HTTPS ]]; then
@@ -814,10 +790,13 @@ else
 	fi
 
 	echo "--> Updating Helm chart"
-	helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
+	$helm upgrade $HELM_BINDERHUB_NAME jupyterhub/binderhub \
+		--namespace $HELM_BINDERHUB_NAME \
 		--version=$BINDERHUB_VERSION \
 		-f ${DIR}/secret.yaml \
 		-f ${DIR}/config.yaml \
+		--cleanup-on-fail \
+		--timeout 10m0s \
 		--wait | tee helm-upgrade.log
 
 	# Print Binder IP address

@@ -271,9 +271,9 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 		exit 1
 	}
 	echo "--> Helm doesn't have a system package; attempting to install with curl"
-	curl -s https://get.helm.sh/helm-v2.16.9-linux-amd64.tar.gz --output helm.tar.gz
-	tar -xf ./helm.tar.gz
-	${sudo_command} cp ./linux-amd64/helm /usr/local/bin/helm
+	curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+	chmod 700 get_helm.sh
+	./get_helm.sh
 
 ## Installing on OS X
 elif [[ ${OSTYPE} == 'darwin'* ]]; then
@@ -285,7 +285,7 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 			python \
 			azure-cli \
 			kubernetes-cli \
-			helm@2 \
+			helm \
 			jq \
 			"
 
@@ -299,9 +299,6 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 				}
 			else
 				echo "--> $package is already installed"
-			fi
-			if [ "$package" == "helm@2" ]; then
-				${sudo_command} cp /usr/local/Cellar/helm@2/2.16.9/bin/helm /usr/local/bin/helm
 			fi
 		done
 	else
@@ -342,9 +339,9 @@ elif [[ ${OSTYPE} == 'darwin'* ]]; then
 			echo "--> kubectl already installed"
 		fi
 		echo "--> Attempting to install helm with curl"
-		curl -s https://get.helm.sh/helm-v2.16.9-macos-amd64.tar.gz --output helm.tar.gz
-		tar -xf ./helm.tar.gz
-		${sudo_command} cp ./macos-amd64/helm /usr/local/bin/helm
+		curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+		chmod 700 get_helm.sh
+		./get_helm.sh
 	fi
 else
 	echo "--> This is a Windows build"
@@ -361,19 +358,14 @@ else
 			"
 		choco upgrade chocolatey -y
 		for package in $CHOCPACKAGES; do
-			if [ "$package" == "kubernetes-helm" ]; then
+			if ! choco search --local-only "$package" >/dev/null; then
 				echo "--> Choco installing $package"
-				choco install "$package" --version 2.16.3 --allow-downgrade -y
+				choco install "$package" || {
+					echo >&2 "--> $package install failed; please install manually and re-run this script."
+					exit 1
+				}
 			else
-				if ! choco search --local-only "$package" >/dev/null; then
-					echo "--> Choco installing $package"
-					choco install "$package" || {
-						echo >&2 "--> $package install failed; please install manually and re-run this script."
-						exit 1
-					}
-				else
-					echo "--> $package is already installed"
-				fi
+				echo "--> $package is already installed"
 			fi
 		done
 	else
@@ -414,8 +406,8 @@ else
 			echo "--> kubectl already installed"
 		fi
 		echo "--> Attempting to install helm with curl"
-		curl -s https://get.helm.sh/helm-v2.16.9-windows-amd64.tar.gz --output helm.tar.gz
-		tar -xf ./helm.tar.gz
-		${sudo_command} cp ./windows-amd64/helm /usr/local/bin/helm
+		curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+		chmod 700 get_helm.sh
+		./get_helm.sh
 	fi
 fi
