@@ -19,4 +19,5 @@ config["parameters"]["setupDockerImage"]["allowedValues"] = [f"sgibson91/binderh
 
 if not args.dry_run:
     # Write updated ARM template
-    json.dump(config, azure_arm_template_path, indent=2)
+    with open(azure_arm_template_path, "w") as f:
+        json.dump(config, f, indent=2)
