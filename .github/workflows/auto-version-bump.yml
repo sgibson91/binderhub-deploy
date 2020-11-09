@@ -3,7 +3,7 @@ name: Auto-bump Version
 on: [issue_comment]
 
 jobs:
-  trigger-chatops:
+  bump-version:
     if: (
           (github.event.issue.pull_request != null) &&
           contains(github.event.comment.body, '/bump-version')
@@ -13,3 +13,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
+
+      - name: Echo comment body
+        run: |
+          echo ${{ github.event.comment.body }}
