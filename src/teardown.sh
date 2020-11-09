@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# Get this script's path
+DIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" >/dev/null 2>&1 && pwd)"
+
 # Read in config.json
-configFile='config.json'
+configFile="${DIR}"/config.json
 BINDERHUB_NAME=$(jq -r '.binderhub .name' "${configFile}")
 RESOURCE_GROUP=$(jq -r '.azure .res_grp_name' "${configFile}")
 ENABLE_HTTPS=$(jq -r '.enable_https' "${configFile}")

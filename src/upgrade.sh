@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get this script's path
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+DIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" >/dev/null 2>&1 && pwd)"
 
 # Read in config.json and get variables
 echo "--> Reading in config.json"

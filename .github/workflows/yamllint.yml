@@ -1,6 +1,10 @@
 name: yamllint
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - "**/*.yaml"
+      - "**/*.yml"
 
 jobs:
   yamllint:
@@ -15,6 +19,6 @@ jobs:
         with:
           yamllint_file_or_dir: templates
           yamllint_strict: false
-          yamllint_comment: true
+          yamllint_comment: false
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}

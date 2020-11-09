@@ -1,0 +1,7 @@
+**.git/
+*.json
+*.log
+
+config.json
+config.yaml
+secret.yaml

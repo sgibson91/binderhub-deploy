@@ -1,6 +1,9 @@
 name: Lint Dockerfile
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - "Dockerfile"
 
 jobs:
   dockerlint:
@@ -9,7 +12,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-        
+
       - name: Lint Dockerfile
         uses: luke142367/Docker-Lint-Action@v1.0.0
         env:

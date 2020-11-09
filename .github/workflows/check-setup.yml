@@ -1,6 +1,12 @@
 name: Check Setup
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 defaults:
   run:
@@ -18,8 +24,9 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-        
+
       - name: Run setup.sh
+        working-directory: src
         run: |
           chmod +x *.sh
           ./setup.sh
