@@ -1,6 +1,8 @@
 name: Auto-bump Version
 
-on: [issue_comment]
+on:
+  issue_comment:
+    types: ["created"]
 
 jobs:
   bump-version:
