@@ -1,0 +1,19 @@
+name: Auto-bump Version
+
+on: [issue_comment]
+
+jobs:
+  bump-version:
+    if: (
+          (github.event.issue.pull_request != null) &&
+          contains(github.event.comment.body, '/bump-version')
+        )
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Echo comment body
+        run: |
+          echo ${{ github.event.comment.body }}
