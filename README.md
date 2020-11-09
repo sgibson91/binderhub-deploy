@@ -60,6 +60,7 @@ cd binderhub-deploy
 To make the scripts executable and then run them, do the following:
 
 ```bash
+cd src
 chmod 700 <script-name>.sh
 ./<script-name>.sh
 ```
@@ -254,7 +255,7 @@ To deploy [BinderHub](https://binderhub.readthedocs.io/) to Azure in a single cl
 You will be asked to provide a [Service Principal](https://docs.microsoft.com/en-gb/azure/active-directory/develop/app-objects-and-service-principals) in the form launched when you click the "Deploy to Azure" button above.
 
 [**NOTE:** The following instructions can also be run in a local terminal session.
-They will require the Azure command line to be installed, so make sure to run [`setup.sh`](./setup.sh) first.]
+They will require the Azure command line to be installed, so make sure to run [`setup.sh`](src/setup.sh) first.]
 
 To create a Service Principal, go to the [Azure Portal](https://portal.azure.com/) (and login!) and open the Cloud Shell:
 
@@ -356,7 +357,7 @@ Make a note of the name of this blob, which will be `BLOB_NAME` in the following
 The Azure CLI can be used to fetch files from the blob (either in the cloud shell in the [Azure Portal](https://portal.azure.com), or in a local terminal session if you've run [`setup.sh`](.setup.sh) first).
 Files are fetched into a local directory, **which must already exist**, referred to as `OUTPUT_DIRECTORY` in the following commands.
 
-You can run [`setup.sh`](./setup.sh) to install the Azure CLI or use the cloud shell on the [Azure Portal](https://portal.azure.com).
+You can run [`setup.sh`](src/setup.sh) to install the Azure CLI or use the cloud shell on the [Azure Portal](https://portal.azure.com).
 
 To fetch all files:
 
@@ -452,7 +453,7 @@ See the [Retrieving Deployment Output from Azure](#package-retrieving-deployment
 ## :art: Customising your BinderHub Deployment
 
 Customising your BinderHub deployment is as simple as editing `config.yaml` and/or `secret.yaml` and then upgrading the BinderHub Helm Chart.
-The Helm Chart can be upgraded by running [`upgrade.sh`](./upgrade.sh) (make sure you have the CLIs installed by running [`setup.sh`](./setup.sh) first).
+The Helm Chart can be upgraded by running [`upgrade.sh`](src/upgrade.sh) (make sure you have the CLIs installed by running [`setup.sh`](src/setup.sh) first).
 
 The Jupyter guide to customising the underlying JupyterHub can be found [here](https://zero-to-jupyterhub.readthedocs.io/en/latest/extending-jupyterhub.html).
 
