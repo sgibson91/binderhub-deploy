@@ -30,3 +30,9 @@ jobs:
         run: |
           chmod +x *.sh
           ./setup.sh
+
+      - name: Check helm major version
+        run: |
+          HELM_VERSION=$(helm version --short -c | cut -f1 -d".")
+          echo "${HELM_VERSION}"
+          [ "${HELM_VERSION}" == "v3" ]
