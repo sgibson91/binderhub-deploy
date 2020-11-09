@@ -11,7 +11,7 @@ AKS_RESOURCE_GROUP=$(jq -r '.azure .res_grp_name' "${configFile}")
 RESOURCE_GROUP_LOCATION=$(jq -r '.azure .location' "${configFile}")
 BINDERHUB_NAME=$(jq -r '.binderhub .name' "${configFile}")
 DOMAIN_NAME=$(jq -r '.https .domain_name' "${configFile}")
-AKS_NAME="${BINDERHUB_NAME}-AKS"
+AKS_NAME=$(echo "${BINDERHUB_NAME}" | tr -cd '[:alnum:]-' | cut -c 1-59)-AKS
 
 CLUSTER_RESOURCE_GROUP="MC_${AKS_RESOURCE_GROUP}_${AKS_NAME}_${RESOURCE_GROUP_LOCATION}"
 echo "Resource Group: ${CLUSTER_RESOURCE_GROUP}"

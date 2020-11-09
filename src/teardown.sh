@@ -8,10 +8,12 @@ configFile="${DIR}"/config.json
 BINDERHUB_NAME=$(jq -r '.binderhub .name' "${configFile}")
 RESOURCE_GROUP=$(jq -r '.azure .res_grp_name' "${configFile}")
 ENABLE_HTTPS=$(jq -r '.enable_https' "${configFile}")
+
 AKS_NAME=$(echo "${BINDERHUB_NAME}" | tr -cd '[:alnum:]-' | cut -c 1-59)-AKS
 AKS_USERNAME="users.clusterUser_${RESOURCE_GROUP}_${AKS_NAME}"
+HELM_BINDERHUB_NAME=$(echo "${BINDERHUB_NAME}" | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//')
 
-# If CRDs were installed, deleted
+# If CRDs were installed, delete them
 if [[ -n $ENABLE_HTTPS ]]; then
 	echo "--> Deleting Custom Resource Definitions"
 	kubectl delete crds --all
@@ -19,11 +21,11 @@ if [[ -n $ENABLE_HTTPS ]]; then
 fi
 
 # Purge the Helm release and delete the Kubernetes namespace
-echo "--> Purging the helm chart: ${BINDERHUB_NAME}"
-helm delete "${BINDERHUB_NAME}" --purge
+echo "--> Purging the helm chart: ${HELM_BINDERHUB_NAME}"
+helm delete "${HELM_BINDERHUB_NAME}" --timeout 10m0s
 
-echo "--> Deleting the namespace: ${BINDERHUB_NAME}"
-kubectl delete namespace "${BINDERHUB_NAME}"
+echo "--> Deleting the namespace: ${HELM_BINDERHUB_NAME}"
+kubectl delete namespace "${HELM_BINDERHUB_NAME}"
 
 echo "--> Purging the kubectl config file"
 kubectl config unset current-context
