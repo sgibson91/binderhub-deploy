@@ -19,3 +19,20 @@ jobs:
           [[ "${NEW_VERSION}" =~ ^v[0-9].[0-9].[0-9]$ ]]
           echo "new_version=${NEW_VERSION}" >> $GITHUB_ENV
 
+      - name: Get the source branch name of the Pull Request
+        id: set-branch-name
+        uses: actions/github-script@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-encoding: string
+          script: |
+            var pr = github.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.issue.number
+            })
+
+            return pr.data.head.ref
+
+      - name: Echo the branch name
+        run: echo "${{ steps.set-branch-name.outputs.result }}"
