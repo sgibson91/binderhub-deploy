@@ -14,36 +14,35 @@ jobs:
 
     steps:
       - run: |
-          echo "BASE REF: ${{ github.event.pull_request.base.ref }}"
-          echo "HEAD REF: ${{ github.event.pull_request.head.ref }}"
+          echo ${{ github.event }}
 
-      - name: Pull version from comment body
-        run: |
-          NEW_VERSION=$(echo ${{ github.event.comment.body }} | grep '/bump-version' | cut -d" " -f2)
-          [[ "${NEW_VERSION}" =~ ^v[0-9].[0-9].[0-9]$ ]]
-          echo "new_version=${NEW_VERSION}" >> $GITHUB_ENV
+      # - name: Pull version from comment body
+      #   run: |
+      #     NEW_VERSION=$(echo ${{ github.event.comment.body }} | grep '/bump-version' | cut -d" " -f2)
+      #     [[ "${NEW_VERSION}" =~ ^v[0-9].[0-9].[0-9]$ ]]
+      #     echo "new_version=${NEW_VERSION}" >> $GITHUB_ENV
 
-      - name: Checkout repo
-        uses: actions/checkout@v2.3.4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
+      # - name: Checkout repo
+      #   uses: actions/checkout@v2.3.4
+      #   with:
+      #     ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Setup Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
+      # - name: Setup Python 3.8
+      #   uses: actions/setup-python@v2
+      #   with:
+      #     python-version: 3.8
 
-      - name: Update Azure ARM template
-        working-directory: scripts
-        run: |
-          python auto-version-bump.py $new_version
+      # - name: Update Azure ARM template
+      #   working-directory: scripts
+      #   run: |
+      #     python auto-version-bump.py $new_version
 
-      - name: Add and commit updated file
-        uses: EndBug/add-and-commit@v5
-        with:
-          add: 'azure.deploy.json'
-          author_name: CI User
-          author_email: ci-user@github.local
-          message: "Update versions in Azure ARM template"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Add and commit updated file
+      #   uses: EndBug/add-and-commit@v5
+      #   with:
+      #     add: 'azure.deploy.json'
+      #     author_name: CI User
+      #     author_email: ci-user@github.local
+      #     message: "Update versions in Azure ARM template"
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
