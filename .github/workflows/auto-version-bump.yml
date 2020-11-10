@@ -40,7 +40,6 @@ jobs:
           add: 'azure.deploy.json'
           author_name: CI User
           author_email: ci-user@github.local
-          branch: ${{ github.event.pull_request.head.ref }}
           message: "Update versions in Azure ARM template"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
