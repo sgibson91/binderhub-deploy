@@ -13,6 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - run: |
+          echo "BASE REF: ${{ github.event.pull_request.base.ref }}"
+          echo "HEAD REF: ${{ github.event.pull_request.head.ref }}"
+
       - name: Pull version from comment body
         run: |
           NEW_VERSION=$(echo ${{ github.event.comment.body }} | grep '/bump-version' | cut -d" " -f2)
@@ -40,7 +44,6 @@ jobs:
           add: 'azure.deploy.json'
           author_name: CI User
           author_email: ci-user@github.local
-          branch: ${{ github.event.pull_request.head.ref }}
           message: "Update versions in Azure ARM template"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
