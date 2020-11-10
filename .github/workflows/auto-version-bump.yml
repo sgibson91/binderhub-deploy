@@ -13,6 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - run: |
+          echo "BASE REF: ${{ github.event.pull_request.base.ref }}"
+          echo "HEAD REF: ${{ github.event.pull_request.head.ref }}"
+
       - name: Pull version from comment body
         run: |
           NEW_VERSION=$(echo ${{ github.event.comment.body }} | grep '/bump-version' | cut -d" " -f2)
