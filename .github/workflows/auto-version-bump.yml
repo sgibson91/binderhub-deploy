@@ -18,6 +18,7 @@ jobs:
         id: branch-name
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-encoding: string
           script: |
             const { data: pullRequest } = await github.pulls.get({
               owner: context.repo.owner,
@@ -28,7 +29,7 @@ jobs:
             return pullRequest.head.ref
 
       - name: Echo branch name
-        run: echo "${{ steps.branch-name.outputs.result }}"
+        run: echo ${{ steps.branch-name.outputs.result }}
 
       # - name: Pull version from comment body
       #   run: |
