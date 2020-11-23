@@ -25,7 +25,7 @@ jobs:
               pull_number: context.payload.issue.number,
             });
 
-            return pullRequest.head
+            return pullRequest.head.ref
 
       - name: Echo branch name
         run: echo "${{ steps.branch-name.outputs.result }}"
