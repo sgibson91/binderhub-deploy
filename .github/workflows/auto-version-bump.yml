@@ -13,8 +13,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: |
-          echo ${{ github.event }}
+      - name: Get branch name
+        uses: actions/github-script@v3.1.0
+        id: branch-name
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-encoding: string
+          script: |
+            // Get the branch name
+            const { data: pr } = await github.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.issue.number
+            });
+
+            return pr.data.head.ref
+
+      - name: Echo branch name
+        run: echo "${{ steps.branch-name.outputs.result }}"
 
       # - name: Pull version from comment body
       #   run: |
