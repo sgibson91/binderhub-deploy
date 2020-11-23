@@ -488,6 +488,7 @@ Docker Hub will automatically build the image from the repo with every push to `
 
 To release a specific version, update the [Azure ARM template](https://github.com/alan-turing-institute/binderhub-deploy/blob/main/azure.deploy.json) with the new/desired version on line [123](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure.deploy.json#L123) and block [L127-L137](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure.deploy.json#L127-L137).
 We follow [SemVer](https://semver.org/) versioning format.
+Alternatively, you can leave a comment on a Pull Request of the form `/bump-version vX.Y.Z` and this will update the Azure ARM template and commit the changes to the open PR branch automatically.
 
 Once the Pull Request containing the new code/version/release has been merged, run the following commands, where `vX.Y.Z` is the new/desired version release.
 
