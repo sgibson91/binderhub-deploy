@@ -377,11 +377,20 @@ AKS_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-' | cut -c 1-59)-AKS
 # Format BinderHub name for Kubernetes
 HELM_BINDERHUB_NAME=$(echo ${BINDERHUB_NAME} | tr -cd '[:alnum:]-.' | tr '[:upper:]' '[:lower:]' | sed -E -e 's/^([.-]+)//' -e 's/([.-]+)$//')
 
-# Azure login will be different depending on whether this script is running
-# with or without service principal details supplied.
-#
-# If all the SP environments are set, use those. Otherwise, fall back to an
-# interactive login.
+# Deploy infrastructure using terraform
+cd "${DIR}/terraform"
+terraform init
+terraform apply \
+  -var="az_sub=${AZURE_SUBSCRIPTION}" \
+  -var="az_sp_id=${SP_APP_ID}" \
+  -var="az_sp_password=${SP_APP_KEY}" \
+  -var="az_tenant_id=${SP_TENANT_ID}" \
+  -var="resource_group=${RESOURCE_GROUP_NAME}" \
+  -var="location=${RESOURCE_GROUP_LOCATION}" \
+  -var="aks_name=${AKS_NAME}" \
+  -var="binderhub_name=${HELM_BINDERHUB_NAME}" \
+  -auto-approve
+cd "${DIR}"
 
 if [ -z $SP_APP_ID ] || [ -z $SP_APP_KEY ] || [ -z $SP_TENANT_ID ]; then
 	echo "--> Attempting to log in to Azure as a user"
