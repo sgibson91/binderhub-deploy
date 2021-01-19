@@ -212,6 +212,9 @@ else
 		ENABLE_HTTPS \
 		RESOURCE_GROUP_LOCATION \
 		RESOURCE_GROUP_NAME \
+		SP_APP_ID \
+		SP_APP_KEY \
+		SP_TENANT_ID \
 		"
 
 	for required_var in $REQUIREDVARS; do
@@ -226,9 +229,6 @@ else
 	# possibly due to an invalid json file, they will be returned as a
 	# zero-length string -- this is attempting to make the 'not set'
 	# value the same in either case
-	if [ x${SP_APP_ID} == 'xnull' ]; then SP_APP_ID=''; fi
-	if [ x${SP_APP_KEY} == 'xnull' ]; then SP_APP_KEY=''; fi
-	if [ x${SP_TENANT_ID} == 'xnull' ]; then SP_TENANT_ID=''; fi
 	if [ x${LOG_TO_BLOB_STORAGE} == 'xnull' ]; then LOG_TO_BLOB_STORAGE=''; fi
 
 	# Test value of CONTAINER_REGISTRY. Must be either "dockerhub" or "azurecr"
@@ -271,8 +271,6 @@ else
 		REQUIREDVARS=" \
 			REGISTRY_NAME \
 			REGISTRY_SKU \
-			SP_APP_ID \
-			SP_APP_KEY \
 			"
 
 		for required_var in $REQUIREDVARS; do
