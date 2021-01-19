@@ -13,6 +13,11 @@ variable "az_sp_password" {
   description = "Application password of Azure Service Principal"
 }
 
+variable "az_tenant_id" {
+  type        = string
+  description = "ID of the Azure tenant"
+}
+
 variable "resource_group" {
   type        = string
   description = "Name to give Resource Group"
