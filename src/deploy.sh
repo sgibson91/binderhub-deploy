@@ -562,7 +562,6 @@ if [[ -n $ENABLE_HTTPS ]]; then
 	$helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 	$helm repo add jetstack https://charts.jetstack.io
 	$helm repo update
-	kubectl apply --validate=false -f ${CERTMANAGER_CRDS}
 
 	echo "--> Install ingress-nginx helm chart"
 	$helm install ingress-nginx ingress-nginx/ingress-nginx \
@@ -572,7 +571,8 @@ if [[ -n $ENABLE_HTTPS ]]; then
 		--timeout 10m0s \
 		--wait | tee nginx-chart-install.log
 
-	echo "--> Install cert-manager helm chart"
+	echo "--> Install cert-manager Custom Resource Definitions and helm chart"
+	kubectl apply --validate=false -f ${CERTMANAGER_CRDS}
 	$helm install cert-manager jetstack/cert-manager \
 		--namespace ${HELM_BINDERHUB_NAME} \
 		--version ${CERTMANAGER_VERSION} \
