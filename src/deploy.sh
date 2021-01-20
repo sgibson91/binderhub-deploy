@@ -532,14 +532,6 @@ echo "--> Cluster node status:"
 kubectl get node | tee kubectl-status.log
 echo
 
-# Setup ServiceAccount for tiller
-echo "--> Setting up tiller service account"
-kubectl --namespace kube-system create serviceaccount tiller | tee tiller-service-account.log
-
-# Give the ServiceAccount full permissions to manage the cluster
-echo "--> Giving the ServiceAccount full permissions to manage the cluster"
-kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller | tee cluster-role-bindings.log
-
 # Check helm installation
 helm=$(command -v helm3 || command -v helm)
 HELM_VERSION=$($helm version -c --short | cut -f1 -d".")
