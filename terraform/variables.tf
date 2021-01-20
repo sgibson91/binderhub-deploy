@@ -49,17 +49,18 @@ variable "binderhub_name" {
 }
 
 variable "enable_acr" {
-  type = bool
+  type        = bool
   description = "Deploy an Azure Container Registry"
+  default     = false
 }
 
 variable "registry_name" {
-  type = string
+  type        = string
   description = "Name to assign to the Azure Container Registry"
 }
 
 variable "registry_sku" {
-  type = string
+  type        = string
   description = "SKU tier to deploy the Azure Container Registry with. Options are: Basic, Standard or Premium."
 
   validation {
