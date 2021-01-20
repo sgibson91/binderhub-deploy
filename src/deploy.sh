@@ -555,17 +555,17 @@ secretToken=$(openssl rand -hex 32)
 $helm repo add jupyterhub https://jupyterhub.github.io/helm-chart
 $helm repo update
 
-# If HTTPS is enabled, get nginx-ingress and cert-manager helm charts and
+# If HTTPS is enabled, get ingress-nginx and cert-manager helm charts and
 # install them into the hub namespace
 if [[ -n $ENABLE_HTTPS ]]; then
-	echo "--> Add nginx-ingress and cert-manager helm repos"
-	$helm repo add stable https://kubernetes-charts.storage.googleapis.com
+	echo "--> Add ingress-nginx and cert-manager helm repos"
+	$helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 	$helm repo add jetstack https://charts.jetstack.io
 	$helm repo update
 	kubectl apply --validate=false -f ${CERTMANAGER_CRDS}
 
-	echo "--> Install nginx-ingress helm chart"
-	$helm install nginx-ingress stable/nginx-ingress \
+	echo "--> Install ingress-nginx helm chart"
+	$helm install ingress-nginx ingress-nginx/ingress-nginx \
 		--namespace ${HELM_BINDERHUB_NAME} \
 		--version ${NGINX_VERSION} \
 		--create-namespace \
@@ -580,7 +580,7 @@ if [[ -n $ENABLE_HTTPS ]]; then
 		--timeout 10m0s \
 		--wait | tee cert-manager-chart-install.log
 
-	LOAD_BALANCER_IP=$(kubectl get svc nginx-ingress-controller -n ${HELM_BINDERHUB_NAME} | awk '{ print $4}' | tail -n 1)
+	LOAD_BALANCER_IP=$(kubectl get svc ingress-nginx-controller -n ${HELM_BINDERHUB_NAME} | awk '{ print $4}' | tail -n 1)
 
 	echo "--> cert-manager pods status:"
 	kubectl get pods --namespace $HELM_BINDERHUB_NAME | tee cert-manager-get-pods.log
