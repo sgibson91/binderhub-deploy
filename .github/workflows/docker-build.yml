@@ -26,15 +26,16 @@ jobs:
         run: |
 
           if [ ${{ github.event_name }} = 'pull_request' ]; then
-            echo "tag=test-$(openssl rand -hex 2)" >> $GITHUB_ENV
+            echo "tag=test-${{ github.head_ref }}-$(openssl rand -hex 2)" >> $GITHUB_ENV
           else
 
             GIT_REF=$(echo ${{ github.ref }} | awk -F'/' '{print $3}')
 
             if [ $GIT_REF = 'main' ]; then
               echo "tag=latest" >> $GITHUB_ENV
-            elif [[ $GIT_REF =~ v[0-9].[0-9].[0-9] ]]; then
-              echo "tag=$GIT_REF" >> $GITHUB_ENV
+            elif [[ $GIT_REF =~ (?<=v)[0-9]*\.[0-9]*\.[0-9]* ]]; then
+              NEW_REF=$(echo $GIT_REF | sed 's/v//')
+              echo "tag=$NEW_REF" >> $GITHUB_ENV
             fi
 
           fi
