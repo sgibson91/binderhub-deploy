@@ -568,7 +568,7 @@ $helm repo update
 if [[ -n $ENABLE_HTTPS ]]; then
 	echo "--> Add nginx-ingress and cert-manager helm repos"
 	if [ "${HELM_VERSION}" == "v2" ]; then
-	    $helm repo add stable https://charts.helm.sh/stable
+		$helm repo add stable https://charts.helm.sh/stable
 	fi
 	$helm repo add jetstack https://charts.jetstack.io
 	$helm repo update
