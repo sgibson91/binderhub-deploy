@@ -567,7 +567,9 @@ $helm repo update
 # install them into the hub namespace
 if [[ -n $ENABLE_HTTPS ]]; then
 	echo "--> Add nginx-ingress and cert-manager helm repos"
-	$helm repo add stable https://kubernetes-charts.storage.googleapis.com
+	if [ "${HELM_VERSION}" == "v2" ]; then
+	    $helm repo add stable https://charts.helm.sh/stable
+	fi
 	$helm repo add jetstack https://charts.jetstack.io
 	$helm repo update
 	kubectl apply --validate=false -f ${CERTMANAGER_CRDS}
