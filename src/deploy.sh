@@ -84,7 +84,7 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
 			" | tee read-config.log
 
 		# Check if DOCKERHUB_ORGANISATION is set to null. Return empty string if true.
-		if [ x${DOCKERHUB_ORGANISATION} == 'xnull' ]; then DOCKERHUB_ORGANISATION=''; fi
+		if [ ${DOCKERHUB_ORGANISATION} == 'null' ]; then DOCKERHUB_ORGANISATION=''; fi
 
 	elif [ "$CONTAINER_REGISTRY" == 'azurecr' ]; then
 
@@ -134,7 +134,7 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
 			"
 
 		for required_var in $REQUIREDVARS; do
-			if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ]; then
+			if [ -z "${!required_var}" ] || [ ${!required_var} == 'null' ]; then
 				echo "--> ${required_var} must be set for container-based setup" >&2
 				exit 1
 			fi
@@ -146,10 +146,10 @@ if [[ -n $BINDERHUB_CONTAINER_MODE ]]; then
 		CERTMANAGER_CRDS="https://raw.githubusercontent.com/jetstack/cert-manager/release-${SHORT_VERSION}/deploy/manifests/00-crds.yaml"
 
 	else
-		if [ x${CONTACT_EMAIL} == 'xnull' ]; then CONTACT_EMAIL=''; fi
-		if [ x${DOMAIN_NAME} == 'xnull' ]; then DOMAIN_NAME=''; fi
-		if [ x${CERTMANAGER_VERSION} == 'xnull' ]; then CERTMANAGER_VERSION=''; fi
-		if [ x${NGINX_VERSION} == 'xnull' ]; then NGINX_VERSION=''; fi
+		if [ ${CONTACT_EMAIL} == 'null' ]; then CONTACT_EMAIL=''; fi
+		if [ ${DOMAIN_NAME} == 'null' ]; then DOMAIN_NAME=''; fi
+		if [ ${CERTMANAGER_VERSION} == 'null' ]; then CERTMANAGER_VERSION=''; fi
+		if [ ${NGINX_VERSION} == 'null' ]; then NGINX_VERSION=''; fi
 	fi
 
 	# Azure blue-button prepends '/subscription/' to AZURE_SUBSCRIPTION
@@ -215,7 +215,7 @@ else
 		"
 
 	for required_var in $REQUIREDVARS; do
-		if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ]; then
+		if [ -z "${!required_var}" ] || [ ${!required_var} == 'null' ]; then
 			echo "--> ${required_var} must be set for deployment" >&2
 			exit 1
 		fi
@@ -226,13 +226,13 @@ else
 	# possibly due to an invalid json file, they will be returned as a
 	# zero-length string -- this is attempting to make the 'not set'
 	# value the same in either case
-	if [ x${SP_APP_ID} == 'xnull' ]; then SP_APP_ID=''; fi
-	if [ x${SP_APP_KEY} == 'xnull' ]; then SP_APP_KEY=''; fi
-	if [ x${SP_TENANT_ID} == 'xnull' ]; then SP_TENANT_ID=''; fi
-	if [ x${LOG_TO_BLOB_STORAGE} == 'xnull' ]; then LOG_TO_BLOB_STORAGE=''; fi
+	if [ ${SP_APP_ID} == 'xnull' ]; then SP_APP_ID=''; fi
+	if [ ${SP_APP_KEY} == 'xnull' ]; then SP_APP_KEY=''; fi
+	if [ ${SP_TENANT_ID} == 'xnull' ]; then SP_TENANT_ID=''; fi
+	if [ ${LOG_TO_BLOB_STORAGE} == 'xnull' ]; then LOG_TO_BLOB_STORAGE=''; fi
 
 	# Test value of CONTAINER_REGISTRY. Must be either "dockerhub" or "azurecr"
-	if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ]; then
+	if [ ${CONTAINER_REGISTRY} == 'xdockerhub' ]; then
 		echo "--> Getting DockerHub requirements"
 
 		# Read Docker credentials from config file
@@ -241,9 +241,9 @@ else
 		DOCKERHUB_USERNAME=$(jq -r '.docker .username' ${configFile})
 
 		# Check that Docker Hub credentials have been set
-		if [ x${DOCKERHUB_ORGANISATION} == 'xnull' ]; then DOCKERHUB_ORGANISATION=''; fi
-		if [ x${DOCKERHUB_PASSWORD} == 'xnull' ]; then DOCKERHUB_PASSWORD=''; fi
-		if [ x${DOCKERHUB_USERNAME} == 'xnull' ]; then DOCKERHUB_USERNAME=''; fi
+		if [ ${DOCKERHUB_ORGANISATION} == 'xnull' ]; then DOCKERHUB_ORGANISATION=''; fi
+		if [ ${DOCKERHUB_PASSWORD} == 'xnull' ]; then DOCKERHUB_PASSWORD=''; fi
+		if [ ${DOCKERHUB_USERNAME} == 'xnull' ]; then DOCKERHUB_USERNAME=''; fi
 
 		# Check/get the user's Docker Hub credentials
 		if [ -z $DOCKERHUB_USERNAME ]; then
@@ -260,7 +260,7 @@ else
 			fi
 		fi
 
-	elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
+	elif [ ${CONTAINER_REGISTRY} == 'xazurecr' ]; then
 		echo "--> Getting configuration for Azure Container Registry"
 
 		# Read in ACR configuration
@@ -276,7 +276,7 @@ else
 			"
 
 		for required_var in $REQUIREDVARS; do
-			if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ]; then
+			if [ -z "${!required_var}" ] || [ ${!required_var} == 'xnull' ]; then
 				echo "--> ${required_var} must be set for deployment" >&2
 				exit 1
 			fi
@@ -325,7 +325,7 @@ else
 			"
 
 		for required_var in $REQUIREDVARS; do
-			if [ -z "${!required_var}" ] || [ x${!required_var} == 'xnull' ]; then
+			if [ -z "${!required_var}" ] || [ ${!required_var} == 'xnull' ]; then
 				echo "--> ${required_var} must be set for deployment" >&2
 				exit 1
 			fi
@@ -337,10 +337,10 @@ else
 		CERTMANAGER_CRDS="https://raw.githubusercontent.com/jetstack/cert-manager/release-${SHORT_VERSION}/deploy/manifests/00-crds.yaml"
 
 	else
-		if [ x${CONTACT_EMAIL} == 'xnull' ]; then CONTACT_EMAIL=''; fi
-		if [ x${DOMAIN_NAME} == 'xnull' ]; then DOMAIN_NAME=''; fi
-		if [ x${CERTMANAGER_VERSION} == 'xnull' ]; then CERTMANAGER_VERSION=''; fi
-		if [ x${NGINX_VERSION} == 'xnull' ]; then NGINX_VERSION=''; fi
+		if [ ${CONTACT_EMAIL} == 'xnull' ]; then CONTACT_EMAIL=''; fi
+		if [ ${DOMAIN_NAME} == 'xnull' ]; then DOMAIN_NAME=''; fi
+		if [ ${CERTMANAGER_VERSION} == 'xnull' ]; then CERTMANAGER_VERSION=''; fi
+		if [ ${NGINX_VERSION} == 'xnull' ]; then NGINX_VERSION=''; fi
 	fi
 
 	echo "--> Configuration read in:
@@ -447,7 +447,7 @@ fi
 az role assignment create --assignee ${SP_APP_ID} --scope ${VNET_ID} --role Contributor -o table | tee contributor-role-assignment.log
 
 # If Azure container registry is required, create an ACR and give Service Principal AcrPush role.
-if [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
+if [ ${CONTAINER_REGISTRY} == 'xazurecr' ]; then
 	echo "--> Checking ACR name availability"
 	REGISTRY_NAME_AVAIL=$(az acr check-name -n ${REGISTRY_NAME} --query nameAvailable -o tsv)
 	while [ ${REGISTRY_NAME_AVAIL} == false ]; do
@@ -611,7 +611,7 @@ if [[ -n $ENABLE_HTTPS ]]; then
 		${DIR}/templates/cluster-issuer-template.yaml >${DIR}/cluster-issuer.yaml
 
 	# Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
-	if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ]; then
+	if [ ${CONTAINER_REGISTRY} == 'dockerhub' ]; then
 
 		echo "--> Generating initial configuration file"
 		if [ -z "${DOCKERHUB_ORGANISATION}" ]; then
@@ -645,7 +645,7 @@ if [[ -n $ENABLE_HTTPS ]]; then
 			-e "s/<password>/${DOCKERHUB_PASSWORD}/" \
 			${DIR}/templates/secret-template.yaml >${DIR}/secret.yaml
 
-	elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
+	elif [ ${CONTAINER_REGISTRY} == 'azurecr' ]; then
 
 		echo "--> Generating initial configuration file"
 		sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
@@ -671,7 +671,7 @@ if [[ -n $ENABLE_HTTPS ]]; then
 else
 
 	# Install the Helm Chart using the configuration files, to deploy both a BinderHub and a JupyterHub.
-	if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ]; then
+	if [ ${CONTAINER_REGISTRY} == 'dockerhub' ]; then
 
 		echo "--> Generating initial configuration file"
 		if [ -z "${DOCKERHUB_ORGANISATION}" ]; then
@@ -691,7 +691,7 @@ else
 			-e "s/<password>/${DOCKERHUB_PASSWORD}/" \
 			${DIR}/templates/secret-template.yaml >${DIR}/secret.yaml
 
-	elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
+	elif [ ${CONTAINER_REGISTRY} == 'azurecr' ]; then
 
 		echo "--> Generating initial configuration file"
 		sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
@@ -766,7 +766,7 @@ else
 		echo "JupyterHub IP: ${JUPYTERHUB_IP}" | tee jupyterhub-ip.log
 	done
 
-	if [ x${CONTAINER_REGISTRY} == 'xdockerhub' ]; then
+	if [ ${CONTAINER_REGISTRY} == 'dockerhub' ]; then
 
 		echo "--> Finalising configurations"
 		if [ -z "$DOCKERHUB_ORGANISATION" ]; then
@@ -781,7 +781,7 @@ else
 				${DIR}/templates/config-template.yaml >${DIR}/config.yaml
 		fi
 
-	elif [ x${CONTAINER_REGISTRY} == 'xazurecr' ]; then
+	elif [ ${CONTAINER_REGISTRY} == 'azurecr' ]; then
 
 		echo "--> Finalising configurations"
 		sed -e "s@<acr-login-server>@${ACR_LOGIN_SERVER}@g" \
