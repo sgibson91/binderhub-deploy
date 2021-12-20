@@ -8,8 +8,6 @@
 
 This repository contains a set of scripts to automatically deploy a BinderHub onto [Microsoft Azure](https://azure.microsoft.com/en-gb/), and connect either a [Docker Hub](https://hub.docker.com/) account/organisation or an [Azure Container Registry](https://azure.microsoft.com/en-gb/services/container-registry/), so that you can host your own [Binder](https://mybinder.readthedocs.io/en/latest/) service.
 
-This repository is based on the following set of deployment scripts for Google Cloud: [nicain/binder-deploy](https://github.com/nicain/binder-deploy)
-
 You will require a Microsoft Azure account and subscription.
 A Free Trial subscription can be obtained [here](https://azure.microsoft.com/en-gb/free/).
 You will be asked to provide a credit card for verification purposes.
@@ -486,9 +484,8 @@ docker push <REGISTRY-HOST>/<DOCKER-USERNAME>/binderhub-setup:<TAG>
 
 Docker Hub will automatically build the image from the repo with every push to `main` and tag this as `latest`.
 
-To release a specific version, update the [Azure ARM template](https://github.com/alan-turing-institute/binderhub-deploy/blob/main/azure.deploy.json) with the new/desired version on line [123](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure.deploy.json#L123) and block [L127-L137](https://github.com/alan-turing-institute/binderhub-deploy/blob/7206a4dc35b59a260746315ef4fa0a5e995b79fa/azure.deploy.json#L127-L137).
+To release a specific version, update the [Azure ARM template](https://github.com/alan-turing-institute/binderhub-deploy/blob/main/azure.deploy.json) with the new/desired version on line [166](https://github.com/alan-turing-institute/binderhub-deploy/blob/main/azure.deploy.json#L166) and the block starting at line [170](https://github.com/alan-turing-institute/binderhub-deploy/blob/main/azure.deploy.json#L170).
 We follow [SemVer](https://semver.org/) versioning format.
-Alternatively, you can leave a comment on a Pull Request of the form `/bump-version vX.Y.Z` and this will update the Azure ARM template and commit the changes to the open PR branch automatically.
 
 Once the Pull Request containing the new code/version/release has been merged, run the following commands, where `vX.Y.Z` is the new/desired version release.
 
