@@ -14,9 +14,6 @@ defaults:
   run:
     shell: bash
 
-env:
-  DOCKERHUB_USERNAME: "sgibson91"
-
 jobs:
   docker-build:
     runs-on: ubuntu-latest
@@ -27,12 +24,19 @@ jobs:
         uses: docker/metadata-action@v3.6.2
         with:
           images: sgibson91/binderhub-setup
+          tags: |
+            type=ref,event=branch,enable=${{ !endsWith(github.ref, github.event.repository.default_branch) }}
+            type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
+            type=ref,event=pr
+            type=semver,pattern={{raw}}
+          flavor: |
+            latest=false
 
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v1
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
+          username: sgibson91
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push
@@ -40,3 +44,4 @@ jobs:
         with:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
