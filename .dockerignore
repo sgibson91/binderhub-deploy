@@ -1,7 +1,21 @@
-**.git/
+# Folders to be ignored
+.git/
+.github/
+assets/
+docs/
+scripts/
+
+# Files to be ignored
+# Generated files
 *.json
 *.log
 
+# Specific files
 config.json
 config.yaml
 secret.yaml
+
+# Repo files
+.all-contributorsrc
+azure.deploy.json
+template-config.json
