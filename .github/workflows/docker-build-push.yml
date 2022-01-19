@@ -14,6 +14,21 @@ jobs:
   docker-build:
     runs-on: ubuntu-latest
     steps:
+      - name: "Set Docker tag: push to main"
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "DOCKER_TAG=latest" >> $GITHUB_ENV
+
+      - name: "Set Docker tag: push to tag"
+        if: github.event_name == 'push' && contains(github.ref, 'tags')
+        run: |
+          echo "DOCKER_TAG=${{ github.ref_name }}" >> $GITHUB_ENV
+
+      - name: "Set Docker tag: pull request"
+        if: github.event.pull_request
+        run: |
+          echo "DOCKER_TAG=${{ github.number }}" >> $GITHUB_ENV
+
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v1
@@ -26,5 +41,4 @@ jobs:
         with:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            sgibson91/${{ github.event.repository.name }}:latest
-            sgibson91/${{ github.event.repository.name }}:${{ github.ref_name }}
+            sgibson91/${{ github.event.repository.name }}:${{ env.DOCKER_TAG }}
