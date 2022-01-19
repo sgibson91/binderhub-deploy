@@ -27,7 +27,9 @@ jobs:
       - name: "Set Docker tag: pull request"
         if: github.event.pull_request
         run: |
-          echo "DOCKER_TAG=${{ github.number }}" >> $GITHUB_ENV
+          echo "DOCKER_TAG=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
+      - run: echo ${{ env.DOCKER_TAG }}
 
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
